@@ -1,0 +1,24 @@
+[submodule "externals/glfw"]
+	path = externals/glfw
+	url = git@github.com:glfw/glfw.git
+[submodule "externals/rapidjson"]
+	path = externals/rapidjson
+	url = git@github.com:Tencent/rapidjson.git
+[submodule "externals/zlib"]
+	path = externals/zlib
+	url = git@github.com:madler/zlib.git
+[submodule "externals/libpng"]
+	path = externals/libpng
+	url = git@github.com:glennrp/libpng.git
+[submodule "externals/imgui"]
+	path = externals/imgui
+	url = git@github.com:ocornut/imgui.git
+[submodule "externals/implot"]
+	path = externals/implot
+	url = git@github.com:epezent/implot.git
+[submodule "externals/openexr"]
+	path = externals/openexr
+	url = git@github.com:AcademySoftwareFoundation/openexr.git
+[submodule "externals/Imath"]
+	path = externals/Imath
+	url = git@github.com:AcademySoftwareFoundation/Imath.git
