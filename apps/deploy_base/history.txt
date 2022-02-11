@@ -1,0 +1,84 @@
+# Version history for Gugen Tools
+
+2022/02/11
+0.4.0
+- Added app icons
+- Installer now refers to xComp instead of GugenTools
+
+2022/02/08
+0.3.2
+- Added support for nameless default layers in EXR
+
+2022/02/05
+0.3.1
+- Fixed crash when scan folder is empty
+
+2022/02/05
+0.3.0
+- Improved images and layers UI and compositing
+- Fixed crash when compositing PNGs and EXRs
+
+2022/02/04
+0.2.4
+- Better behavior of list of layers
+
+2022/02/03
+0.2.3
+- Improved UI for layers
+- Added support for EXR with no layers
+
+2022/02/03
+0.2.2
+- Tone mapping is now active by default
+
+2022/02/03
+0.2.0
+- Loading and displaying OpenEXR images
+- Added tone mapping and sRGB output for EXR
+- "combined", "composite", "beauty" layers now automatically selected
+
+2022/01/24
+0.1.8
+- Added chckboxes for individual images
+
+2022/01/24
+0.1.7
+- Improved config window
+- Zoom now stepping by 2x
+- Added zoom level display
+
+2022/01/23
+0.1.6
+- Optional bilinear display
+- Added pan & zoom
+
+2022/01/21
+0.1.5
+- Fixed arrow keys capture when image list is selected
+
+2022/01/21
+0.1.4
+- Final size of composite is now that of the last image
+
+2022/01/21
+0.1.3
+- Fixed crash when image directory doesn't exist
+- Added configuration button when scan folder is empty
+- Fixed handling of arrow keys
+- Faster compositing
+- Added composite save
+
+2022/01/20
+0.1.2
+- Support for multiple resolutions in compositing
+- Added fractional alpha blending in compositing
+
+2022/01/19
+0.1.1
+- Fixed order
+- No longer attempting to load JEPGs
+
+2022/01/19
+0.1.0
+- Initial functionalities for xComp
+
