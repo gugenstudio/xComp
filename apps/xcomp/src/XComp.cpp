@@ -34,6 +34,8 @@
 #include "BC_Utils.h"
 #include "DUT_Str.h"
 #include "UILogger.h"
+#include "ConfigWin.h"
+#include "XCompUI.h"
 #include "XComp.h"
 
 //#ifdef ENABLE_IMGUI
@@ -371,6 +373,42 @@ void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
         }
 #endif
         return false;
+    };
+
+    //
+    par.mOnDropFn = [this]( int count, const char **ppPathFnames )
+    {
+        if ( count <= 0 )
+            return false;
+
+        if ( moXCompUI->moConfigWin->IsConfigWinActive() )
+        {
+            LogOut( LOG_WRN, "Ignoring the drop because the config window is open" );
+            return false;
+        }
+
+        if ( count > 1 )
+            LogOut( 0, "%i files dropped. Using only the first one.", count );
+
+        c_auto pathFName = DStr( ppPathFnames[0] );
+
+        namespace fs = std::filesystem;
+
+        c_auto st = fs::status( pathFName );
+
+        if NOT( fs::exists( st ) )
+        {
+            LogOut( LOG_ERR, "%s doesn't seem to exist", pathFName.c_str() );
+            return false;
+        }
+
+        if ( fs::is_directory( st ) )
+        {
+            mMTConf.cfg_scanDir = pathFName;
+            LogOut( 0, "Changed the scan directory to %s", pathFName.c_str() );
+        }
+
+        return true;
     };
 
     //

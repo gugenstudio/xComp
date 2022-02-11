@@ -101,6 +101,7 @@ struct GraphicsAppParams
     DFun<bool ()>                 mOnAnimateFn;
     DFun<void (Graphics &)>       mOnPaintFn;
     DFun<bool (int,int,int,int)>  mOnKeyFn;
+    DFun<bool (int, const char**)> mOnDropFn;
 
     DFun<bool (int,int)>          mOnWindowPosFn;
     DFun<bool (int,int)>          mOnWindowSizFn;

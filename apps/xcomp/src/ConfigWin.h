@@ -40,6 +40,8 @@ public:
 
     void ActivateConfigWin( bool onOff );
 
+    bool IsConfigWinActive() const { return mActivate; }
+
     std::optional<XCConfig> GetChangedConfig()
     {
         if NOT( mHasChangedConfig )

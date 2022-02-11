@@ -1354,6 +1354,14 @@ void GraphicsApp::mainWindowInit()
 #endif
         thiss->mIsWindowIconified = (bool)iconified;
     });
+
+    if ( mPar.mOnDropFn )
+    {
+        glfwSetDropCallback(mpWin, [](GLFWwindow* w, int count, const char** paths)
+        {
+            getGApp(w)->mPar.mOnDropFn( count, paths );
+        });
+    }
 #endif
 
     // Setup Platform/Renderer bindings
