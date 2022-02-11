@@ -42,22 +42,18 @@ R"RAW(
 
 Usage:
  %s <config_file.json> [options]
- %s <obsolete_process_list.csv> [options]
 
 Options:
- --help                         : This help
- --noui                         : No graphical UI
- --noframeskipui                : Disable the automatic slow refresh of the display
- --forceconsole                 : Keep the console window open
- --low_memory_mode              : Force low-memory mode (only for plain clients)
- --profile <name>               : Specify a profile name to use as a reference for storage
- --cd <dir>                     : Change the current directory at the start
- --autosizemode [linear|vector] : Set the position sizing mode
+ --help                 : This help
+ --noui                 : No graphical UI
+ --noframeskipui        : Disable the automatic slow refresh of the display
+ --forceconsole         : Keep the console window open
+ --profile <name>       : Specify a profile name to use as a reference for storage
+ --cd <dir>             : Change the current directory at the start
 
 Examples:
- %s compar_config.json
+ %s xcomp_config.json
 )RAW",
-    pArgv0,
     pArgv0,
     pArgv0 );
 }
@@ -133,11 +129,7 @@ static XCompParams makeBLParams(int argc, const char* argv[])
 		else if (isparam("--noui" ))            { par.mIsNoUIMode = true;   }
 		else if (isparam("--noframeskipui" ))   { par.mIsNoFrameSkipUI = true;}
 		else if (isparam("--forceconsole" ))    { _gsForceConsole = true;   }
-		else if (isparam("--low_memory_mode" )) { par.mIsLowMemMode = true; }
-		else if (isparam("--pro_mode" ))        { par.blp_isProMode = true; }
 	}
-
-    par.mIsNoUIMode = true;
 
     par.mAppExeDir = FU_GetDirFromPathFName( argv[0] );
 #ifdef __linux__
@@ -195,7 +187,7 @@ int main( int argc, const char* argv[] )
 
         oApp = std::make_unique<XComp>( par );
 
-        if NOT( oApp->GetParamsBL().mIsNoUIMode )
+        if NOT( oApp->GetParamsXC().mIsNoUIMode )
             localShowConsole( false );
 
         oApp->EnterMainLoop();

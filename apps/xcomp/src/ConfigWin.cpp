@@ -42,7 +42,7 @@ void ConfigWin::ActivateConfigWin( bool onOff )
         //  of the application (until restart)
         if ( mIsFirstEntrySinceStart )
         {
-            mStoredVars = mXComp.GetMTConfig();
+            mStoredVars = mXComp.GetConfigXC();
             mIsFirstEntrySinceStart = false;
         }
 

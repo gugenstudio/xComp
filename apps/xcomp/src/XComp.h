@@ -30,10 +30,7 @@ struct XCompParams
     DStr    mAppUserProfDisplay;
     bool    mIsNoUIMode = false;
     bool    mIsNoFrameSkipUI = false;
-    bool    mIsChild {};
-    bool    mIsLowMemMode = false;
     DStr    mConfigPathFName;
-    bool    blp_isProMode {};
 };
 
 class ImageSystem;
@@ -46,7 +43,7 @@ class XComp
     GraphicsApp         *mpGfxApp {};
     AppBaseConfig       mAppBaseConfig;
     uptr<XCompUI>       moXCompUI;
-    XCConfig            mMTConf;
+    XCConfig            mConf;
 
     TimedEvent          mCheckFilesTE { TimeUS::ONE_SECOND() * 5 };
 
@@ -59,9 +56,9 @@ public:
     XComp( const XCompParams &par );
     ~XComp();
 
-    c_auto &GetParamsBL() const { return mPar; }
+    c_auto &GetParamsXC() const { return mPar; }
 
-    c_auto &GetMTConfig() const { return mMTConf; }
+    c_auto &GetConfigXC() const { return mConf; }
 
     const DStr &GetCacheDir() const { return mPar.mAppCacheDir; }
     const DStr &GetUserPofDir() const { return mPar.mAppUserProfDir; }

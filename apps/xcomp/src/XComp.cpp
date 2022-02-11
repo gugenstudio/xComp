@@ -100,7 +100,7 @@ XComp::XComp( const XCompParams &par )
 
     try {
         // deserialize
-        DeserializeFromFile( mPar.mConfigPathFName, mMTConf );
+        DeserializeFromFile( mPar.mConfigPathFName, mConf );
     }
     catch ( const std::exception &ex )
     {
@@ -118,9 +118,9 @@ XComp::XComp( const XCompParams &par )
 
     //
     moIMSys = std::make_unique<ImageSystem>();
-    moIMSys->mUseBilinear     = mMTConf.cfg_dispUseBilinear;
-    moIMSys->mConvOutToSRGB   = mMTConf.cfg_dispConvToSRGB;
-    moIMSys->mToneMapping     = mMTConf.cfg_dispToneMapping;
+    moIMSys->mUseBilinear     = mConf.cfg_dispUseBilinear;
+    moIMSys->mConvOutToSRGB   = mConf.cfg_dispConvToSRGB;
+    moIMSys->mToneMapping     = mConf.cfg_dispToneMapping;
 }
 
 //==================================================================
@@ -128,7 +128,7 @@ XComp::~XComp()
 {
     // save the pending config as we go out
     if ( mLazySaveConfigTimeUS )
-        saveConfig( mPar.mConfigPathFName, mMTConf );
+        saveConfig( mPar.mConfigPathFName, mConf );
 }
 
 //==================================================================
@@ -145,7 +145,7 @@ void XComp::checkLazySaveConfig( TimeUS curTimeUS )
     {
         mLazySaveConfigTimeUS = {};
 
-        saveConfig( mPar.mConfigPathFName, mMTConf );
+        saveConfig( mPar.mConfigPathFName, mConf );
     }
 }
 
@@ -157,8 +157,8 @@ void XComp::animateApp( TimeUS curTimeUS )
     // periodically check the proceses and update the groups
     if ( mCheckFilesTE.CheckTimedEvent( curTimeUS ) )
     {
-        if NOT( mMTConf.cfg_scanDir.empty() )
-            moIMSys->UpdateComposite( mMTConf.cfg_scanDir );
+        if NOT( mConf.cfg_scanDir.empty() )
+            moIMSys->UpdateComposite( mConf.cfg_scanDir );
     }
 
     checkLazySaveConfig( curTimeUS );
@@ -172,9 +172,9 @@ void XComp::SaveCompositeXC()
 
     c_auto &img = *moIMSys->moComposite;
 
-    c_auto outDir = mMTConf.cfg_saveDir.empty()
-                            ? mMTConf.cfg_scanDir
-                            : mMTConf.cfg_saveDir;
+    c_auto outDir = mConf.cfg_saveDir.empty()
+                            ? mConf.cfg_scanDir
+                            : mConf.cfg_saveDir;
 
     if NOT( FU_DirectoryExists( outDir ) )
     {
@@ -243,7 +243,6 @@ void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
     GraphicsAppParams par;
 
     par.mIsNoUIMode = mPar.mIsNoUIMode;
-    par.mInitShowWindow = !mPar.mIsChild;
 
     par.mNonInteracIntervalUS = mPar.mIsNoFrameSkipUI ? TimeUS() : TimeUS::ONE_SECOND() / 2;
 
@@ -395,15 +394,15 @@ void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
 
         if ( fs::is_directory( st ) )
         {
-            mMTConf.cfg_scanDir = pathFName;
-            LogOut( 0, "Changed the scan directory to %s", mMTConf.cfg_scanDir.c_str() );
+            mConf.cfg_scanDir = pathFName;
+            LogOut( 0, "Changed the scan directory to %s", mConf.cfg_scanDir.c_str() );
         }
         else
         {
-            mMTConf.cfg_scanDir =
+            mConf.cfg_scanDir =
                 StrFromU8Str( fs::path( pathFName ).parent_path().u8string() );
 
-            LogOut( 0, "Changed the scan directory to %s", mMTConf.cfg_scanDir.c_str() );
+            LogOut( 0, "Changed the scan directory to %s", mConf.cfg_scanDir.c_str() );
         }
 
         return true;

@@ -398,7 +398,7 @@ void XCompUI::drawCompositeDisp()
 
     c_auto &img = *imsys.moComposite;
 
-    if ( mXComp.mMTConf.cfg_dispAutoFit )
+    if ( mXComp.mConf.cfg_dispAutoFit )
     {
         c_auto sW = (float)dispW / img.mW;
         c_auto sH = (float)dispH / img.mH;
@@ -426,11 +426,11 @@ void XCompUI::drawCompositeDisp()
     ImGuiTexInspect::SetZoomRate( 2.0f );
 
     ImGuiTexInspect::SetPanButton(
-        mXComp.mMTConf.cfg_ctrlPanButton == "left"
+        mXComp.mConf.cfg_ctrlPanButton == "left"
             ? ImGuiMouseButton_Left
             : ImGuiMouseButton_Right );
 
-    //if ( mXComp.mMTConf.cfg_dispAutoFit )
+    //if ( mXComp.mConf.cfg_dispAutoFit )
     //{
     //    ImGui::Image( (void *)(ptrdiff_t)img.GetTextureID(), { useDispW, useDispH } );
     //}
@@ -442,7 +442,7 @@ void XCompUI::drawCompositeDisp()
                 { (float)img.mW, (float)img.mH },
                 ImGuiTexInspect::InspectorFlags_NoTooltip |
                 ImGuiTexInspect::InspectorFlags_NoGrid |
-                (mXComp.mMTConf.cfg_dispUseBilinear
+                (mXComp.mConf.cfg_dispUseBilinear
                     ? ImGuiTexInspect::InspectorFlags_NoForceFilterNearest
                     : 0),
                 ImGuiTexInspect::SizeIncludingBorder{
@@ -480,7 +480,7 @@ void XCompUI::drawDisplayHead()
 #if 0
     ImGui::SameLine();
 
-    if ( ImGui::Checkbox( "Autofit", &mXComp.mMTConf.cfg_dispAutoFit ) )
+    if ( ImGui::Checkbox( "Autofit", &mXComp.mConf.cfg_dispAutoFit ) )
     {
         mXComp.reqLazySaveConfig();
     }
@@ -538,7 +538,7 @@ void XCompUI::SetupGraphicsAppParams( GraphicsAppParams &par )
         , .wd_closeCross = false
         , .wd_winDrawFn = [this]()
         {
-            if ( mXComp.mMTConf.cfg_scanDir.empty() )
+            if ( mXComp.mConf.cfg_scanDir.empty() )
             {
                 if ( ImGui::Button( "Config..." ) )
                     moConfigWin->ActivateConfigWin( true );
@@ -683,13 +683,13 @@ void XCompUI::OnAnimateBLUI()
 
     if (c_auto optConfig = moConfigWin->GetChangedConfig() )
     {
-        mXComp.mMTConf.CopyConfigVals( *optConfig );
+        mXComp.mConf.CopyConfigVals( *optConfig );
 
         mXComp.reqLazySaveConfig();
 
-        mXComp.moIMSys->mUseBilinear   = mXComp.mMTConf.cfg_dispUseBilinear;
-        mXComp.moIMSys->mConvOutToSRGB = mXComp.mMTConf.cfg_dispConvToSRGB;
-        mXComp.moIMSys->mToneMapping   = mXComp.mMTConf.cfg_dispToneMapping;
+        mXComp.moIMSys->mUseBilinear   = mXComp.mConf.cfg_dispUseBilinear;
+        mXComp.moIMSys->mConvOutToSRGB = mXComp.mConf.cfg_dispConvToSRGB;
+        mXComp.moIMSys->mToneMapping   = mXComp.mConf.cfg_dispToneMapping;
         mXComp.moIMSys->RebuildMainImage();
     }
 }
