@@ -1354,38 +1354,6 @@ void GraphicsApp::mainWindowInit()
                 if ( thiss->mpImui_ScrollCB )
                     ((GLFWscrollfun)thiss->mpImui_ScrollCB)( w, x, y );
             } );
-#else
-    glfwSetKeyCallback(mpWin,
-            [](GLFWwindow* w, int key, int scancode, int action, int mods)
-            {
-            auto *thiss = (GraphicsApp *)glfwGetWindowUserPointer(w);
-            thiss->keyCB( key, scancode, action, mods); } );
-
-    glfwSetWindowPosCallback(mpWin, [](GLFWwindow* w, int x, int y)
-            {
-            auto *thiss = (GraphicsApp *)glfwGetWindowUserPointer(w);
-            thiss->window_posCB( x, y ); } );
-
-    glfwSetWindowSizeCallback(mpWin, [](GLFWwindow* w, int width, int height)
-            {
-            auto *thiss = (GraphicsApp *)glfwGetWindowUserPointer(w);
-            thiss->mShouldRedisplayCustomScene = true;
-            });
-
-    glfwSetMouseButtonCallback(mpWin, [](GLFWwindow* w, int button, int action, int mods)
-            {
-            auto *thiss = (GraphicsApp *)glfwGetWindowUserPointer(w);
-            thiss->mouse_buttonCB( button, action, mods); } );
-
-    glfwSetCursorPosCallback(mpWin, [](GLFWwindow* w, double x, double y)
-            {
-            auto *thiss = (GraphicsApp *)glfwGetWindowUserPointer(w);
-            thiss->cursor_positionCB( x, y); } );
-
-    glfwSetScrollCallback(mpWin, [](GLFWwindow* w, double x, double y)
-            {
-            auto *thiss = (GraphicsApp *)glfwGetWindowUserPointer(w);
-            thiss->scrollCB( x, y); } );
 #endif
 
     glfwSetWindowMaximizeCallback(mpWin, [](GLFWwindow* w, int maximized)
