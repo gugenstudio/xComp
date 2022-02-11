@@ -399,6 +399,8 @@ void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
         if ( fs::is_directory( st ) )
         {
             mConf.cfg_scanDir = pathFName;
+            reqLazySaveConfig();
+
             LogOut( 0, "Changed the scan directory to %s", mConf.cfg_scanDir.c_str() );
         }
         else
@@ -406,6 +408,7 @@ void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
             c_auto path = fs::path( pathFName );
 
             mConf.cfg_scanDir = StrFromU8Str( path.parent_path().u8string() );
+            reqLazySaveConfig();
 
             mNextSelPathFName = pathFName;
 
