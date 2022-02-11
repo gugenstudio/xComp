@@ -52,7 +52,7 @@ private:
     std::unordered_set<DStr>    mNotifiedBadPaths;
 
 public:
-    void UpdateComposite( const DStr &path );
+    void UpdateComposite( const DStr &path, const DStr &selPathFName );
     void SaveComposite( const DStr &path ) const;
     bool IncCurSel( int step );
     void SetFirstCurSel();

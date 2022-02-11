@@ -47,6 +47,8 @@ class XComp
 
     TimedEvent          mCheckFilesTE { TimeUS::ONE_SECOND() * 5 };
 
+    DStr                mNextSelPathFName;
+
     uptr<ImageSystem>   moIMSys;
 
 private:

@@ -110,7 +110,7 @@ void ImageSystem::SaveComposite( const DStr &path ) const
 }
 
 //==================================================================
-void ImageSystem::UpdateComposite( const DStr &path )
+void ImageSystem::UpdateComposite( const DStr &path, const DStr &selPathFName )
 {
     std::unordered_set<DStr>  newNames;
 
@@ -176,8 +176,20 @@ void ImageSystem::UpdateComposite( const DStr &path )
     //
     if ( prevN != mEntries.size() )
     {
+        // has a specific file name to select ?
+        if NOT( selPathFName.empty() )
+        {
+            // select this
+            mCurSelPathFName = selPathFName;
+
+            // enable only what's selected
+            for (auto &[k, e] : mEntries)
+                e.mIsImageEnabled = (e.mImagePathFName == selPathFName);
+        }
+        else
         if ( !mEntries.empty() )
         {
+            // select the new last image
             auto it = mEntries.end();
             std::advance( it, -1 );
             mCurSelPathFName = it->first;

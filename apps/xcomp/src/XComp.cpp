@@ -158,7 +158,11 @@ void XComp::animateApp( TimeUS curTimeUS )
     if ( mCheckFilesTE.CheckTimedEvent( curTimeUS ) )
     {
         if NOT( mConf.cfg_scanDir.empty() )
-            moIMSys->UpdateComposite( mConf.cfg_scanDir );
+        {
+            moIMSys->UpdateComposite( mConf.cfg_scanDir, mNextSelPathFName );
+            // clear after use
+            mNextSelPathFName = {};
+        }
     }
 
     checkLazySaveConfig( curTimeUS );
@@ -399,8 +403,11 @@ void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
         }
         else
         {
-            mConf.cfg_scanDir =
-                StrFromU8Str( fs::path( pathFName ).parent_path().u8string() );
+            c_auto path = fs::path( pathFName );
+
+            mConf.cfg_scanDir = StrFromU8Str( path.parent_path().u8string() );
+
+            mNextSelPathFName = pathFName;
 
             LogOut( 0, "Changed the scan directory to %s", mConf.cfg_scanDir.c_str() );
         }
