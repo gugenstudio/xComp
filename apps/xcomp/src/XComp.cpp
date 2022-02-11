@@ -405,7 +405,14 @@ void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
         if ( fs::is_directory( st ) )
         {
             mMTConf.cfg_scanDir = pathFName;
-            LogOut( 0, "Changed the scan directory to %s", pathFName.c_str() );
+            LogOut( 0, "Changed the scan directory to %s", mMTConf.cfg_scanDir.c_str() );
+        }
+        else
+        {
+            mMTConf.cfg_scanDir =
+                StrFromU8Str( fs::path( pathFName ).parent_path().u8string() );
+
+            LogOut( 0, "Changed the scan directory to %s", mMTConf.cfg_scanDir.c_str() );
         }
 
         return true;
