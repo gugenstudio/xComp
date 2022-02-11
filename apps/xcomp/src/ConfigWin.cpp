@@ -6,7 +6,6 @@
 /// copyright info.
 //==================================================================
 
-#ifdef ENABLE_IMGUI
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "imgui_stdlib.h"
@@ -150,6 +149,4 @@ void ConfigWin::DrawConfigWin()
 
     ImGui::End();
 }
-
-#endif
 

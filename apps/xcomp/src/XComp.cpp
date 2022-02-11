@@ -38,11 +38,9 @@
 #include "XCompUI.h"
 #include "XComp.h"
 
-//#ifdef ENABLE_IMGUI
 # include "IMUI_Utils.h"
 # include "XCompUI.h"
 # include <GLFW/glfw3.h>
-//#endif
 
 #include "ImageSystem.h"
 
@@ -116,10 +114,9 @@ XComp::XComp( const XCompParams &par )
     }
 
     //
-#ifdef ENABLE_IMGUI
     moXCompUI = std::make_unique<XCompUI>( *this );
-#endif
 
+    //
     moIMSys = std::make_unique<ImageSystem>();
     moIMSys->mUseBilinear     = mMTConf.cfg_dispUseBilinear;
     moIMSys->mConvOutToSRGB   = mMTConf.cfg_dispConvToSRGB;
@@ -155,9 +152,7 @@ void XComp::checkLazySaveConfig( TimeUS curTimeUS )
 //==================================================================
 void XComp::animateApp( TimeUS curTimeUS )
 {
-#ifdef ENABLE_IMGUI
     moXCompUI->OnAnimateBLUI();
-#endif
 
     // periodically check the proceses and update the groups
     if ( mCheckFilesTE.CheckTimedEvent( curTimeUS ) )
@@ -291,7 +286,6 @@ void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
     };
 
     //
-#ifdef ENABLE_IMGUI
     moXCompUI->SetupGraphicsAppParams( par );
 
     //
@@ -299,7 +293,6 @@ void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
             par, "File", "Open Profile Folder"   , [&](){return mPar.mAppUserProfDir;} );
 
     moXCompUI->SetupGraphicsAppParamsDispConfigMenu( par );
-#endif
 
     //
     par.mOnCreationFn = [&]( GraphicsApp *pApp )
@@ -325,10 +318,8 @@ void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
     //
     par.mOnKeyFn = [this](int key, int scancode, int action, int mods)
     {
-#ifdef ENABLE_IMGUI
         if NOT( moXCompUI->mRenderHasFocus || moXCompUI->mDisplayHasFocus )
             return false;
-#endif
 
 #ifdef GLFW_PRESS
         const auto isDown = (action == GLFW_PRESS);

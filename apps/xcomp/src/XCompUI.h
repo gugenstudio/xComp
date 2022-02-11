@@ -9,8 +9,6 @@
 #ifndef XCOMPUI_H
 #define XCOMPUI_H
 
-#ifdef ENABLE_IMGUI
-
 #include "DBase.h"
 #include "UILogger.h"
 
@@ -54,8 +52,6 @@ private:
     void drawDisplayHead();
     void drawCompositeDisp();
 };
-
-#endif
 
 #endif
 

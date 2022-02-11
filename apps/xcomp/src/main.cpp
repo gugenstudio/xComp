@@ -137,9 +137,7 @@ static XCompParams makeBLParams(int argc, const char* argv[])
 		else if (isparam("--pro_mode" ))        { par.blp_isProMode = true; }
 	}
 
-#ifndef ENABLE_IMGUI
     par.mIsNoUIMode = true;
-#endif
 
     par.mAppExeDir = FU_GetDirFromPathFName( argv[0] );
 #ifdef __linux__

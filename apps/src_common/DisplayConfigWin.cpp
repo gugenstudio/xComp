@@ -6,8 +6,6 @@
 /// copyright info.
 //==================================================================
 
-#ifdef ENABLE_IMGUI
-
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "imgui_stdlib.h"
@@ -89,7 +87,6 @@ static auto makeInputPct = [](
 //==================================================================
 void DisplayConfigWin::DrawDisplayConfigWin( GraphicsApp *pApp )
 {
-#ifdef ENABLE_IMGUI
     if NOT( mActivate )
         return;
 
@@ -181,8 +178,5 @@ void DisplayConfigWin::DrawDisplayConfigWin( GraphicsApp *pApp )
     ImGui::EndGroup();
 
     ImGui::End();
-#endif
 }
-
-#endif
 

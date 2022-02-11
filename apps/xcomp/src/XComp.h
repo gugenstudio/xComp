@@ -18,9 +18,7 @@
 class GraphicsApp;
 class Graphics;
 
-#ifdef ENABLE_IMGUI
 class XCompUI;
-#endif
 class MarketStatsDB;
 
 //==================================================================
@@ -47,9 +45,7 @@ class XComp
 
     GraphicsApp         *mpGfxApp {};
     AppBaseConfig       mAppBaseConfig;
-#ifdef ENABLE_IMGUI
     uptr<XCompUI>       moXCompUI;
-#endif
     XCConfig            mMTConf;
 
     TimedEvent          mCheckFilesTE { TimeUS::ONE_SECOND() * 5 };

@@ -6,8 +6,6 @@
 /// copyright info.
 //==================================================================
 
-#ifdef ENABLE_IMGUI
-
 #include "imgui.h"
 #include "imgui_stdlib.h"
 #include "GTVersions.h"
@@ -695,6 +693,4 @@ void XCompUI::OnAnimateBLUI()
         mXComp.moIMSys->RebuildMainImage();
     }
 }
-
-#endif
 

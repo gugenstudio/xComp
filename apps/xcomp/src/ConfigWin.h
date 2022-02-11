@@ -9,8 +9,6 @@
 #ifndef CONFIGWIN_H
 #define CONFIGWIN_H
 
-#ifdef ENABLE_IMGUI
-
 #include <future>
 #include <optional>
 #include <unordered_map>
@@ -55,8 +53,6 @@ public:
 private:
     void writeChanges();
 };
-
-#endif
 
 #endif
 
