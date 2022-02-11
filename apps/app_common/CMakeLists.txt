@@ -25,7 +25,7 @@ add_library( ${COMMONGUI} STATIC $<TARGET_OBJECTS:commonguiobj> )
 target_compile_definitions( ${COMMONGUI} PRIVATE ENABLE_IMGUI )
 
 # link the libs
-target_link_libraries( ${COMMONGUI} DImage DNetwork DSystem imgui implot Graphicsgui ${CPPFS_LIBRARIES} ${OPENSSL_LIBRARIES} )
+target_link_libraries( ${COMMONGUI} DImage DNetwork DSystem imgui implot Graphics ${CPPFS_LIBRARIES} ${OPENSSL_LIBRARIES} )
 
 if (ENABLE_PCH)
     target_precompile_headers(${COMMONGUI} PRIVATE [["stdafx.h"]])

@@ -27,11 +27,11 @@ target_compile_definitions( ${XCOMPGUIBIN} PRIVATE ENABLE_IMGUI )
 
 if (ENABLE_OPENEXR)
     target_link_libraries( ${XCOMPGUIBIN} PUBLIC
-        DSystem DMath DImage DNetwork glew Graphicsgui imgui implot
+        DSystem DMath DImage DNetwork glew Graphics imgui implot
         commongui ${CPPFS_LIBRARIES} ${OPENSSL_LIBRARIES} OpenEXR )
 else()
     target_link_libraries( ${XCOMPGUIBIN} PUBLIC
-        DSystem DMath DImage DNetwork glew Graphicsgui imgui implot
+        DSystem DMath DImage DNetwork glew Graphics imgui implot
         commongui ${CPPFS_LIBRARIES} ${OPENSSL_LIBRARIES} )
 endif()
 
