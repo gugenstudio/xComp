@@ -436,11 +436,9 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
 
         const image *pUseSrcImg {};
 
-        c_auto &srcImg = *e.moStdImage;
-
-        if ( srcImg.mW == mainW && srcImg.mH == mainH )
+        if ( e.moStdImage->mW == mainW && e.moStdImage->mH == mainH )
         {
-            pUseSrcImg = &srcImg;
+            pUseSrcImg = e.moStdImage.get();
         }
         else
         {
@@ -451,14 +449,15 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
                 image::Params par;
                 par.width   = mainW;
                 par.height  = mainH;
-                par.depth   = srcImg.mDepth;
-                par.chans   = srcImg.mChans;
+                par.depth   = e.moStdImage->mDepth;
+                par.chans   = e.moStdImage->mChans;
+                par.flags   = e.moStdImage->mFlags; // for "float"
 
                 e.moStdImageScaled = std::make_unique<image>( par );
 
                 ImageConv::BlitStretch(
-                    srcImg,             0, 0, srcImg.mW, srcImg.mH,
-                    *e.moStdImageScaled, 0, 0, mainW,     mainH      );
+                    *e.moStdImage,       0, 0, e.moStdImage->mW, e.moStdImage->mH,
+                    *e.moStdImageScaled, 0, 0, mainW,            mainH      );
             }
 
             pUseSrcImg = e.moStdImageScaled.get();

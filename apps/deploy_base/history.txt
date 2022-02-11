@@ -1,6 +1,10 @@
 # Version history for xComp
 
 2022/02/11
+1.0.1
+- Compositing now works with EXRs at multiple resolutions
+
+2022/02/11
 1.0.0
 - Formatted license file
 - First public version
