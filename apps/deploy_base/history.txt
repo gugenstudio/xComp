@@ -1,8 +1,9 @@
 # Version history for xComp
 
-2022/02/11
+2022/02/12
 1.0.1
 - Compositing now works with EXRs at multiple resolutions
+- Added support for file or folder drop into the window
 
 2022/02/11
 1.0.0
