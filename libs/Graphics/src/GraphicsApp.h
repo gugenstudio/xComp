@@ -180,10 +180,6 @@ class GraphicsApp
 
     int             mUsingGLVersion_Major = 0;
     int             mUsingGLVersion_Minor = 0;
-
-    void            *mpImui_CursorPosCB {};
-    void            *mpImui_KeyCB {};
-    void            *mpImui_ScrollCB {};
 #endif
 
     bool        mIsSWRendering {};

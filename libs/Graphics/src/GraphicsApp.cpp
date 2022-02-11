@@ -1261,10 +1261,7 @@ void GraphicsApp::mainWindowInit()
         style.FrameRounding = 3;
     }
 
-    // Setup Platform/Renderer bindings
-    ImGui_ImplGlfw_InitForOpenGL( mpWin, true );
-
-
+    //
     if ( mUsingGLVersion_Major >= 3 )
     {
         const char *pGLSLVer = mUsingGLVersion_Major > 3 || mUsingGLVersion_Minor >= 2
@@ -1311,67 +1308,56 @@ void GraphicsApp::mainWindowInit()
         moIMGUIWinEvents = std::make_unique<DIMGUI_WindowEvents>( par );
     }
 
+    //
+    static auto getGApp = [](auto *w){ return (GraphicsApp *)glfwGetWindowUserPointer(w); };
+
     glfwSetWindowPosCallback(mpWin, [](GLFWwindow* w, int x, int y)
-            {
-            auto *thiss = (GraphicsApp *)glfwGetWindowUserPointer(w);
-            thiss->window_posCB( x, y ); } );
+    {
+        getGApp(w)->window_posCB( x, y );
+    });
 
     glfwSetFramebufferSizeCallback(mpWin, [](GLFWwindow* w, int width, int height)
-            {
-            auto *thiss = (GraphicsApp *)glfwGetWindowUserPointer(w);
-            thiss->framebuffer_sizeCB( width, height); } );
+    {
+        getGApp(w)->framebuffer_sizeCB( width, height);
+    });
 
-    mpImui_CursorPosCB =
-        (void *)glfwSetCursorPosCallback(mpWin,
-            [](GLFWwindow* w, double x, double y)
-            {
-            auto *thiss = (GraphicsApp *)glfwGetWindowUserPointer(w);
-                thiss->onInputEvent();
+    glfwSetCursorPosCallback(mpWin, [](GLFWwindow* w, double x, double y)
+    {
+        getGApp(w)->onInputEvent();
+    });
 
-                if ( thiss->mpImui_CursorPosCB )
-                    ((GLFWcursorposfun)thiss->mpImui_CursorPosCB)( w, x, y );
-            } );
+    glfwSetKeyCallback(mpWin, [](GLFWwindow* w, int key, int scancode, int action, int mods)
+    {
+        getGApp(w)->keyCB( key, scancode, action, mods);
+    });
 
-    // set our callback and save imgui's
-    mpImui_KeyCB =
-        (void *)glfwSetKeyCallback(mpWin,
-            [](GLFWwindow* w, int key, int scancode, int action, int mods)
-            {
-                auto *thiss = (GraphicsApp *)glfwGetWindowUserPointer(w);
-
-                // go for our callback first, then imgui's
-                if NOT( thiss->keyCB( key, scancode, action, mods) )
-                    if ( thiss->mpImui_KeyCB )
-                      ((GLFWkeyfun)thiss->mpImui_KeyCB)( w, key, scancode, action, mods);
-            } );
-
-    mpImui_ScrollCB =
-        (void *)glfwSetScrollCallback(mpWin, [](GLFWwindow* w, double x, double y)
-            {
-                auto *thiss = (GraphicsApp *)glfwGetWindowUserPointer(w);
-                thiss->onInputEvent();
-
-                if ( thiss->mpImui_ScrollCB )
-                    ((GLFWscrollfun)thiss->mpImui_ScrollCB)( w, x, y );
-            } );
+    glfwSetScrollCallback(mpWin, [](GLFWwindow* w, double x, double y)
+    {
+        getGApp(w)->onInputEvent();
+    });
 #endif
 
     glfwSetWindowMaximizeCallback(mpWin, [](GLFWwindow* w, int maximized)
-            {
-            auto *thiss = (GraphicsApp *)glfwGetWindowUserPointer(w);
+    {
+        auto *thiss = getGApp(w);
 #ifdef DEBUG_EVENTS
-            thiss->localLog( LOG_DBG, SSPrintFS( "Event, win maximize %i", maximized ) );
+        thiss->localLog( LOG_DBG, SSPrintFS( "Event, win maximize %i", maximized ) );
 #endif
-            thiss->mIsWindowMaximized = (bool)maximized; } );
+        thiss->mIsWindowMaximized = (bool)maximized;
+    });
 
     glfwSetWindowIconifyCallback(mpWin, [](GLFWwindow* w, int iconified)
-            {
-            auto *thiss = (GraphicsApp *)glfwGetWindowUserPointer(w);
+    {
+        auto *thiss = getGApp(w);
 #ifdef DEBUG_EVENTS
-            thiss->localLog( LOG_DBG, SSPrintFS( "Event, win iconify %i", iconified ) );
+        thiss->localLog( LOG_DBG, SSPrintFS( "Event, win iconify %i", iconified ) );
 #endif
-            thiss->mIsWindowIconified = (bool)iconified; } );
+        thiss->mIsWindowIconified = (bool)iconified;
+    });
 #endif
+
+    // Setup Platform/Renderer bindings
+    ImGui_ImplGlfw_InitForOpenGL( mpWin, true );
 }
 
 //========================================================================
