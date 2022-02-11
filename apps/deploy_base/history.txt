@@ -1,4 +1,9 @@
-# Version history for Gugen Tools
+# Version history for xComp
+
+2022/02/11
+1.0.0
+- Formatted license file
+- First public version
 
 2022/02/11
 0.4.0
