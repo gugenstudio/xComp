@@ -11,6 +11,8 @@
 
 #if defined(ENABLE_OPENEXR)
 
+//#define IMAGE_EXR_KEEP_FILE_OPEN
+
 #include "Image.h"
 
 //
@@ -59,12 +61,25 @@ struct ImageEXRLayer
 };
 
 //
+#ifdef IMAGE_EXR_KEEP_FILE_OPEN
+struct ImageEXRFileWork;
+#endif
+
+//
 struct ImageEXR
 {
     size_t                      ie_w {};
     size_t                      ie_h {};
     DStr                        ie_pathFName;
     DVec<uptr<ImageEXRLayer>>   ie_layers;
+
+    ImageEXR( const DStr &pathFName );
+#ifdef IMAGE_EXR_KEEP_FILE_OPEN
+private:
+    uptr<ImageEXRFileWork>      ie_oFileWork;
+public:
+    ~ImageEXR();
+#endif
 
     const ImageEXRLayer *FindLayerByName( const DStr &name ) const
     {

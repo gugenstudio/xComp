@@ -36,6 +36,32 @@ namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMATH_NAMESPACE;
 
 //==================================================================
+#ifdef IMAGE_EXR_KEEP_FILE_OPEN
+//
+struct ImageEXRFileWork
+{
+    uptr<IMF::InputFile>    moInputFile;
+
+    ImageEXRFileWork( const DStr &pathFName )
+        : moInputFile(std::make_unique<IMF::InputFile>( pathFName.c_str() ))
+    {
+    }
+};
+
+//
+ImageEXR::~ImageEXR() = default;
+#endif
+
+//==================================================================
+ImageEXR::ImageEXR( const DStr &pathFName )
+    : ie_pathFName(pathFName)
+{
+#ifdef IMAGE_EXR_KEEP_FILE_OPEN
+    ie_oFileWork = std::make_unique<ImageEXRFileWork>( ie_pathFName );
+#endif
+}
+
+//==================================================================
 void ImageEXRChan::AllocDataSrc( size_t w, size_t h )
 {
     iec_dataSrc.resize( w * h * ImageEXR_GetDTypeSize( iec_dataType ) );
@@ -74,20 +100,23 @@ static auto makeIMFPixType = []( auto iexrDType )
 //==================================================================
 uptr<ImageEXR> ImageEXR_Load( const DStr &pathFName, const DStr &dummyLayerName )
 {
-    auto oIE = std::make_unique<ImageEXR>();
+    auto oIE = std::make_unique<ImageEXR>( pathFName );
 
-    oIE->ie_pathFName = pathFName;
-
-    IMF::InputFile file( pathFName.c_str() );
+#ifdef IMAGE_EXR_KEEP_FILE_OPEN
+    auto *pFile = oIE->ie_oFileWork->moInputFile.get();
+#else
+    IMF::InputFile localFile( oIE->ie_pathFName.c_str() );
+    auto *pFile = &localFile;
+#endif
 
     {
         // get the image size right away
-        c_auto dw = file.header().dataWindow();
+        c_auto dw = pFile->header().dataWindow();
         oIE->ie_w = dw.max.x - dw.min.x + 1;
         oIE->ie_h = dw.max.y - dw.min.y + 1;
     }
 
-    const auto &channels = file.header().channels();
+    const auto &channels = pFile->header().channels();
 
     std::set<std::string> layerNames;
 
@@ -168,9 +197,14 @@ void ImageEXR_LoadLayer( ImageEXR &ie, const DStr &loadLayerName )
     LogOut( LOG_DBG, SSPrintFS( "Loading layer %s pixel data from %s",
                 loadLayerName.c_str(), ie.ie_pathFName.c_str() ) );
 
-    IMF::InputFile file( ie.ie_pathFName.c_str() );
+#ifdef IMAGE_EXR_KEEP_FILE_OPEN
+    auto *pFile = ie.ie_oFileWork->moInputFile.get();
+#else
+    IMF::InputFile localFile( ie.ie_pathFName.c_str() );
+    auto *pFile = &localFile;
+#endif
 
-    c_auto dw = file.header().dataWindow();
+    c_auto dw = pFile->header().dataWindow();
 
     IMF::FrameBuffer frameBuffer;
 
@@ -191,8 +225,8 @@ void ImageEXR_LoadLayer( ImageEXR &ie, const DStr &loadLayerName )
                 0.0 ) );                                    // fillValue
     }
 
-    file.setFrameBuffer( frameBuffer );
-    file.readPixels( dw.min.y, dw.max.y );
+    pFile->setFrameBuffer( frameBuffer );
+    pFile->readPixels( dw.min.y, dw.max.y );
 }
 
 //==================================================================
