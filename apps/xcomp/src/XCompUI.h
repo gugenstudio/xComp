@@ -44,7 +44,7 @@ public:
 
     void SetupGraphicsAppParams( GraphicsAppParams &par );
     void SetupGraphicsAppParamsDispConfigMenu( GraphicsAppParams &par );
-    void OnAnimateBLUI();
+    void OnAnimateXCUI();
 
 private:
     void drawImgList();

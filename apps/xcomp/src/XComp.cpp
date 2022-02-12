@@ -152,18 +152,20 @@ void XComp::checkLazySaveConfig( TimeUS curTimeUS )
 //==================================================================
 void XComp::animateApp( TimeUS curTimeUS )
 {
-    moXCompUI->OnAnimateBLUI();
+    moXCompUI->OnAnimateXCUI();
 
     // periodically check the proceses and update the groups
     if ( mCheckFilesTE.CheckTimedEvent( curTimeUS ) )
     {
         if NOT( mConf.cfg_scanDir.empty() )
         {
-            moIMSys->UpdateComposite( mConf.cfg_scanDir, mNextSelPathFName );
+            moIMSys->OnNewScanDir( mConf.cfg_scanDir, mNextSelPathFName );
             // clear after use
             mNextSelPathFName = {};
         }
     }
+
+    moIMSys->AnimateIMS();
 
     checkLazySaveConfig( curTimeUS );
 }
@@ -332,35 +334,27 @@ void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
         case GLFW_KEY_PAGE_UP:
         case GLFW_KEY_LEFT:
             if ( isDown )
-            {
                 moIMSys->SetLastCurSel();
-                moIMSys->RebuildMainImage();
-            }
+
             return true;
 
         case GLFW_KEY_PAGE_DOWN:
         case GLFW_KEY_RIGHT:
             if ( isDown )
-            {
                 moIMSys->SetFirstCurSel();
-                moIMSys->RebuildMainImage();
-            }
+
             return true;
 
         case GLFW_KEY_UP:
             if ( isDown )
-            {
                 moIMSys->IncCurSel(  1 );
-                moIMSys->RebuildMainImage();
-            }
+
             return true;
 
         case GLFW_KEY_DOWN:
             if ( isDown )
-            {
                 moIMSys->IncCurSel( -1 );
-                moIMSys->RebuildMainImage();
-            }
+
             return true;
 
         default: break;

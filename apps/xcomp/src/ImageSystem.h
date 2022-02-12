@@ -48,20 +48,28 @@ public:
 
     DStr                        mCurLayerName;
 
+    bool                        mHasRebuildReq = false;
+
 private:
     std::unordered_set<DStr>    mNotifiedBadPaths;
 
 public:
-    void UpdateComposite( const DStr &path, const DStr &selPathFName );
+    void OnNewScanDir( const DStr &path, const DStr &selPathFName );
+
     void SaveComposite( const DStr &path ) const;
     bool IncCurSel( int step );
     void SetFirstCurSel();
     void SetLastCurSel();
 
-    void RebuildMainImage();
+    void ReqRebuildComposite();
+
+    void AnimateIMS();
+
+    bool IsRebuildingComposite() const;
 
 private:
     void makeDummyComposite();
+    void rebuildComposite();
     void makeComposite( DVec<ImageEntry *> pEntries, size_t n );
 };
 

@@ -195,7 +195,7 @@ void XCompUI::drawImgList()
     }
 
     if ( savedSelPathFName != imsys.mCurSelPathFName || hasChangedVisibility )
-        imsys.RebuildMainImage();
+        imsys.ReqRebuildComposite();
 }
 
 //==================================================================
@@ -248,7 +248,7 @@ void XCompUI::drawLayersList()
                  StrEndsWithI( k, "beauty" ) )
             {
                 imsys.mCurLayerName = k;
-                imsys.RebuildMainImage();
+                imsys.ReqRebuildComposite();
                 break;
             }
         }
@@ -256,7 +256,7 @@ void XCompUI::drawLayersList()
         if ( imsys.mCurLayerName.empty() )
         {
             imsys.mCurLayerName = pIEntsInLays.begin()->first;
-            imsys.RebuildMainImage();
+            imsys.ReqRebuildComposite();
         }
     }
 
@@ -367,7 +367,7 @@ void XCompUI::drawLayersList()
     }
 
     if ( hasChangedLayer )
-        imsys.RebuildMainImage();
+        imsys.ReqRebuildComposite();
 }
 
 //==================================================================
@@ -476,6 +476,13 @@ void XCompUI::drawDisplayHead()
 
     if ( ImGui::Button( "Config..." ) )
         moConfigWin->ActivateConfigWin( true );
+
+    // visible message for possible UI freeze
+    if ( mXComp.moIMSys->IsRebuildingComposite() )
+    {
+        ImGui::SameLine();
+        IMUI_TextColored( Display::YELLOW, "Updating..." );
+    }
 
 #if 0
     ImGui::SameLine();
@@ -673,7 +680,7 @@ void XCompUI::SetupGraphicsAppParamsDispConfigMenu( GraphicsAppParams &par )
 }
 
 //==================================================================
-void XCompUI::OnAnimateBLUI()
+void XCompUI::OnAnimateXCUI()
 {
     if ( mAppBaseConfig_SaveTimeUS && GetEpochTimeUS() >= mAppBaseConfig_SaveTimeUS )
     {
@@ -690,7 +697,7 @@ void XCompUI::OnAnimateBLUI()
         mXComp.moIMSys->mUseBilinear   = mXComp.mConf.cfg_dispUseBilinear;
         mXComp.moIMSys->mConvOutToSRGB = mXComp.mConf.cfg_dispConvToSRGB;
         mXComp.moIMSys->mToneMapping   = mXComp.mConf.cfg_dispToneMapping;
-        mXComp.moIMSys->RebuildMainImage();
+        mXComp.moIMSys->ReqRebuildComposite();
     }
 }
 

@@ -110,7 +110,7 @@ void ImageSystem::SaveComposite( const DStr &path ) const
 }
 
 //==================================================================
-void ImageSystem::UpdateComposite( const DStr &path, const DStr &selPathFName )
+void ImageSystem::OnNewScanDir( const DStr &path, const DStr &selPathFName )
 {
     std::unordered_set<DStr>  newNames;
 
@@ -195,7 +195,7 @@ void ImageSystem::UpdateComposite( const DStr &path, const DStr &selPathFName )
             mCurSelPathFName = it->first;
         }
 
-        RebuildMainImage();
+        ReqRebuildComposite();
     }
 
 #if 0
@@ -230,6 +230,7 @@ bool ImageSystem::IncCurSel( int step )
                 if ( ++step == 0 )
                 {
                     mCurSelPathFName = it->first;
+                    ReqRebuildComposite();
                     return true;
                 }
             }
@@ -247,6 +248,7 @@ bool ImageSystem::IncCurSel( int step )
                 if ( --step == 0 )
                 {
                     mCurSelPathFName = it->first;
+                    ReqRebuildComposite();
                     return true;
                 }
             }
@@ -262,6 +264,7 @@ void ImageSystem::SetFirstCurSel()
     while ( IncCurSel( -1 ) )
     {
     }
+    ReqRebuildComposite();
 }
 
 //==================================================================
@@ -270,6 +273,7 @@ void ImageSystem::SetLastCurSel()
     while ( IncCurSel( 1 ) )
     {
     }
+    ReqRebuildComposite();
 }
 
 //==================================================================
@@ -549,7 +553,7 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
 }
 
 //==================================================================
-void ImageSystem::RebuildMainImage()
+void ImageSystem::rebuildComposite()
 {
     if NOT( mCurLayerName.empty() )
     {
@@ -608,5 +612,27 @@ void ImageSystem::RebuildMainImage()
     makeComposite( pEntries, curSelIdx+1 );
 
     Graphics::UploadImageTexture( *moComposite );
+}
+
+//==================================================================
+void ImageSystem::ReqRebuildComposite()
+{
+    mHasRebuildReq = true;
+}
+
+//==================================================================
+void ImageSystem::AnimateIMS()
+{
+    if ( mHasRebuildReq )
+    {
+        mHasRebuildReq = false;
+        rebuildComposite();
+    }
+}
+
+//==================================================================
+bool ImageSystem::IsRebuildingComposite() const
+{
+    return mHasRebuildReq;
 }
 
