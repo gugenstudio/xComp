@@ -1,8 +1,9 @@
 # Version history for xComp
 
-2022/02/
+2022/02/15
 1.0.2
 - Dropped file is now selected every time
+- Improved display of stack of images
 
 2022/02/12
 1.0.1
