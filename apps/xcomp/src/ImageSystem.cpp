@@ -197,6 +197,18 @@ void ImageSystem::OnNewScanDir( const DStr &path, const DStr &selPathFName )
 
         ReqRebuildComposite();
     }
+    else
+    if ( !selPathFName.empty() && mCurSelPathFName != selPathFName )
+    {
+        // select this
+        mCurSelPathFName = selPathFName;
+
+        // enable only what's selected
+        for (auto &[k, e] : mEntries)
+            e.mIsImageEnabled = (e.mImagePathFName == selPathFName);
+
+        ReqRebuildComposite();
+    }
 
 #if 0
     LogOut( LOG_DBG, "----" );
