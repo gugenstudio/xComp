@@ -108,6 +108,9 @@ void XCompUI::drawImgList()
             fExts.push_back( ext.empty() ? DStr() : StrMakeUpper( ext.substr(1) ) );
         }
 
+    //
+    bool hasChangedVisibility = false;
+
 #if 0
     c_auto commonStem = findCommonPrefix(
                             [&](auto i){ return fNames[i]; }, fNames.size() );
@@ -131,22 +134,83 @@ void XCompUI::drawImgList()
     tmak.AddText( "Layers" );
     tmak.EndHead();
 
+    {
+        auto makeHeadPopup = [&]( c_auto *title, auto fn )
+        {
+            if ( IMUI_SmallButtonEnabled( (DStr("...##") + title).c_str(), true ) )
+                ImGui::OpenPopup( title );
+
+            if ( ImGui::BeginPopup( title ) )
+            {
+                fn();
+                ImGui::EndPopup();
+            }
+        };
+
+        tmak.NewCell();
+        makeHeadPopup( "AllOnPopup", [&]()
+        {
+            if ( ImGui::Selectable( "All ON", false ) )
+            {
+                hasChangedVisibility = true;
+                for (auto &[k, e] : imsys.mEntries)
+                    e.mIsImageEnabled = true;
+            }
+
+            if ( ImGui::Selectable( "All OFF", false ) )
+            {
+                hasChangedVisibility = true;
+                for (auto &[k, e] : imsys.mEntries)
+                    e.mIsImageEnabled = false;
+            }
+        });
+        tmak.NewCell();
+        tmak.NewCell();
+        tmak.NewCell();
+        tmak.NewCell();
+    }
+
+    //
+
     bool hasChangedLayer = false;
 
     c_auto savedSelPathFName = imsys.mCurSelPathFName;
 
-    bool hasChangedVisibility = false;
+    bool isInSelRange = false;
 
     for (size_t ii=pEntries.size(); ii > 0; --ii)
     {
         c_auto i = ii - 1;
         auto &e = *pEntries[i];
 
+        if ( !isInSelRange && imsys.mCurSelPathFName == e.mImagePathFName )
+            isInSelRange = true;
+
         tmak.NewCell();
+        {
+            c_auto col = (isInSelRange ? Display::GREEN : Display::GRAY);
+            IMUI_PushStyleColor(ImGuiCol_FrameBg,        col.ScaleRGB(0.35f) );
+            IMUI_PushStyleColor(ImGuiCol_FrameBgHovered, col.ScaleRGB(0.55f) );
+            IMUI_PushStyleColor(ImGuiCol_CheckMark,      col  );
+        }
+
+#if 1
         if ( ImGui::Checkbox( SSPrintFS("##ImgItem%zu",i).c_str(), &e.mIsImageEnabled ) )
         {
             hasChangedVisibility = true;
         }
+#else
+        if ( ImGui::RadioButton( SSPrintFS("##ImgItem%zu",i).c_str(), e.mIsImageEnabled ) )
+        {
+            hasChangedVisibility = true;
+            e.mIsImageEnabled = !e.mIsImageEnabled;
+        }
+#endif
+
+        IMUI_PopStyleColor(3);
+
+        if NOT( isInSelRange )
+            IMUI_PushDisabledStyle();
 
         tmak.NewCell();
         if ( ImGui::Selectable(
@@ -192,6 +256,9 @@ void XCompUI::drawImgList()
 
         if ( laysN )
             IMUI_Text( std::to_string( laysN ) );
+
+        if NOT( isInSelRange )
+            IMUI_PopDisabledStyle();
     }
 
     if ( savedSelPathFName != imsys.mCurSelPathFName || hasChangedVisibility )
