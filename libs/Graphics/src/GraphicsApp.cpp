@@ -1236,10 +1236,12 @@ void GraphicsApp::mainWindowInit()
             if ( fname.empty() )
                 return nullptr;
 
+            ImFontConfig cfg;
+            cfg.OversampleV = 4;
             auto *p = io.Fonts->AddFontFromFileTTF(
                         fname.c_str(),
                         (siz ? siz : 15.f) * (float)getFinalContentScale(),
-                        nullptr,
+                        &cfg,
                         ranges.Data );
 
             io.Fonts->Build();

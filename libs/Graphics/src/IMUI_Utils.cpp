@@ -20,6 +20,9 @@
 static float _gsContentScale = 1.f;
 static bool  _gsIsRetinaDisplay = false;
 
+static auto IMUI_IMVEC4_TEXT_LITESCALE = ImVec4( 0.65f, 0.65f, 0.65f, 1.0f );
+static auto IMUI_COLF_TEXT_LITESCALE   = ColorF( 0.65f, 0.65f, 0.65f, 1.0f );
+
 //==================================================================
 void IMUI_SetContentScale( float sca )
 {
@@ -48,6 +51,17 @@ bool IMUI_IsLightMode()
     c_auto &c = ImGui::GetStyle().Colors[ImGuiCol_Text];
 
     return ((c.x + c.y + c.z) * 1.f/3) <= 0.5f;
+}
+
+//==================================================================
+ColorF IMUI_MakeColForBG( const ColorF &col, float alpha )
+{
+    c_auto bgCol = ColorF(
+        ImGui::GetStyle().Colors[ImGuiCol_WindowBg].x,
+        ImGui::GetStyle().Colors[ImGuiCol_WindowBg].y,
+        ImGui::GetStyle().Colors[ImGuiCol_WindowBg].z );
+
+    return DLerp( bgCol, col, alpha );
 }
 
 //==================================================================
@@ -464,6 +478,21 @@ void IMUI_PopFlashing()
 }
 
 //==================================================================
+ImVec4 IMUI_MkTextCol( const ImVec4 &col )
+{
+    return col * (IMUI_IsLightMode()
+            ? IMUI_IMVEC4_TEXT_LITESCALE
+            : ImVec4( 1.00f, 1.00f, 1.00f, 1.0f ) );
+}
+//==================================================================
+ColorF IMUI_MkTextCol( const ColorF &col )
+{
+    return col * (IMUI_IsLightMode()
+            ? IMUI_COLF_TEXT_LITESCALE
+            : ColorF( 1.00f, 1.00f, 1.00f, 1.0f ) );
+}
+
+//==================================================================
 void IMUI_PushStyleColor( ImGuiCol colIdx, const ImVec4 &col )
 {
     if NOT( IMUI_IsLightMode() )
@@ -473,7 +502,7 @@ void IMUI_PushStyleColor( ImGuiCol colIdx, const ImVec4 &col )
     }
 
     c_auto useCol = col * (colIdx == ImGuiCol_Text
-            ? ImVec4( 0.65f,0.65f,0.65f,1.0f )
+            ? IMUI_IMVEC4_TEXT_LITESCALE
             : ImVec4( 1.30f,1.30f,1.30f,1.0f ));
 
     ImGui::PushStyleColor( colIdx, useCol );
@@ -525,11 +554,13 @@ float IMUI_GetWindowContentRegionHeight()
 }
 
 //==================================================================
-void IMUI_DrawArrow( ImGuiDir dir, ImVec2 size )
+void IMUI_DrawArrow( ImGuiDir dir, float scale )
 {
     auto* window = ImGui::GetCurrentWindow();
     if (window->SkipItems)
         return;
+
+    c_auto size = ImVec2( 10, 10 ) * scale;
 
     ImGuiContext& g = *GImGui;
     const ImRect bb(window->DC.CursorPos, window->DC.CursorPos + size);
@@ -539,12 +570,23 @@ void IMUI_DrawArrow( ImGuiDir dir, ImVec2 size )
     // Render
     const ImU32 text_col = ImGui::GetColorU32(ImGuiCol_Text);
 
+#if 1
     ImGui::RenderArrow(
             window->DrawList,
-            bb.Min + ImVec2(ImMax(0.0f, (size.x - g.FontSize) * 0.5f),
-            ImMax(0.0f, (size.y - g.FontSize) * 0.5f)),
+        bb.Min + ImVec2(
+                    ImMax(0.0f, (size.x - g.FontSize*1.0f) * 0.5f),
+                    ImMax(0.0f, (size.y - g.FontSize*0.0f) * 0.5f) ),
             text_col,
-            dir );
+        dir,
+        scale );
+#else
+    ImGui::RenderArrowPointingAt(
+        window->DrawList,
+        (bb.Min + bb.Max) * 0.5f,
+        size,
+        dir,
+        text_col );
+#endif
 }
 
 //==================================================================

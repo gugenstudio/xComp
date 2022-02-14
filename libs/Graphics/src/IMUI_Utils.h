@@ -52,6 +52,16 @@ bool IMUI_GetIsRetinaDisplay();
 
 bool IMUI_IsLightMode();
 
+inline ImVec4 IMUI_MkCol( const ColorF &srcCol )
+{
+    return ImVec4( srcCol[0], srcCol[1], srcCol[2], srcCol[3] );
+}
+
+ImVec4 IMUI_MkTextCol( const ImVec4 &col );
+ColorF IMUI_MkTextCol( const ColorF &col );
+
+ColorF IMUI_MakeColForBG( const ColorF &col, float alpha );
+
 void IMUI_SetNextWindowSize( const ImVec2& size, ImGuiCond cond = 0 );
 
 void IMUI_SetNextItemWidth( float w );
@@ -98,11 +108,6 @@ void IMUI_DrawLinkPopup(
         const DStr &desc1Str={},
         const DStr &desc2Str={} );
 
-inline ImVec4 IMUI_MkCol( const ColorF &srcCol )
-{
-    return ImVec4( srcCol[0], srcCol[1], srcCol[2], srcCol[3] );
-}
-
 void IMUI_SameLine( float offX=0, float spacingW=-1 );
 
 inline void IMUI_ShortSameLine() { IMUI_SameLine( 0, 4 ); }
@@ -140,7 +145,7 @@ float IMUI_GetWindowContentRegionHeight();
 
 float IMUI_CalcItemsHeight( size_t textsN, size_t widgetsN, size_t sepsN );
 
-void IMUI_DrawArrow( ImGuiDir dir, ImVec2 size={10,10} );
+void IMUI_DrawArrow( ImGuiDir dir, float scale=1.0f );
 void IMUI_DrawPriceArrow( double curVal, double prevVal );
 
 bool IMUI_BeginChildCornerOverlay( int corner = 0 );
