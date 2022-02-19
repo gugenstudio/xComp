@@ -190,11 +190,13 @@ add_subdirectory( externals/local/libpng )
 if (ENABLE_OPENEXR)
     SET(ZLIB_INCLUDE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/externals/zlib")
 
+    SET(ZLIB_LIBRARY_DIR     "${CMAKE_BINARY_DIR}/externals/local/zlib")
+
     if (MSVC)
-        SET(ZLIB_LIBRARY_RELEASE "${CMAKE_BINARY_DIR}/externals/local/zlib/Release/zlib.lib")
-        SET(ZLIB_LIBRARY_DEBUG   "${CMAKE_BINARY_DIR}/externals/local/zlib/Debug/zlib_d.lib")
+        SET(ZLIB_LIBRARY_RELEASE "${ZLIB_LIBRARY_DIR}/Release/zlib.lib")
+        SET(ZLIB_LIBRARY_DEBUG   "${ZLIB_LIBRARY_DIR}/Debug/zlib_d.lib")
     else()
-        message( FATAL_ERROR "Unsupported platform" )
+        SET(ZLIB_LIBRARY         "${ZLIB_LIBRARY_DIR}/libzlib.a")
     endif()
 
     add_subdirectory( externals/Imath )
