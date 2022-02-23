@@ -224,6 +224,50 @@ void IMUI_PopButtonColors()
 }
 
 //==================================================================
+// https://gist.github.com/dougbinks/ef0962ef6ebe2cadae76c4e9f0586c69#file-imguiutils-h-L228-L262
+static void IMUI_AddUnderLine( ImColor col_ )
+{
+    ImVec2 min = ImGui::GetItemRectMin();
+    ImVec2 max = ImGui::GetItemRectMax();
+    min.y = max.y;
+    ImGui::GetWindowDrawList()->AddLine( min, max, col_, 2.0f );
+}
+
+//==================================================================
+bool IMUI_TextURL(
+            const char* name,
+            bool sameLineBefore,
+            bool sameLineAfter )
+{
+    if ( sameLineBefore )
+        ImGui::SameLine( 0.0f, ImGui::GetStyle().ItemInnerSpacing.x );
+
+    ImGui::PushStyleColor(
+                ImGuiCol_Text,
+                ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
+
+    ImGui::Text( name );
+    ImGui::PopStyleColor();
+
+    if ( ImGui::IsItemHovered() )
+    {
+        if( ImGui::IsMouseClicked(0) )
+            return true;
+
+        IMUI_AddUnderLine( ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered] );
+    }
+    else
+    {
+        IMUI_AddUnderLine( ImGui::GetStyle().Colors[ImGuiCol_Button] );
+    }
+
+    if ( sameLineAfter )
+        ImGui::SameLine( 0.0f, ImGui::GetStyle().ItemInnerSpacing.x );
+
+    return false;
+}
+
+//==================================================================
 static void drawSmartURL( const DStr &desc, const DStr &url )
 {
     if ( !desc.empty() && StrStartsWithI( url, "http" ) )
@@ -246,7 +290,11 @@ static bool buttonSmartURL( const DStr &desc, const DStr &url )
     IMUI_Text( "Open" );
     ImGui::SameLine();
 
+#if 0
     return ImGui::Button( ((desc.empty() ? url : desc)+"##"+url).c_str() );
+#else
+    return IMUI_TextURL( (desc.empty() ? url : desc).c_str() );
+#endif
 }
 
 //==================================================================

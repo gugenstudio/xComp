@@ -87,6 +87,11 @@ void IMUI_HelpMarker( const DStr &str );
 void IMUI_PushButtonColors( const ColorF &col );
 void IMUI_PopButtonColors();
 
+bool IMUI_TextURL(
+            const char* name_,
+            bool sameLineBefore_=false,
+            bool sameLineAfter_=false );
+
 void IMUI_DrawLink(
             const DStr &fullURL,
             const DStr &dispURL,
