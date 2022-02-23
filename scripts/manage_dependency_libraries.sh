@@ -46,9 +46,12 @@ shift "$((OPTIND-1))"
 if [[ "${UPDATE}" != "TRUE" ]] ; then
     if [ "${MACHINE}" == "macos" ]; then
         brew install cmake
+        brew install coreutils
+        brew install create-dmg
     elif [ "${MACHINE}" == "linux" ]; then
         sudo apt-get install cmake
         sudo apt-get install build-essential
+        sudo apt-get install chrpath
         sudo apt-get install xorg-dev
         sudo apt-get install libglu1-mesa-dev
     elif [ "${MACHINE}" == "win" ]; then
@@ -59,9 +62,12 @@ if [[ "${UPDATE}" != "TRUE" ]] ; then
 else
     if [ "${MACHINE}" == "macos" ]; then
         brew upgrade cmake
+        brew upgrade coreutils
+        brew upgrade create-dmg
     elif [ "${MACHINE}" == "linux" ]; then
         sudo apt-get --only-upgrade install cmake
         sudo apt-get --only-upgrade install build-essential
+        sudo apt-get --only-upgrade install chrpath
         sudo apt-get --only-upgrade install xorg-dev
         sudo apt-get --only-upgrade install libglu1-mesa-dev
     elif [ "${MACHINE}" == "win" ]; then
