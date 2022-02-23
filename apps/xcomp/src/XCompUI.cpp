@@ -95,7 +95,11 @@ void XCompUI::drawImgList()
     DVec<DStr>          fExts;
 
     for (auto it = imsys.mEntries.begin(); it != imsys.mEntries.end(); ++it)
-        if ( it->second.moStdImage || it->second.moEXRImage )
+        if ( it->second.moStdImage
+#ifdef ENABLE_OPENEXR
+                || it->second.moEXRImage
+#endif
+                )
         {
             pEntries.push_back( &it->second );
 
@@ -227,6 +231,7 @@ void XCompUI::drawImgList()
         size_t w = 0;
         size_t h = 0;
         size_t laysN = 0;
+#ifdef ENABLE_OPENEXR
         if (c_auto &oIEXR = e.moEXRImage; oIEXR)
         {
             w = oIEXR->ie_w;
@@ -240,6 +245,7 @@ void XCompUI::drawImgList()
                     : oIEXR->ie_layers.size());
         }
         else
+#endif
         if ( e.moStdImage )
         {
             w = e.moStdImage->mW;
@@ -288,12 +294,14 @@ void XCompUI::drawLayersList()
         if NOT( foundSelImage )
             continue;
 
+#ifdef ENABLE_OPENEXR
         if (c_auto &oIEImage = e.moEXRImage; oIEImage)
         {
             for (c_auto &oLayer : oIEImage->ie_layers)
                 pIEntsInLays[ oLayer->iel_name ].push_back( &it->second );
         }
         else
+#endif
         {
             pIEntsInLays[ ImageSystem::DUMMY_LAYER_NAME ].push_back( &it->second );
         }
@@ -383,6 +391,7 @@ void XCompUI::drawLayersList()
             DStr chTypes;
 
             c_auto &e = *v.front();
+#ifdef ENABLE_OPENEXR
             if ( e.moEXRImage )
             {
                 if (c_auto *pLayer = e.moEXRImage->FindLayerByName( k ))
@@ -416,6 +425,7 @@ void XCompUI::drawLayersList()
                 }
             }
             else
+#endif
             if ( e.moStdImage )
             {
                 chNames = "R,G,B,A";

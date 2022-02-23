@@ -567,6 +567,7 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
 //==================================================================
 void ImageSystem::rebuildComposite()
 {
+#ifdef ENABLE_OPENEXR
     if NOT( mCurLayerName.empty() )
     {
         for (auto it = mEntries.begin(); it != mEntries.end(); ++it)
@@ -594,6 +595,7 @@ void ImageSystem::rebuildComposite()
             }
         }
     }
+#endif
 
     DVec<ImageEntry *> pEntries;
 
@@ -604,8 +606,12 @@ void ImageSystem::rebuildComposite()
         auto &e = it->second;
         if ( e.moStdImage && e.mIsImageEnabled )
         {
+#ifdef ENABLE_OPENEXR
             if ( (e.moEXRImage && e.moEXRImage->FindLayerByName( mCurLayerName )) ||
                 (!e.moEXRImage && mCurLayerName == DUMMY_LAYER_NAME) )
+#else
+            if ( mCurLayerName == DUMMY_LAYER_NAME )
+#endif
             {
                 pEntries.push_back( &e );
             }

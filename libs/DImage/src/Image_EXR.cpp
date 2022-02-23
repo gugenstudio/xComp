@@ -24,7 +24,7 @@
 #include <ImfChannelList.h>
 
 #include <ImathBox.h>
-#include <ImfFramebuffer.h>
+#include <ImfFrameBuffer.h>
 
 #include "DLogOut.h"
 

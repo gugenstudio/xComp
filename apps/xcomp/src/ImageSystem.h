@@ -22,7 +22,9 @@ struct ImageEntry
     bool            mIsImageEnabled { true };
     DStr            mCurLayerForImage;
     uptr<image>     moStdImage;
+#ifdef ENABLE_OPENEXR
     uptr<ImageEXR>  moEXRImage;
+#endif
 private:
     uptr<image>     moStdImageScaled;
 public:

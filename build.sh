@@ -129,7 +129,7 @@ create_package_macos(){
 	sed "s/XCOMP_VERSION/${VERSION_ID}-$(uname -m)/g" apps/deploy_base/deploy_macos.sh > "_tmp/xcomp_${VERSION_ID}-$(uname -m).command"
 	chmod 755 "_tmp/xcomp_${VERSION_ID}-$(uname -m).command"
 
-	create-dmg --volname "xcomp" --volicon "apps/resources/tsc_icon.icns" "_tmp/xcomp_${VERSION_ID}-$(uname -m).dmg" "${PACKAGEMACOSDIR}"
+	create-dmg --volname "xcomp" --volicon "apps/resources/xcomp_icon.icns" "_tmp/xcomp_${VERSION_ID}-$(uname -m).dmg" "${PACKAGEMACOSDIR}"
 }
 
 create_package_win(){
