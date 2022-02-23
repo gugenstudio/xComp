@@ -1366,8 +1366,10 @@ void GraphicsApp::mainWindowInit()
     }
 #endif
 
+#ifdef ENABLE_IMGUI
     // Setup Platform/Renderer bindings
     ImGui_ImplGlfw_InitForOpenGL( mpWin, true );
+#endif
 }
 
 //========================================================================
