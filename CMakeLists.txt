@@ -54,6 +54,9 @@ set(OPENEXR_BUILD_EXAMPLES   OFF)
 set(OPENEXR_INSTALL_EXAMPLES OFF)
 set(OPENEXR_INSTALL_DOCS     OFF)
 
+#
+set(ENABLE_OCIO TRUE)
+
 # specify to use Unity Builds
 set(BUILD_UNITY FALSE)
 
@@ -153,6 +156,10 @@ if (ENABLE_OPENEXR)
     add_definitions( -DENABLE_OPENEXR )
 endif()
 
+if (ENABLE_OCIO)
+    add_definitions( -DENABLE_OCIO )
+endif()
+
 # include directories
 include_directories( externals/rapidjson/include )
 include_directories( externals/json/single_include )
@@ -167,6 +174,9 @@ if (ENABLE_OPENEXR)
     include_directories( externals/openexr/src/lib/OpenEXR     )
     include_directories( externals/openexr/src/lib/OpenEXRCore )
     include_directories( externals/openexr/src/lib/OpenEXRUtil )
+endif()
+if (ENABLE_OCIO)
+    # TODO
 endif()
 include_directories( externals/imgui )
 include_directories( externals/imgui/backends )
@@ -206,6 +216,25 @@ if (ENABLE_OPENEXR)
     add_subdirectory( externals/openexr )
     find_package(OpenEXR CONFIG)
     include_directories( ${CMAKE_BINARY_DIR}/externals/openexr/cmake )
+endif()
+
+if (ENABLE_OCIO)
+    set(OCIO_BUILD_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/externals/local/ocio/_build)
+
+    if (WIN32)
+        set(OCIO_LIBRARY_DIRS
+            ${OCIO_BUILD_ROOT}/src/OpenColorIO/Release
+            ${OCIO_BUILD_ROOT}/src/OpenColorIO/Debug)
+
+        set(OCIO_LIBRARIES
+            optimized   ${OCIO_BUILD_ROOT}/src/OpenColorIO/Release/OpenColorIO.lib
+            debug       ${OCIO_BUILD_ROOT}/src/OpenColorIO/Debug/OpenColorIO.lib)
+
+    elseif (UNIX)
+    endif()
+
+    include_directories( externals/local/ocio/_build/include )
+    include_directories( externals/ocio/include )
 endif()
 
 add_subdirectory( externals/local/imgui )

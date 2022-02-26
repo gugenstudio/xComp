@@ -23,3 +23,6 @@
 [submodule "externals/openexr"]
 	path = externals/openexr
 	url = git@github.com:AcademySoftwareFoundation/openexr.git
+[submodule "externals/ocio"]
+	path = externals/ocio
+	url = git@github.com:AcademySoftwareFoundation/OpenColorIO.git
