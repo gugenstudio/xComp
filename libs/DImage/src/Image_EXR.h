@@ -42,6 +42,15 @@ struct ImageEXRChan
     DVec<uint8_t>   iec_dataSrc;
 
     void AllocDataSrc( size_t w, size_t h );
+
+    DStr GetChanNameOnly() const
+    {
+        c_auto idx = iec_chanName.find_last_of( '.' );
+        if ( idx != DStr::npos && (idx+1) < iec_chanName.size() )
+            return iec_chanName.substr( idx+1 );
+
+        return iec_chanName;
+    }
 };
 
 //

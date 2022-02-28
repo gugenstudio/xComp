@@ -552,21 +552,13 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
             }
         }
     }
-
-    if ( mToneMapping == "filmic" && moComposite->IsFloat32() )
-    {
-        applyFilmic( *moComposite );
-    }
-
-    if ( mConvOutToSRGB && moComposite->IsFloat32() )
-    {
-        applySRGB( *moComposite );
-    }
 }
 
 //==================================================================
 void ImageSystem::rebuildComposite()
 {
+    auto doApplyColorCorr = true;
+
 #ifdef ENABLE_OPENEXR
     if NOT( mCurLayerName.empty() )
     {
@@ -581,6 +573,26 @@ void ImageSystem::rebuildComposite()
             if NOT( pLayer )
                 continue;
 
+            // if color correction is for layers with RGBA channels only...
+            if ( mCCorRGBOnly )
+            {
+                for (c_auto &ch : pLayer->iel_chans)
+                {
+                    // if none of the channels is R,G,B or A...
+                    if (c_auto name = StrMakeUpper( ch.GetChanNameOnly() );
+                                name != "R" &&
+                                name != "G" &&
+                                name != "B" &&
+                                name != "A" )
+                    {
+                        // ..disable the color correction
+                        doApplyColorCorr = false;
+                        break;
+                    }
+                }
+            }
+
+            //
             bool didLoad = false;
             if NOT( pLayer->IsLayerDataLoaded() )
             {
@@ -627,8 +639,20 @@ void ImageSystem::rebuildComposite()
         return;
     }
 
+    // make the composite
     makeComposite( pEntries, curSelIdx+1 );
 
+    // apply the color correction, if necessary
+    if ( doApplyColorCorr )
+    {
+        if ( mToneMapping == "filmic" && moComposite->IsFloat32() )
+            applyFilmic( *moComposite );
+
+        if ( mConvOutToSRGB && moComposite->IsFloat32() )
+            applySRGB( *moComposite );
+    }
+
+    // upload to the texture object
     Graphics::UploadImageTexture( *moComposite );
 }
 

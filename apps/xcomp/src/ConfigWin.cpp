@@ -76,7 +76,7 @@ void ConfigWin::DrawConfigWin()
         return;
 
     //
-    IMUI_SetNextWindowSize( ImVec2(500,320), ImGuiCond_FirstUseEver );
+    IMUI_SetNextWindowSize( ImVec2(500,410), ImGuiCond_FirstUseEver );
 
     if NOT( ImGui::Begin( "Configuration", &mActivate,
                       ImGuiWindowFlags_NoCollapse
@@ -99,9 +99,9 @@ void ConfigWin::DrawConfigWin()
                     false,
                     "left" );
 
-    IMUI_DrawHeader( "Display" );
+    IMUI_DrawHeader( "Color Correction" );
 
-    ImGui::Checkbox( "Use Bilinear", &mLocalVars.cfg_dispUseBilinear );
+    ImGui::Checkbox( "Apply to RGB Channels Only", &mLocalVars.cfg_dispCCorrRGBOnly );
 
     ImGui::Checkbox( "sRGB Output", &mLocalVars.cfg_dispConvToSRGB );
 
@@ -110,6 +110,10 @@ void ConfigWin::DrawConfigWin()
                     {"None"   , "Filmic"},
                     false,
                     "filmic" );
+
+    IMUI_DrawHeader( "Display" );
+
+    ImGui::Checkbox( "Use Bilinear", &mLocalVars.cfg_dispUseBilinear );
 
     //
     ImGui::NewLine();
