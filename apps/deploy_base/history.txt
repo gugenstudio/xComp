@@ -1,5 +1,10 @@
 # Version history for xComp
 
+2022/03/01
+1.0.3
+- Config of scan dir now properly updated on file/dir drop
+- Added option to disable color correction on non-RGB(A) layers
+
 2022/02/15
 1.0.2
 - Dropped file is now selected every time
