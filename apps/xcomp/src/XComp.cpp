@@ -392,21 +392,24 @@ void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
 
         if ( fs::is_directory( st ) )
         {
-            mConf.cfg_scanDir = pathFName;
-            reqLazySaveConfig();
+            moXCompUI->moConfigWin->UpdateConfig( [&]( auto &io_conf )
+            {
+                io_conf.cfg_scanDir = pathFName;
 
-            LogOut( 0, "Changed the scan directory to %s", mConf.cfg_scanDir.c_str() );
+                LogOut( 0, "Changed the scan directory to %s", io_conf.cfg_scanDir.c_str() );
+            });
         }
         else
         {
-            c_auto path = fs::path( pathFName );
+            moXCompUI->moConfigWin->UpdateConfig( [&]( auto &io_conf )
+            {
+                c_auto path = fs::path( pathFName );
+                io_conf.cfg_scanDir = StrFromU8Str( path.parent_path().u8string() );
 
-            mConf.cfg_scanDir = StrFromU8Str( path.parent_path().u8string() );
-            reqLazySaveConfig();
+                LogOut( 0, "Changed the scan directory to %s", io_conf.cfg_scanDir.c_str() );
+            });
 
             mNextSelPathFName = pathFName;
-
-            LogOut( 0, "Changed the scan directory to %s", mConf.cfg_scanDir.c_str() );
         }
 
         return true;
