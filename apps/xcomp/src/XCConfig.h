@@ -21,6 +21,7 @@ public:
     DStr                cfg_scanDir             {};
     DStr                cfg_saveDir             {};
     bool                cfg_dispUseBilinear     { true };
+    bool                cfg_dispCCorrRGBOnly    { true };
     bool                cfg_dispConvToSRGB      { true };
     DStr                cfg_dispToneMapping     { "filmic" };
     bool                cfg_dispAutoFit         { true };
@@ -32,6 +33,7 @@ public:
         cfg_scanDir            =    from.cfg_scanDir            ;
         cfg_saveDir            =    from.cfg_saveDir            ;
         cfg_dispUseBilinear    =    from.cfg_dispUseBilinear    ;
+        cfg_dispCCorrRGBOnly   =    from.cfg_dispCCorrRGBOnly   ;
         cfg_dispConvToSRGB     =    from.cfg_dispConvToSRGB     ;
         cfg_dispToneMapping    =    from.cfg_dispToneMapping    ;
         cfg_dispAutoFit        =    from.cfg_dispAutoFit        ;
@@ -44,6 +46,7 @@ public:
             l.cfg_scanDir            !=   r.cfg_scanDir            ||
             l.cfg_saveDir            !=   r.cfg_saveDir            ||
             l.cfg_dispUseBilinear    !=   r.cfg_dispUseBilinear    ||
+            l.cfg_dispCCorrRGBOnly   !=   r.cfg_dispCCorrRGBOnly   ||
             l.cfg_dispConvToSRGB     !=   r.cfg_dispConvToSRGB     ||
             l.cfg_dispToneMapping    !=   r.cfg_dispToneMapping    ||
             l.cfg_dispAutoFit        !=   r.cfg_dispAutoFit        ||

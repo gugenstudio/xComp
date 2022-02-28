@@ -45,6 +45,7 @@ public:
     uptr<image>                 moComposite;
     DStr                        mCurSelPathFName;
     bool                        mUseBilinear = true;
+    bool                        mCCorRGBOnly = true;
     bool                        mConvOutToSRGB = true;
     DStr                        mToneMapping { "none" };
 

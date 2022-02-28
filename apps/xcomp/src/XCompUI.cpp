@@ -404,11 +404,7 @@ void XCompUI::drawLayersList()
                         if ( ch.iec_chanName.empty() )
                             continue;
 
-                        c_auto idx = ch.iec_chanName.find_last_of( '.' );
-                        if ( idx != DStr::npos && (idx+1) < ch.iec_chanName.size() )
-                            chNames += ch.iec_chanName.substr( idx+1 );
-                        else
-                            chNames += ch.iec_chanName;
+                        chNames += ch.GetChanNameOnly();
 
                         //
                         if NOT( chTypes.empty() )
@@ -772,6 +768,7 @@ void XCompUI::OnAnimateXCUI()
         mXComp.reqLazySaveConfig();
 
         mXComp.moIMSys->mUseBilinear   = mXComp.mConf.cfg_dispUseBilinear;
+        mXComp.moIMSys->mCCorRGBOnly   = mXComp.mConf.cfg_dispCCorrRGBOnly;
         mXComp.moIMSys->mConvOutToSRGB = mXComp.mConf.cfg_dispConvToSRGB;
         mXComp.moIMSys->mToneMapping   = mXComp.mConf.cfg_dispToneMapping;
         mXComp.moIMSys->ReqRebuildComposite();
