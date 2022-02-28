@@ -233,7 +233,7 @@ if (ENABLE_OCIO)
     elseif (UNIX)
     endif()
 
-    include_directories( externals/local/ocio/_build/include )
+    include_directories( externals/local/ocio/_build/include/OpenColorIO )
     include_directories( externals/ocio/include )
 endif()
 

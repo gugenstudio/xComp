@@ -555,6 +555,40 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
 }
 
 //==================================================================
+#ifdef ENABLE_OCIO
+
+#include <OpenColorIO/OpenColorIO.h>
+namespace OCIO = OCIO_NAMESPACE;
+
+//
+static void applyOCIO( const image &srcImg )
+{
+#if 0
+    try
+    {
+        auto config = OCIO::GetCurrentConfig();
+        auto processor = config->getProcessor(OCIO::ROLE_COMPOSITING_LOG,
+                                              OCIO::ROLE_SCENE_LINEAR);
+
+        auto cpu = processor->getDefaultCPUProcessor();
+
+        OCIO::PackedImageDesc ocioImg(
+                (void *)srcImg.GetPixelPtr(0,0),
+                srcImg.mW,
+                srcImg.mH,
+                3 );
+
+        cpu->apply( ocioImg );
+    }
+    catch ( OCIO::Exception &ec )
+    {
+        LogOut( LOG_ERR, "OpenColorIO Error: %s", ec.what() );
+    }
+#endif
+}
+#endif
+
+//==================================================================
 void ImageSystem::rebuildComposite()
 {
     auto doApplyColorCorr = true;
@@ -646,7 +680,11 @@ void ImageSystem::rebuildComposite()
     if ( doApplyColorCorr )
     {
         if ( mToneMapping == "filmic" && moComposite->IsFloat32() )
+//#ifdef ENABLE_OCIO
+//            applyOCIO( *moComposite );
+//#else
             applyFilmic( *moComposite );
+//#endif
 
         if ( mConvOutToSRGB && moComposite->IsFloat32() )
             applySRGB( *moComposite );
