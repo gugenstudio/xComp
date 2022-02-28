@@ -11,6 +11,7 @@
 
 #include <future>
 #include <optional>
+#include <functional>
 #include <unordered_map>
 #include "XCConfig.h"
 
@@ -39,6 +40,8 @@ public:
     void ActivateConfigWin( bool onOff );
 
     bool IsConfigWinActive() const { return mActivate; }
+
+    void UpdateConfig( const std::function<void (XCConfig&)> &fn );
 
     std::optional<XCConfig> GetChangedConfig()
     {

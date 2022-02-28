@@ -53,6 +53,13 @@ void ConfigWin::ActivateConfigWin( bool onOff )
 }
 
 //==================================================================
+void ConfigWin::UpdateConfig( const std::function<void (XCConfig&)> &fn )
+{
+    fn( mLocalVars );
+    writeChanges();
+}
+
+//==================================================================
 void ConfigWin::writeChanges()
 {
     if ( XCConfig::CheckValsChange( mStoredVars, mLocalVars ) )
