@@ -23,9 +23,10 @@ public:
     DStr                cfg_ctrlPanButton       { "left" };
     bool                cfg_dispAutoFit         { true };
     bool                cfg_dispUseBilinear     { true };
-    bool                cfg_ccorrRGBOnly        { true };
-    bool                cfg_ccorrSRGB           { true };
-    DStr                cfg_ccorrXform          { "filmic" };
+    bool                cfg_ccorRGBOnly         { true };
+    bool                cfg_ccorSRGB            { true };
+    DStr                cfg_ccorXform           { "filmic" };
+    DStr                cfg_ccorOCIOCfgFName    {};
 
 public:
     void CopyConfigVals( const XCConfig &from )
@@ -35,9 +36,10 @@ public:
         cfg_ctrlPanButton      =    from.cfg_ctrlPanButton      ;
         cfg_dispAutoFit        =    from.cfg_dispAutoFit        ;
         cfg_dispUseBilinear    =    from.cfg_dispUseBilinear    ;
-        cfg_ccorrRGBOnly       =    from.cfg_ccorrRGBOnly       ;
-        cfg_ccorrSRGB          =    from.cfg_ccorrSRGB          ;
-        cfg_ccorrXform         =    from.cfg_ccorrXform         ;
+        cfg_ccorRGBOnly        =    from.cfg_ccorRGBOnly        ;
+        cfg_ccorSRGB           =    from.cfg_ccorSRGB           ;
+        cfg_ccorXform          =    from.cfg_ccorXform          ;
+        cfg_ccorOCIOCfgFName   =    from.cfg_ccorOCIOCfgFName   ;
     }
 
     static bool CheckValsChange( const XCConfig &l, const XCConfig &r )
@@ -48,9 +50,10 @@ public:
             l.cfg_ctrlPanButton      !=   r.cfg_ctrlPanButton      ||
             l.cfg_dispAutoFit        !=   r.cfg_dispAutoFit        ||
             l.cfg_dispUseBilinear    !=   r.cfg_dispUseBilinear    ||
-            l.cfg_ccorrRGBOnly       !=   r.cfg_ccorrRGBOnly       ||
-            l.cfg_ccorrSRGB          !=   r.cfg_ccorrSRGB          ||
-            l.cfg_ccorrXform         !=   r.cfg_ccorrXform         ||
+            l.cfg_ccorRGBOnly        !=   r.cfg_ccorRGBOnly        ||
+            l.cfg_ccorSRGB           !=   r.cfg_ccorSRGB           ||
+            l.cfg_ccorXform          !=   r.cfg_ccorXform          ||
+            l.cfg_ccorOCIOCfgFName   !=   r.cfg_ccorOCIOCfgFName   ||
             true;
     }
 

@@ -118,10 +118,11 @@ XComp::XComp( const XCompParams &par )
 
     //
     moIMSys = std::make_unique<ImageSystem>();
-    moIMSys->mUseBilinear     = mConf.cfg_dispUseBilinear;
-    moIMSys->mCCorRGBOnly     = mConf.cfg_ccorrRGBOnly      ;
-    moIMSys->mCCorSRGB        = mConf.cfg_ccorrSRGB         ;
-    moIMSys->mCCorXform       = mConf.cfg_ccorrXform        ;
+    moIMSys->mUseBilinear       = mConf.cfg_dispUseBilinear     ;
+    moIMSys->mCCorRGBOnly       = mConf.cfg_ccorRGBOnly         ;
+    moIMSys->mCCorSRGB          = mConf.cfg_ccorSRGB            ;
+    moIMSys->mCCorXform         = mConf.cfg_ccorXform           ;
+    moIMSys->mCCorOCIOCfgFName  = mConf.cfg_ccorOCIOCfgFName    ;
 }
 
 //==================================================================
@@ -404,13 +405,24 @@ void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
         {
             moXCompUI->moConfigWin->UpdateConfig( [&]( auto &io_conf )
             {
-                c_auto path = fs::path( pathFName );
-                io_conf.cfg_scanDir = StrFromU8Str( path.parent_path().u8string() );
+                if ( StrEndsWithI( pathFName, ".ocio" ) )
+                {
+                    io_conf.cfg_ccorOCIOCfgFName = pathFName;
 
-                LogOut( 0, "Changed the scan directory to %s", io_conf.cfg_scanDir.c_str() );
+                    LogOut( 0, "New OpenColorIO config file: %s",
+                                    io_conf.cfg_ccorOCIOCfgFName.c_str() );
+                }
+                else
+                {
+                    c_auto path = fs::path( pathFName );
+                    io_conf.cfg_scanDir = StrFromU8Str( path.parent_path().u8string() );
+
+                    mNextSelPathFName = pathFName;
+
+                    LogOut( 0, "New scan directory: %s",
+                                    io_conf.cfg_scanDir.c_str() );
+                }
             });
-
-            mNextSelPathFName = pathFName;
         }
 
         return true;

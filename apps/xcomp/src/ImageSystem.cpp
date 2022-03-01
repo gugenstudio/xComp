@@ -13,6 +13,7 @@
 #include "ImageConv.h"
 #include "Image_PNG.h"
 #include "Image_EXR.h"
+#include "ImageSystemOCIO.h"
 #include "ImageSystem.h"
 
 //==================================================================
@@ -66,6 +67,18 @@ void ImageEntry::loadEXRImage()
     moEXRImage = ImageEXR_Load( mImagePathFName, ImageSystem::DUMMY_LAYER_NAME );
 #endif
 }
+
+//==================================================================
+//==================================================================
+ImageSystem::ImageSystem()
+{
+#ifdef ENABLE_OCIO
+    moIS_OCIO = std::make_unique<ImageSystemOCIO>();
+#endif
+}
+
+//
+ImageSystem::~ImageSystem() = default;
 
 //==================================================================
 void ImageSystem::SaveComposite( const DStr &path ) const
@@ -555,38 +568,6 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
 }
 
 //==================================================================
-#ifdef ENABLE_OCIO
-
-#include <OpenColorIO/OpenColorIO.h>
-namespace OCIO = OCIO_NAMESPACE;
-
-//
-static void applyOCIO( const image &srcImg )
-{
-    try
-    {
-        auto config = OCIO::GetCurrentConfig();
-        auto processor = config->getProcessor(OCIO::ROLE_COMPOSITING_LOG,
-                                              OCIO::ROLE_SCENE_LINEAR);
-
-        auto cpu = processor->getDefaultCPUProcessor();
-
-        OCIO::PackedImageDesc ocioImg(
-                (void *)srcImg.GetPixelPtr(0,0),
-                srcImg.mW,
-                srcImg.mH,
-                3 );
-
-        cpu->apply( ocioImg );
-    }
-    catch ( OCIO::Exception &ec )
-    {
-        LogOut( LOG_ERR, "OpenColorIO Error: %s", ec.what() );
-    }
-}
-#endif
-
-//==================================================================
 void ImageSystem::rebuildComposite()
 {
     auto doApplyColorCorr = true;
@@ -682,7 +663,7 @@ void ImageSystem::rebuildComposite()
 #ifdef ENABLE_OCIO
         else
         if ( mCCorXform == "ocio" )
-            applyOCIO( *moComposite );
+            moIS_OCIO->ApplyOCIO( *moComposite, mCCorOCIOCfgFName );
 #endif
 
         if ( mCCorSRGB )

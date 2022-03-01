@@ -13,6 +13,10 @@
 #include "Image.h"
 #include "Image_EXR.h"
 
+#ifdef ENABLE_OCIO
+class ImageSystemOCIO;
+#endif
+
 //==================================================================
 struct ImageEntry
 {
@@ -48,6 +52,10 @@ public:
     bool                        mCCorRGBOnly = true;
     bool                        mCCorSRGB = true;
     DStr                        mCCorXform   { "none" };
+    DStr                        mCCorOCIOCfgFName;
+#ifdef ENABLE_OCIO
+    uptr<ImageSystemOCIO>       moIS_OCIO;
+#endif
 
     DStr                        mCurLayerName;
 
@@ -57,6 +65,9 @@ private:
     std::unordered_set<DStr>    mNotifiedBadPaths;
 
 public:
+    ImageSystem();
+    ~ImageSystem();
+
     void OnNewScanDir( const DStr &path, const DStr &selPathFName );
 
     void SaveComposite( const DStr &path ) const;
