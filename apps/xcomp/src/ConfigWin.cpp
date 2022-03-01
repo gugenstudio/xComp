@@ -101,11 +101,11 @@ void ConfigWin::DrawConfigWin()
 
     IMUI_DrawHeader( "Color Correction" );
 
-    ImGui::Checkbox( "Apply to RGB Channels Only", &mLocalVars.cfg_dispCCorrRGBOnly );
+    ImGui::Checkbox( "Apply to RGB Channels Only", &mLocalVars.cfg_ccorrRGBOnly );
 
-    ImGui::Checkbox( "sRGB Output", &mLocalVars.cfg_dispCCorSRGB );
+    ImGui::Checkbox( "sRGB Output", &mLocalVars.cfg_ccorrSRGB );
 
-    IMUI_ComboText( "Color Transform", mLocalVars.cfg_dispCCorXform,
+    IMUI_ComboText( "Color Transform", mLocalVars.cfg_ccorrXform,
                     {"none" , "ocio"        , "filmic"           },
                     {"None" , "OpenColorIO" , "Filmic (embedded)"},
                     false,

@@ -768,9 +768,9 @@ void XCompUI::OnAnimateXCUI()
         mXComp.reqLazySaveConfig();
 
         mXComp.moIMSys->mUseBilinear   = mXComp.mConf.cfg_dispUseBilinear;
-        mXComp.moIMSys->mCCorRGBOnly   = mXComp.mConf.cfg_dispCCorrRGBOnly;
-        mXComp.moIMSys->mCCorSRGB      = mXComp.mConf.cfg_dispCCorSRGB      ;
-        mXComp.moIMSys->mCCorXform     = mXComp.mConf.cfg_dispCCorXform     ;
+        mXComp.moIMSys->mCCorRGBOnly   = mXComp.mConf.cfg_ccorrRGBOnly      ;
+        mXComp.moIMSys->mCCorSRGB      = mXComp.mConf.cfg_ccorrSRGB         ;
+        mXComp.moIMSys->mCCorXform     = mXComp.mConf.cfg_ccorrXform        ;
         mXComp.moIMSys->ReqRebuildComposite();
     }
 }

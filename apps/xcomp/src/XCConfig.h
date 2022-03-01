@@ -20,24 +20,24 @@ public:
 
     DStr                cfg_scanDir             {};
     DStr                cfg_saveDir             {};
-    bool                cfg_dispUseBilinear     { true };
-    bool                cfg_dispCCorrRGBOnly    { true };
-    bool                cfg_dispCCorSRGB        { true };
-    DStr                cfg_dispCCorXform       { "filmic" };
-    bool                cfg_dispAutoFit         { true };
     DStr                cfg_ctrlPanButton       { "left" };
+    bool                cfg_dispAutoFit         { true };
+    bool                cfg_dispUseBilinear     { true };
+    bool                cfg_ccorrRGBOnly        { true };
+    bool                cfg_ccorrSRGB           { true };
+    DStr                cfg_ccorrXform          { "filmic" };
 
 public:
     void CopyConfigVals( const XCConfig &from )
     {
         cfg_scanDir            =    from.cfg_scanDir            ;
         cfg_saveDir            =    from.cfg_saveDir            ;
-        cfg_dispUseBilinear    =    from.cfg_dispUseBilinear    ;
-        cfg_dispCCorrRGBOnly   =    from.cfg_dispCCorrRGBOnly   ;
-        cfg_dispCCorSRGB       =    from.cfg_dispCCorSRGB       ;
-        cfg_dispCCorXform      =    from.cfg_dispCCorXform      ;
-        cfg_dispAutoFit        =    from.cfg_dispAutoFit        ;
         cfg_ctrlPanButton      =    from.cfg_ctrlPanButton      ;
+        cfg_dispAutoFit        =    from.cfg_dispAutoFit        ;
+        cfg_dispUseBilinear    =    from.cfg_dispUseBilinear    ;
+        cfg_ccorrRGBOnly       =    from.cfg_ccorrRGBOnly       ;
+        cfg_ccorrSRGB          =    from.cfg_ccorrSRGB          ;
+        cfg_ccorrXform         =    from.cfg_ccorrXform         ;
     }
 
     static bool CheckValsChange( const XCConfig &l, const XCConfig &r )
@@ -45,12 +45,12 @@ public:
         return
             l.cfg_scanDir            !=   r.cfg_scanDir            ||
             l.cfg_saveDir            !=   r.cfg_saveDir            ||
-            l.cfg_dispUseBilinear    !=   r.cfg_dispUseBilinear    ||
-            l.cfg_dispCCorrRGBOnly   !=   r.cfg_dispCCorrRGBOnly   ||
-            l.cfg_dispCCorSRGB       !=   r.cfg_dispCCorSRGB       ||
-            l.cfg_dispCCorXform      !=   r.cfg_dispCCorXform      ||
-            l.cfg_dispAutoFit        !=   r.cfg_dispAutoFit        ||
             l.cfg_ctrlPanButton      !=   r.cfg_ctrlPanButton      ||
+            l.cfg_dispAutoFit        !=   r.cfg_dispAutoFit        ||
+            l.cfg_dispUseBilinear    !=   r.cfg_dispUseBilinear    ||
+            l.cfg_ccorrRGBOnly       !=   r.cfg_ccorrRGBOnly       ||
+            l.cfg_ccorrSRGB          !=   r.cfg_ccorrSRGB          ||
+            l.cfg_ccorrXform         !=   r.cfg_ccorrXform         ||
             true;
     }
 

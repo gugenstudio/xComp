@@ -119,9 +119,9 @@ XComp::XComp( const XCompParams &par )
     //
     moIMSys = std::make_unique<ImageSystem>();
     moIMSys->mUseBilinear     = mConf.cfg_dispUseBilinear;
-    moIMSys->mCCorRGBOnly     = mConf.cfg_dispCCorrRGBOnly;
-    moIMSys->mCCorSRGB        = mConf.cfg_dispCCorSRGB      ;
-    moIMSys->mCCorXform       = mConf.cfg_dispCCorXform     ;
+    moIMSys->mCCorRGBOnly     = mConf.cfg_ccorrRGBOnly      ;
+    moIMSys->mCCorSRGB        = mConf.cfg_ccorrSRGB         ;
+    moIMSys->mCCorXform       = mConf.cfg_ccorrXform        ;
 }
 
 //==================================================================
