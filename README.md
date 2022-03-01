@@ -30,6 +30,13 @@ Note that because ordering of compositing is dictated by file name, images shoul
 
 ## Building
 
+- Build **OpenColorIO**
+```
+pushd externals/local/ocio
+./build_ocio.sh
+popd
+```
+
 - Build files generation `./build.sh -d`
 - Binaries generation `./build.sh`
 
