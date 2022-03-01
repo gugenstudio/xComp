@@ -30,23 +30,30 @@ Note that because ordering of compositing is dictated by file name, images shoul
 
 ## Building
 
-- Build **OpenColorIO**
+### Build OpenColorIO
 ```
 pushd externals/local/ocio
 ./build_ocio.sh
 popd
 ```
 
-- Build files generation `./build.sh -d`
-- Binaries generation `./build.sh`
+### Generate the build files
+```
+./build.sh -d
+```
+Generated Makefile or the VS solution, are found in `_build`.
 
-- Build files, such as Makefile or the VS solution, are found in `_build`.
-- Build products are generated in `_bin`.
+### Generate the binaries
+```
+./build.sh
+```
+Binaries are generated in `_bin`.
 
-For a test run:
-
-1. `cd apps/debug_dir`
-1. `../../_bin/xcomp`
+### Do a test-run
+```
+cd apps/debug_dir
+../../_bin/xcomp
+```
 
 ## Libraries upgrade
 
