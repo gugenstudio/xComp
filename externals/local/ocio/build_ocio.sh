@@ -9,26 +9,36 @@ case "${unameOut}" in
     *)          echo "unsupported architecture"; exit 1
 esac
 
-mkdir -p _build
-pushd _build
+function doMake() {
 
-cmake   -DBUILD_SHARED_LIBS=OFF                 \
-        -DOCIO_BUILD_APPS=OFF                   \
-        -DOCIO_BUILD_TESTS=OFF                  \
-        -DOCIO_BUILD_GPU_TESTS=OFF              \
-        -DOCIO_BUILD_PYTHON=OFF                 \
-        -DOCIO_BUILD_JAVA=OFF                   \
-        -DOCIO_BUILD_DOCS=OFF                   \
-        -DOCIO_WARNING_AS_ERROR=OFF             \
-        -DOCIO_USE_SSE=OFF                      \
-        ../../../ocio
+    TYPE=$1
+
+    echo -e "\e[1m*** Buidling ${TYPE} build... \e[0m"
+
+    mkdir -p _build/${TYPE}
+    pushd _build/${TYPE}
+
+    cmake   -DBUILD_SHARED_LIBS=ON                          \
+            -DCMAKE_BUILD_TYPE=${TYPE}                      \
+            -DOCIO_BUILD_APPS=OFF                           \
+            -DOCIO_BUILD_TESTS=OFF                          \
+            -DOCIO_BUILD_GPU_TESTS=OFF                      \
+            -DOCIO_BUILD_PYTHON=OFF                         \
+            -DOCIO_BUILD_JAVA=OFF                           \
+            -DOCIO_BUILD_DOCS=OFF                           \
+            -DOCIO_WARNING_AS_ERROR=OFF                     \
+            -DOCIO_USE_SSE=ON                               \
+            ../../../../ocio
+
+    cmake --build . --config ${TYPE} -j 6
+
+    popd
+}
 
 # assuming it's Visual Studio in Windows
 if [ "${MACHINE}" == "win" ]; then
-    cmake --build . --config Debug   -j 6
+    doMake "Debug"
 fi
 
-cmake --build . --config Release -j 6
-
-popd
+doMake "Release"
 

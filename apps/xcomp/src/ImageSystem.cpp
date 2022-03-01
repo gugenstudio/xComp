@@ -563,7 +563,6 @@ namespace OCIO = OCIO_NAMESPACE;
 //
 static void applyOCIO( const image &srcImg )
 {
-#if 0
     try
     {
         auto config = OCIO::GetCurrentConfig();
@@ -584,7 +583,6 @@ static void applyOCIO( const image &srcImg )
     {
         LogOut( LOG_ERR, "OpenColorIO Error: %s", ec.what() );
     }
-#endif
 }
 #endif
 
@@ -677,16 +675,17 @@ void ImageSystem::rebuildComposite()
     makeComposite( pEntries, curSelIdx+1 );
 
     // apply the color correction, if necessary
-    if ( doApplyColorCorr )
+    if ( doApplyColorCorr && moComposite->IsFloat32() )
     {
-        if ( mToneMapping == "filmic" && moComposite->IsFloat32() )
-//#ifdef ENABLE_OCIO
-//            applyOCIO( *moComposite );
-//#else
+        if ( mCCorXform == "filmic" )
             applyFilmic( *moComposite );
-//#endif
+#ifdef ENABLE_OCIO
+        else
+        if ( mCCorXform == "ocio" )
+            applyOCIO( *moComposite );
+#endif
 
-        if ( mConvOutToSRGB && moComposite->IsFloat32() )
+        if ( mCCorSRGB )
             applySRGB( *moComposite );
     }
 

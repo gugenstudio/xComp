@@ -222,19 +222,36 @@ if (ENABLE_OCIO)
     set(OCIO_BUILD_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/externals/local/ocio/_build)
 
     if (WIN32)
+        set(OCIO_BUILD_ROOT_REL ${OCIO_BUILD_ROOT}/Release)
+        set(OCIO_BUILD_ROOT_DBG ${OCIO_BUILD_ROOT}/Debug)
+
+        set(OCIO_BUILD_LIBS_REL ${OCIO_BUILD_ROOT_REL}/src/OpenColorIO/Release)
+        set(OCIO_BUILD_LIBS_DBG ${OCIO_BUILD_ROOT_DBG}/src/OpenColorIO/Debug)
+
         set(OCIO_LIBRARY_DIRS
-            ${OCIO_BUILD_ROOT}/src/OpenColorIO/Release
-            ${OCIO_BUILD_ROOT}/src/OpenColorIO/Debug)
+                ${OCIO_BUILD_LIBS_REL}
+                ${OCIO_BUILD_LIBS_DBG})
 
         set(OCIO_LIBRARIES
-            optimized   ${OCIO_BUILD_ROOT}/src/OpenColorIO/Release/OpenColorIO.lib
-            debug       ${OCIO_BUILD_ROOT}/src/OpenColorIO/Debug/OpenColorIO.lib)
+            optimized ${OCIO_BUILD_LIBS_REL}/OpenColorIO.lib
+            debug     ${OCIO_BUILD_LIBS_DBG}/OpenColorIO.lib)
 
     elseif (UNIX)
     endif()
 
-    include_directories( externals/local/ocio/_build/include/OpenColorIO )
+    include_directories( externals/local/ocio/_build/$<CONFIG>/include/OpenColorIO )
     include_directories( externals/ocio/include )
+
+    macro(Copy_OCIO_DLLs_to_RuntimeOut)
+        if (MSVC)
+            ADD_CUSTOM_COMMAND( TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                $<$<CONFIG:Release>:${OCIO_BUILD_LIBS_REL}/OpenColorIO_2_2.dll>
+                $<$<CONFIG:Debug>:${OCIO_BUILD_LIBS_DBG}/OpenColorIO_2_2.dll>
+                $<$<CONFIG:DebugOpt>:${OCIO_BUILD_LIBS_DBG}/OpenColorIO_2_2.dll>
+                ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>)
+        endif()
+    endmacro()
 endif()
 
 add_subdirectory( externals/local/imgui )

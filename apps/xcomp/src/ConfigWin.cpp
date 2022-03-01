@@ -103,11 +103,11 @@ void ConfigWin::DrawConfigWin()
 
     ImGui::Checkbox( "Apply to RGB Channels Only", &mLocalVars.cfg_dispCCorrRGBOnly );
 
-    ImGui::Checkbox( "sRGB Output", &mLocalVars.cfg_dispConvToSRGB );
+    ImGui::Checkbox( "sRGB Output", &mLocalVars.cfg_dispCCorSRGB );
 
-    IMUI_ComboText( "Tone Mapping", mLocalVars.cfg_dispToneMapping,
-                    {"none"   , "filmic"},
-                    {"None"   , "Filmic"},
+    IMUI_ComboText( "Color Transform", mLocalVars.cfg_dispCCorXform,
+                    {"none" , "ocio"        , "filmic"           },
+                    {"None" , "OpenColorIO" , "Filmic (embedded)"},
                     false,
                     "filmic" );
 

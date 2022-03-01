@@ -35,6 +35,10 @@ else()
         commongui ${CPPFS_LIBRARIES} ${OPENSSL_LIBRARIES} )
 endif()
 
+if (ENABLE_OCIO)
+    target_link_libraries( ${XCOMPGUIBIN} PUBLIC ${OCIO_LIBRARIES} )
+endif()
+
 if (MSVC)
     target_link_libraries(${XCOMPGUIBIN} PRIVATE)
 elseif(APPLE)
@@ -53,3 +57,6 @@ endif()
 
 set_property(TARGET ${XCOMPGUIBIN} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/../debug_dir")
 
+if (ENABLE_OCIO)
+    Copy_OCIO_DLLs_to_RuntimeOut()
+endif()

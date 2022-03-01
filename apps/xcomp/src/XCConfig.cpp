@@ -18,8 +18,8 @@ void XCConfig::Serialize( SerialJS &v_ ) const
     SERIALIZE_THIS_MEMBER( v_, cfg_saveDir              );
     SERIALIZE_THIS_MEMBER( v_, cfg_dispUseBilinear      );
     SERIALIZE_THIS_MEMBER( v_, cfg_dispCCorrRGBOnly     );
-    SERIALIZE_THIS_MEMBER( v_, cfg_dispConvToSRGB       );
-    SERIALIZE_THIS_MEMBER( v_, cfg_dispToneMapping      );
+    SERIALIZE_THIS_MEMBER( v_, cfg_dispCCorSRGB         );
+    SERIALIZE_THIS_MEMBER( v_, cfg_dispCCorXform        );
     SERIALIZE_THIS_MEMBER( v_, cfg_dispAutoFit          );
     SERIALIZE_THIS_MEMBER( v_, cfg_ctrlPanButton        );
     v_.MSerializeObjectEnd();
@@ -32,8 +32,8 @@ void XCConfig::Deserialize( DeserialJS &v_ )
     DESERIALIZE_THIS_MEMBER( v_, cfg_saveDir            );
     DESERIALIZE_THIS_MEMBER( v_, cfg_dispUseBilinear    );
     DESERIALIZE_THIS_MEMBER( v_, cfg_dispCCorrRGBOnly   );
-    DESERIALIZE_THIS_MEMBER( v_, cfg_dispConvToSRGB     );
-    DESERIALIZE_THIS_MEMBER( v_, cfg_dispToneMapping    );
+    DESERIALIZE_THIS_MEMBER( v_, cfg_dispCCorSRGB       );
+    DESERIALIZE_THIS_MEMBER( v_, cfg_dispCCorXform      );
     DESERIALIZE_THIS_MEMBER( v_, cfg_dispAutoFit        );
     DESERIALIZE_THIS_MEMBER( v_, cfg_ctrlPanButton      );
 

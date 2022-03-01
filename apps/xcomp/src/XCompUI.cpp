@@ -769,8 +769,8 @@ void XCompUI::OnAnimateXCUI()
 
         mXComp.moIMSys->mUseBilinear   = mXComp.mConf.cfg_dispUseBilinear;
         mXComp.moIMSys->mCCorRGBOnly   = mXComp.mConf.cfg_dispCCorrRGBOnly;
-        mXComp.moIMSys->mConvOutToSRGB = mXComp.mConf.cfg_dispConvToSRGB;
-        mXComp.moIMSys->mToneMapping   = mXComp.mConf.cfg_dispToneMapping;
+        mXComp.moIMSys->mCCorSRGB      = mXComp.mConf.cfg_dispCCorSRGB      ;
+        mXComp.moIMSys->mCCorXform     = mXComp.mConf.cfg_dispCCorXform     ;
         mXComp.moIMSys->ReqRebuildComposite();
     }
 }

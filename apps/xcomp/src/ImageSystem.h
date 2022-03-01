@@ -46,8 +46,8 @@ public:
     DStr                        mCurSelPathFName;
     bool                        mUseBilinear = true;
     bool                        mCCorRGBOnly = true;
-    bool                        mConvOutToSRGB = true;
-    DStr                        mToneMapping { "none" };
+    bool                        mCCorSRGB = true;
+    DStr                        mCCorXform   { "none" };
 
     DStr                        mCurLayerName;
 
