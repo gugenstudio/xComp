@@ -31,7 +31,7 @@ ConfigWin::ConfigWin( XComp &bl )
 ConfigWin::~ConfigWin() = default;
 
 //==================================================================
-void ConfigWin::ActivateConfigWin( bool onOff )
+void ConfigWin::ActivateConfigWin( bool onOff, Tab nextOpenTab )
 {
     if ( mActivate == onOff )
         return;
@@ -47,6 +47,8 @@ void ConfigWin::ActivateConfigWin( bool onOff )
         }
 
         mLocalVars = mStoredVars;
+
+        mNextOpenTab = nextOpenTab;
     }
 
     mActivate = onOff;
@@ -70,22 +72,8 @@ void ConfigWin::writeChanges()
 }
 
 //==================================================================
-void ConfigWin::DrawConfigWin()
+void ConfigWin::drawGeneral()
 {
-    if NOT( mActivate )
-        return;
-
-    //
-    IMUI_SetNextWindowSize( ImVec2(500,410), ImGuiCond_FirstUseEver );
-
-    if NOT( ImGui::Begin( "Configuration", &mActivate,
-                      ImGuiWindowFlags_NoCollapse
-                    | ImGuiWindowFlags_NoDocking ) )
-    {
-        ImGui::End();
-        return;
-    }
-
     IMUI_DrawHeader( "Folders" );
 
     ImGui::InputText( "Scan Folder", &mLocalVars.cfg_scanDir );
@@ -99,28 +87,95 @@ void ConfigWin::DrawConfigWin()
                     false,
                     "left" );
 
-    IMUI_DrawHeader( "Color Correction" );
+    IMUI_DrawHeader( "Display" );
+
+    ImGui::Checkbox( "Use Bilinear", &mLocalVars.cfg_dispUseBilinear );
+}
+
+//==================================================================
+void ConfigWin::drawColorCorr()
+{
+    ImGui::NewLine();
 
     ImGui::Checkbox( "Apply to RGB Channels Only", &mLocalVars.cfg_ccorRGBOnly );
 
     ImGui::Checkbox( "sRGB Output", &mLocalVars.cfg_ccorSRGB );
 
     IMUI_ComboText( "Color Transform", mLocalVars.cfg_ccorXform,
-                    {"none" , "ocio"        , "filmic"           },
-                    {"None" , "OpenColorIO" , "Filmic (embedded)"},
+                    {"none" ,
+#ifdef ENABLE_OCIO
+                     "ocio" ,
+#endif
+                     "filmic" },
+                    {"None" ,
+#ifdef ENABLE_OCIO
+                     "OpenColorIO" ,
+#endif
+                     "Filmic (embedded)" },
                     false,
                     "filmic" );
 
+#ifdef ENABLE_OCIO
     if ( mLocalVars.cfg_ccorXform == "ocio" )
     {
-        ImGui::Indent();
-        ImGui::InputText( "OCIO Config File", &mLocalVars.cfg_ccorOCIOCfgFName );
-        ImGui::Unindent();
+        //ImGui::Indent();
+        if ( ImGui::InputText( "OCIO Config File", &mLocalVars.cfg_ccorOCIOCfgFName ) )
+        {
+        }
+        //ImGui::Unindent();
+    }
+#endif
+}
+
+//==================================================================
+void ConfigWin::drawTabs()
+{
+    auto makeFlags = [&]( auto matchTab )
+    {
+        return mNextOpenTab == matchTab
+                ? ImGuiTabItemFlags_SetSelected
+                : ImGuiTabItemFlags_None;
+    };
+
+    if ( ImGui::BeginTabItem( "General", 0, makeFlags(TAB_GENERAL) ) )
+    {
+        drawGeneral();
+        ImGui::EndTabItem();
     }
 
-    IMUI_DrawHeader( "Display" );
+    if ( ImGui::BeginTabItem( "Color Correction", 0, makeFlags(TAB_COLOR_CORR) ) )
+    {
+        drawColorCorr();
+        ImGui::EndTabItem();
+    }
 
-    ImGui::Checkbox( "Use Bilinear", &mLocalVars.cfg_dispUseBilinear );
+    // reset the tab selection
+    mNextOpenTab = TAB_NONE;
+
+    ImGui::EndTabBar();
+}
+
+//==================================================================
+void ConfigWin::DrawConfigWin()
+{
+    if NOT( mActivate )
+        return;
+
+    //
+    IMUI_SetNextWindowSize( ImVec2(450,410), ImGuiCond_FirstUseEver );
+
+    if NOT( ImGui::Begin( "Configuration", &mActivate,
+                      ImGuiWindowFlags_NoCollapse
+                    | ImGuiWindowFlags_NoDocking ) )
+    {
+        ImGui::End();
+        return;
+    }
+
+    if ( ImGui::BeginTabBar("##tabs", ImGuiTabBarFlags_None) )
+    {
+        drawTabs();
+    }
 
     //
     ImGui::NewLine();

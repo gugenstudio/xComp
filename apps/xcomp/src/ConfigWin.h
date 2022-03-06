@@ -20,13 +20,22 @@ class XComp;
 //==================================================================
 class ConfigWin
 {
-    XComp        &mXComp;
+public:
+    enum Tab
+    {
+         TAB_NONE
+        ,TAB_GENERAL
+        ,TAB_COLOR_CORR
+    };
+private:
+    XComp           &mXComp;
 
     bool            mIsFirstEntrySinceStart = true;
 
     XCConfig        mLocalVars;
     XCConfig        mStoredVars;
 
+    Tab             mNextOpenTab = TAB_NONE;
     bool            mActivate = false;
 
     bool            mHasChangedConfig {};
@@ -37,7 +46,7 @@ public:
 
     void DrawConfigWin();
 
-    void ActivateConfigWin( bool onOff );
+    void ActivateConfigWin( bool onOff, Tab nextOpenTab );
 
     bool IsConfigWinActive() const { return mActivate; }
 
@@ -55,6 +64,10 @@ public:
 
 private:
     void writeChanges();
+
+    void drawTabs();
+    void drawGeneral();
+    void drawColorCorr();
 };
 
 #endif

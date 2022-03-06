@@ -548,7 +548,12 @@ void XCompUI::drawDisplayHead()
     IMUI_LongSameLine();
 
     if ( ImGui::Button( "Config..." ) )
-        moConfigWin->ActivateConfigWin( true );
+        moConfigWin->ActivateConfigWin( true, ConfigWin::TAB_GENERAL );
+
+    ImGui::SameLine();
+
+    if ( ImGui::Button( "Color Corr..." ) )
+        moConfigWin->ActivateConfigWin( true, ConfigWin::TAB_COLOR_CORR );
 
     // visible message for possible UI freeze
     if ( mXComp.moIMSys->IsRebuildingComposite() )
@@ -621,7 +626,7 @@ void XCompUI::SetupGraphicsAppParams( GraphicsAppParams &par )
             if ( mXComp.mConf.cfg_scanDir.empty() )
             {
                 if ( ImGui::Button( "Config..." ) )
-                    moConfigWin->ActivateConfigWin( true );
+                    moConfigWin->ActivateConfigWin( true, ConfigWin::TAB_GENERAL );
 
                 return;
             }
@@ -688,11 +693,12 @@ void XCompUI::SetupGraphicsAppParams( GraphicsAppParams &par )
 void XCompUI::SetupGraphicsAppParamsDispConfigMenu( GraphicsAppParams &par )
 {
     par.mMenuItems.push_back({
-              .mi_menuName   = "File"
-            , .mi_itemName   = "Configuration..."
-            , .mi_pCheckOnOff = nullptr
-            , .mi_onItemSelectFn = [this](){ moConfigWin->ActivateConfigWin(true); }
-            , .mi_drawFn = [this](){ moConfigWin->DrawConfigWin(); }
+          .mi_menuName   = "File"
+        , .mi_itemName   = "Configuration..."
+        , .mi_pCheckOnOff = nullptr
+        , .mi_onItemSelectFn = [this]()
+            { moConfigWin->ActivateConfigWin(true, ConfigWin::TAB_GENERAL); }
+        , .mi_drawFn = [this](){ moConfigWin->DrawConfigWin(); }
     });
 
     par.mMenuItems.push_back({
