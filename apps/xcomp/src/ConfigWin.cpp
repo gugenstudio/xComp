@@ -153,8 +153,6 @@ void ConfigWin::drawColorCorr()
 
     ImGui::Checkbox( "Apply to RGB Channels Only", &mLocalVars.cfg_ccorRGBOnly );
 
-    ImGui::Checkbox( "sRGB Output", &mLocalVars.cfg_ccorSRGB );
-
     IMUI_ComboText( "Color Transform", mLocalVars.cfg_ccorXform,
                     {"none" ,
 #ifdef ENABLE_OCIO
@@ -169,22 +167,29 @@ void ConfigWin::drawColorCorr()
                     false,
                     "filmic" );
 
+    ImGui::Indent();
 #ifdef ENABLE_OCIO
     if ( mLocalVars.cfg_ccorXform == "ocio" )
     {
-        //ImGui::Indent();
         if ( ImGui::InputText( "OCIO Config File", &mLocalVars.cfg_ccorOCIOCfgFName ) )
             updateOnLocalChange();
-        //ImGui::Unindent();
 
         c_auto &cspaces = mLocalOCIO.GetColorSpaces();
         DVec<const char *> pList( cspaces.size() );
         for (size_t i=0; i < cspaces.size(); ++i)
             pList[i] = cspaces[i].c_str();
 
-        IMUI_ComboText( "Color Space", mLocalVars.cfg_ccorOCIOCSpace, pList );
+        if NOT( pList.empty() )
+            IMUI_ComboText( "Color Space", mLocalVars.cfg_ccorOCIOCSpace, pList );
+        else
+            IMUI_TextWrappedDisabled( "No available color spaces" );
     }
+    else
 #endif
+    {
+        ImGui::Checkbox( "sRGB Output", &mLocalVars.cfg_ccorSRGB );
+    }
+    ImGui::Unindent();
 }
 
 //==================================================================

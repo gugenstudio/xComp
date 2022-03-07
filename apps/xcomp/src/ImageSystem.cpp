@@ -665,8 +665,8 @@ void ImageSystem::rebuildComposite()
         if ( mCCorXform == "ocio" )
             moIS_OCIO->ApplyOCIO( *moComposite, mCCorOCIOCfgFName, mCCorOCIOCSpace );
 #endif
-
-        if ( mCCorSRGB )
+        // we ignore this sRGB conversion in case of OCIO
+        if ( mCCorSRGB && mCCorXform != "ocio" )
             applySRGB( *moComposite );
     }
 
