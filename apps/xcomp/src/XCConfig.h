@@ -27,6 +27,7 @@ public:
     bool                cfg_ccorSRGB            { true };
     DStr                cfg_ccorXform           { "filmic" };
     DStr                cfg_ccorOCIOCfgFName    {};
+    DStr                cfg_ccorOCIOCSpace      {};
 
 public:
     void CopyConfigVals( const XCConfig &from )
@@ -40,6 +41,7 @@ public:
         cfg_ccorSRGB           =    from.cfg_ccorSRGB           ;
         cfg_ccorXform          =    from.cfg_ccorXform          ;
         cfg_ccorOCIOCfgFName   =    from.cfg_ccorOCIOCfgFName   ;
+        cfg_ccorOCIOCSpace     =    from.cfg_ccorOCIOCSpace     ;
     }
 
     static bool CheckValsChange( const XCConfig &l, const XCConfig &r )
@@ -54,6 +56,7 @@ public:
             l.cfg_ccorSRGB           !=   r.cfg_ccorSRGB           ||
             l.cfg_ccorXform          !=   r.cfg_ccorXform          ||
             l.cfg_ccorOCIOCfgFName   !=   r.cfg_ccorOCIOCfgFName   ||
+            l.cfg_ccorOCIOCSpace     !=   r.cfg_ccorOCIOCSpace     ||
             false;
     }
 

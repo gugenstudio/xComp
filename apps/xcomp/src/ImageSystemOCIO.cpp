@@ -21,17 +21,23 @@ ImageSystemOCIO::ImageSystemOCIO()
 }
 
 //==================================================================
-void ImageSystemOCIO::ApplyOCIO( const image &srcImg, const DStr &cfgFName )
+void ImageSystemOCIO::ApplyOCIO(
+        const image &srcImg,
+        const DStr &cfgFName,
+        const DStr &cspaceName )
 {
     try
     {
         // see if we have to load a new config
         UpdateConfigOCIO( cfgFName );
 
+        c_auto *pSrcCS = OCIO::ROLE_SCENE_LINEAR;
+        c_auto *pDesCS = cspaceName.empty()
+                            ? OCIO::ROLE_SCENE_LINEAR
+                            : cspaceName.c_str();
+
         //auto config = OCIO::GetCurrentConfig();
-        auto processor = msUseCfg->getProcessor(
-                                    OCIO::ROLE_SCENE_LINEAR,
-                                    OCIO::ROLE_SCENE_LINEAR);
+        auto processor = msUseCfg->getProcessor( pSrcCS, pDesCS );
 
         auto cpu = processor->getDefaultCPUProcessor();
 
@@ -79,6 +85,12 @@ void ImageSystemOCIO::UpdateConfigOCIO( const DStr &cfgFName )
         // settle for the default
         msUseCfg = msDefaultCfg;
     }
+
+    // collect the names of color spaces
+    mColSpaceNames.clear();
+    const int csN = msUseCfg->getNumColorSpaces();
+    for (int i=0; i < csN; ++i)
+        mColSpaceNames.push_back( msUseCfg->getColorSpaceNameByIndex( i ) );
 }
 
 #endif

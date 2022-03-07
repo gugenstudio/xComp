@@ -23,12 +23,19 @@ class ImageSystemOCIO
     DStr                    mUseCfgFName;
     OCIO::ConstConfigRcPtr  msUseCfg;
 
+    DVec<DStr>              mColSpaceNames;
+
 public:
     ImageSystemOCIO();
 
-    void ApplyOCIO( const image &srcImg, const DStr &cfgFName );
+    void ApplyOCIO(
+        const image &srcImg,
+        const DStr &cfgFName,
+        const DStr &cspaceName );
 
     void UpdateConfigOCIO( const DStr &cfgFName );
+
+    c_auto &GetColorSpaces() const { return mColSpaceNames; }
 };
 
 #endif

@@ -123,6 +123,7 @@ XComp::XComp( const XCompParams &par )
     moIMSys->mCCorSRGB          = mConf.cfg_ccorSRGB            ;
     moIMSys->mCCorXform         = mConf.cfg_ccorXform           ;
     moIMSys->mCCorOCIOCfgFName  = mConf.cfg_ccorOCIOCfgFName    ;
+    moIMSys->mCCorOCIOCSpace    = mConf.cfg_ccorOCIOCSpace      ;
 }
 
 //==================================================================

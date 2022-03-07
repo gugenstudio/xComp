@@ -21,6 +21,8 @@
 #include "IMUI_Utils.h"
 #include "ConfigWin.h"
 
+static const auto CWIN_PREFERRED_CSPACE = DStr("Filmic Log");
+
 //==================================================================
 ConfigWin::ConfigWin( XComp &bl )
     : mXComp(bl)
@@ -29,6 +31,42 @@ ConfigWin::ConfigWin( XComp &bl )
 
 //
 ConfigWin::~ConfigWin() = default;
+
+//==================================================================
+void ConfigWin::updateOnLocalChange()
+{
+#ifdef ENABLE_OCIO
+    // select a default;
+    auto pickDefCSpace = []( c_auto &vec )
+    {
+        return
+            vec.end() != std::find( vec.begin(), vec.end(), CWIN_PREFERRED_CSPACE )
+                //  use the preferred value if it exists
+                ? CWIN_PREFERRED_CSPACE
+                // otherwise get the first available color space,
+                //  otherwise just use a standard one
+                : (!vec.empty() ? vec.front() : OCIO::ROLE_SCENE_LINEAR);
+    };
+
+    if (c_auto &fname = mLocalVars.cfg_ccorOCIOCfgFName; FU_FileExists( fname ) )
+    {
+        mLocalOCIO.UpdateConfigOCIO( fname );
+
+        c_auto &cspaces = mLocalOCIO.GetColorSpaces();
+        if ( cspaces.end() == std::find(
+                                cspaces.begin(),
+                                cspaces.end(),
+                                mLocalVars.cfg_ccorOCIOCSpace ) )
+        {
+            mLocalVars.cfg_ccorOCIOCSpace = pickDefCSpace( cspaces );
+        }
+    }
+    else
+    {
+        mLocalVars.cfg_ccorOCIOCSpace = {};
+    }
+#endif
+}
 
 //==================================================================
 void ConfigWin::ActivateConfigWin( bool onOff, Tab nextOpenTab )
@@ -50,6 +88,7 @@ void ConfigWin::ActivateConfigWin( bool onOff, Tab nextOpenTab )
 #ifdef ENABLE_OCIO
         mLocalOCIO = mStoredOCIO;
 #endif
+        updateOnLocalChange();
 
         mNextOpenTab = nextOpenTab;
     }
@@ -61,19 +100,20 @@ void ConfigWin::ActivateConfigWin( bool onOff, Tab nextOpenTab )
 void ConfigWin::UpdateConfig( const std::function<void (XCConfig&)> &fn )
 {
     fn( mLocalVars );
-#ifdef ENABLE_OCIO
-    if (c_auto &fname = mLocalVars.cfg_ccorOCIOCfgFName; FU_FileExists( fname ) )
-    {
-        mLocalOCIO.UpdateConfigOCIO( fname );
-    }
-#endif
+    updateOnLocalChange();
 
+    // don't store it as a permament change yet if we're not
+    //  working in the "immediate apply" mode
+#ifndef CONFIG_WIN_IMMEDIATE_APPLY
     if NOT( mActivate )
-        writeIfChanged();
+#endif
+    {
+        storeIfChanged();
+    }
 }
 
 //==================================================================
-void ConfigWin::writeIfChanged()
+void ConfigWin::storeIfChanged()
 {
     if ( XCConfig::CheckValsChange( mStoredVars, mLocalVars ) )
     {
@@ -132,16 +172,17 @@ void ConfigWin::drawColorCorr()
 #ifdef ENABLE_OCIO
     if ( mLocalVars.cfg_ccorXform == "ocio" )
     {
-        auto &fname = mLocalVars.cfg_ccorOCIOCfgFName;
         //ImGui::Indent();
-        if ( ImGui::InputText( "OCIO Config File", &fname ) )
-        {
-            if ( FU_FileExists( fname ) )
-            {
-                mLocalOCIO.UpdateConfigOCIO( fname );
-            }
-        }
+        if ( ImGui::InputText( "OCIO Config File", &mLocalVars.cfg_ccorOCIOCfgFName ) )
+            updateOnLocalChange();
         //ImGui::Unindent();
+
+        c_auto &cspaces = mLocalOCIO.GetColorSpaces();
+        DVec<const char *> pList( cspaces.size() );
+        for (size_t i=0; i < cspaces.size(); ++i)
+            pList[i] = cspaces[i].c_str();
+
+        IMUI_ComboText( "Color Space", mLocalVars.cfg_ccorOCIOCSpace, pList );
     }
 #endif
 }
@@ -180,7 +221,7 @@ void ConfigWin::drawClose()
 {
     // give a bit of latency before applying the change
     if ( mApplyChangesTE.CheckTimedEvent( GetEpochTimeUS() ) )
-        writeIfChanged();
+        storeIfChanged();
 
     if ( ImGui::Button("Close") )
         mActivate = false;
@@ -200,7 +241,7 @@ void ConfigWin::drawSaveCancel()
 
     if ( ImGui::Button( "Save" ) )
     {
-        writeIfChanged();
+        storeIfChanged();
         mActivate = false;
     }
 

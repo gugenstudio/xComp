@@ -53,6 +53,7 @@ public:
     bool                        mCCorSRGB = true;
     DStr                        mCCorXform   { "none" };
     DStr                        mCCorOCIOCfgFName;
+    DStr                        mCCorOCIOCSpace;
 #ifdef ENABLE_OCIO
     uptr<ImageSystemOCIO>       moIS_OCIO;
 #endif

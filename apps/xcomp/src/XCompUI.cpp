@@ -778,6 +778,7 @@ void XCompUI::OnAnimateXCUI()
         mXComp.moIMSys->mCCorSRGB           = mXComp.mConf.cfg_ccorSRGB         ;
         mXComp.moIMSys->mCCorXform          = mXComp.mConf.cfg_ccorXform        ;
         mXComp.moIMSys->mCCorOCIOCfgFName   = mXComp.mConf.cfg_ccorOCIOCfgFName ;
+        mXComp.moIMSys->mCCorOCIOCSpace     = mXComp.mConf.cfg_ccorOCIOCSpace   ;
         mXComp.moIMSys->ReqRebuildComposite();
     }
 }

@@ -663,7 +663,7 @@ void ImageSystem::rebuildComposite()
 #ifdef ENABLE_OCIO
         else
         if ( mCCorXform == "ocio" )
-            moIS_OCIO->ApplyOCIO( *moComposite, mCCorOCIOCfgFName );
+            moIS_OCIO->ApplyOCIO( *moComposite, mCCorOCIOCfgFName, mCCorOCIOCSpace );
 #endif
 
         if ( mCCorSRGB )

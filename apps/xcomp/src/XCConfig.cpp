@@ -23,6 +23,7 @@ void XCConfig::Serialize( SerialJS &v_ ) const
     SERIALIZE_THIS_MEMBER( v_, cfg_ccorSRGB             );
     SERIALIZE_THIS_MEMBER( v_, cfg_ccorXform            );
     SERIALIZE_THIS_MEMBER( v_, cfg_ccorOCIOCfgFName     );
+    SERIALIZE_THIS_MEMBER( v_, cfg_ccorOCIOCSpace       );
     v_.MSerializeObjectEnd();
 }
 
@@ -38,6 +39,7 @@ void XCConfig::Deserialize( DeserialJS &v_ )
     DESERIALIZE_THIS_MEMBER( v_, cfg_ccorSRGB           );
     DESERIALIZE_THIS_MEMBER( v_, cfg_ccorXform          );
     DESERIALIZE_THIS_MEMBER( v_, cfg_ccorOCIOCfgFName   );
+    DESERIALIZE_THIS_MEMBER( v_, cfg_ccorOCIOCSpace     );
 
     DStr oldScanDir;
     DeserializeMember( v_, "bls_sourcePath", oldScanDir );

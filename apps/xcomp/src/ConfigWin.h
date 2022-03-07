@@ -76,7 +76,8 @@ public:
     }
 
 private:
-    void writeIfChanged();
+    void storeIfChanged();
+    void updateOnLocalChange();
 
     void drawTabs();
     void drawGeneral();
