@@ -94,6 +94,10 @@ create_package_linux(){
 	strip -s _bin/xcomp -o ${PACKAGELINUXDIR}/bin/xcomp
 	chrpath -d ${PACKAGELINUXDIR}/bin/xcomp
 
+    # TODO: tentative name, to be replaced once we have the actual lib name
+    strip -s _bin/OpenColorIO_2_2.so -o ${PACKAGELINUXDIR}/bin/OpenColorIO_2_2.so
+	chmod 644 ${PACKAGELINUXDIR}/bin/OpenColorIO_2_2.so
+
 	mkdir -p ${PACKAGELINUXDIR}/share/icons
 	mkdir -p ${PACKAGELINUXDIR}/share/fonts
 	cp apps/deploy_base/icons/* ${PACKAGELINUXDIR}/share/icons
@@ -120,6 +124,10 @@ create_package_macos(){
 	mkdir -p ${PACKAGEMACOSDIR}/redistr
 
 	strip -o ${PACKAGEMACOSDIR}/bin/xcomp _bin/xcomp
+
+    # TODO: tentative name, to be replaced once we have the actual lib name
+	cp _bin/OpenColorIO_2_2.dylib ${PACKAGEMACOSDIR}/bin/
+
 	cp apps/deploy_base/icons/* ${PACKAGEMACOSDIR}/share/icons
 	cp apps/deploy_base/fonts/* ${PACKAGEMACOSDIR}/share/fonts
 	cp apps/deploy_base/history.txt ${PACKAGEMACOSDIR}
@@ -143,6 +151,8 @@ create_package_win(){
     mkdir -p ${PACKAGEWIN32DIR}/other
 
     cp _bin/Release/xcomp* ${PACKAGEWIN32DIR}/bin
+
+    cp _bin/Release/OpenColorIO_2_2.dll ${PACKAGEWIN32DIR}/bin
 
     cp apps/deploy_base/icons/* ${PACKAGEWIN32DIR}/share/icons
     cp apps/deploy_base/fonts/* ${PACKAGEWIN32DIR}/share/fonts
