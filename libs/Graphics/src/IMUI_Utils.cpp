@@ -176,7 +176,7 @@ void IMUI_MakeTooltip( const DStr &str )
     if ( ImGui::IsItemHovered() )
     {
         ImGui::BeginTooltip();
-        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 20.0f);
         ImGui::TextUnformatted( str.c_str() );
         ImGui::PopTextWrapPos();
         ImGui::EndTooltip();
