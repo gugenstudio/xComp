@@ -13,7 +13,12 @@
 #include <optional>
 #include <functional>
 #include <unordered_map>
+#include "TimeUtils.h"
 #include "XCConfig.h"
+
+// determine whether we want changes to apply immediately or
+//  if they should be applied only when the user clicks on "Save"
+#define CONFIG_WIN_IMMEDIATE_APPLY
 
 class XComp;
 
@@ -39,6 +44,9 @@ private:
     bool            mActivate = false;
 
     bool            mHasChangedConfig {};
+#ifdef CONFIG_WIN_IMMEDIATE_APPLY
+    TimedEvent      mApplyChangesTE { TimeUS::ONE_SECOND() / 2 };
+#endif
 
 public:
     ConfigWin( XComp &bh );
@@ -68,6 +76,11 @@ private:
     void drawTabs();
     void drawGeneral();
     void drawColorCorr();
+#ifdef CONFIG_WIN_IMMEDIATE_APPLY
+    void drawSaveCancel();
+#else
+    void drawClose();
+#endif
 };
 
 #endif

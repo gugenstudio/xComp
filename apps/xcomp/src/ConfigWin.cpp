@@ -156,6 +156,49 @@ void ConfigWin::drawTabs()
     ImGui::EndTabBar();
 }
 
+#ifdef CONFIG_WIN_IMMEDIATE_APPLY
+//==================================================================
+void ConfigWin::drawClose()
+{
+    // give a bit of latency before applying the change
+    if ( mApplyChangesTE.CheckTimedEvent( GetEpochTimeUS() ) )
+        writeIfChanged();
+
+    if ( ImGui::Button("Close") )
+        mActivate = false;
+}
+#else
+//==================================================================
+void ConfigWin::drawSaveCancel()
+{
+    c_auto needsToSave = XCConfig::CheckValsChange( mStoredVars, mLocalVars );
+
+    // have changes since we last saved ?
+
+    c_auto disableSave = !needsToSave;
+
+    if ( disableSave )
+        IMUI_PushDisabled();
+
+    if ( ImGui::Button( "Save" ) )
+    {
+        writeIfChanged();
+        mActivate = false;
+    }
+
+    if ( disableSave )
+        IMUI_PopDisabled();
+
+    ImGui::SameLine();
+    ImGui::SameLine();
+
+    if ( ImGui::Button("Cancel") )
+    {
+        mActivate = false;
+    }
+}
+#endif
+
 //==================================================================
 void ConfigWin::DrawConfigWin()
 {
@@ -179,47 +222,27 @@ void ConfigWin::DrawConfigWin()
     }
 
     //
-    ImGui::NewLine();
+    {
+        ImGui::NewLine();
 
-    ImGui::BeginGroup();
+        ImGui::BeginGroup();
 
-    ImGui::Separator();
+        ImGui::Separator();
 
-    IMUI_ShortNewLine();
+        IMUI_ShortNewLine();
 
-    c_auto indent = ImGui::GetWindowWidth() * 0.05f;
+        c_auto indent = ImGui::GetWindowWidth() * 0.05f;
+        ImGui::Indent( indent );
 
-    ImGui::Indent( indent );
+#ifdef CONFIG_WIN_IMMEDIATE_APPLY
+        drawClose();
+#else
+        drawSaveCancel();
+#endif
+        ImGui::Unindent( indent );
 
-        c_auto needsToSave = XCConfig::CheckValsChange( mStoredVars, mLocalVars );
-
-        // have changes since we last saved ?
-
-        c_auto disableSave = !needsToSave;
-
-        if ( disableSave )
-            IMUI_PushDisabled();
-
-        if ( ImGui::Button( "Save" ) )
-        {
-            writeIfChanged();
-            mActivate = false;
-        }
-
-        if ( disableSave )
-            IMUI_PopDisabled();
-
-        ImGui::SameLine();
-        ImGui::SameLine();
-
-        if ( ImGui::Button("Cancel") )
-        {
-            mActivate = false;
-        }
-
-    ImGui::Unindent( indent );
-
-    ImGui::EndGroup();
+        ImGui::EndGroup();
+    }
 
     ImGui::End();
 }
