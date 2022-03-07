@@ -63,7 +63,7 @@ public:
     }
 
 private:
-    void writeChanges();
+    void writeIfChanged();
 
     void drawTabs();
     void drawGeneral();

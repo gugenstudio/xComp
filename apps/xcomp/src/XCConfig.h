@@ -54,7 +54,7 @@ public:
             l.cfg_ccorSRGB           !=   r.cfg_ccorSRGB           ||
             l.cfg_ccorXform          !=   r.cfg_ccorXform          ||
             l.cfg_ccorOCIOCfgFName   !=   r.cfg_ccorOCIOCfgFName   ||
-            true;
+            false;
     }
 
     void Serialize( SerialJS &v_ ) const;

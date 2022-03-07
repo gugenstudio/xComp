@@ -58,11 +58,12 @@ void ConfigWin::ActivateConfigWin( bool onOff, Tab nextOpenTab )
 void ConfigWin::UpdateConfig( const std::function<void (XCConfig&)> &fn )
 {
     fn( mLocalVars );
-    writeChanges();
+    if NOT( mActivate )
+        writeIfChanged();
 }
 
 //==================================================================
-void ConfigWin::writeChanges()
+void ConfigWin::writeIfChanged()
 {
     if ( XCConfig::CheckValsChange( mStoredVars, mLocalVars ) )
     {
@@ -201,7 +202,7 @@ void ConfigWin::DrawConfigWin()
 
         if ( ImGui::Button( "Save" ) )
         {
-            writeChanges();
+            writeIfChanged();
             mActivate = false;
         }
 

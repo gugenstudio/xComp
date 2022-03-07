@@ -371,12 +371,6 @@ void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
         if ( count <= 0 )
             return false;
 
-        if ( moXCompUI->moConfigWin->IsConfigWinActive() )
-        {
-            LogOut( LOG_WRN, "Ignoring the drop because the config window is open" );
-            return false;
-        }
-
         if ( count > 1 )
             LogOut( 0, "%i files dropped. Using only the first one.", count );
 
