@@ -1,5 +1,11 @@
 # Version history for xComp
 
+2022/03/
+1.1.0
+- Added support for OpenColorIO
+- Configuration window changes are now applied immediately
+- Drag & drop now working when the config window is open
+
 2022/03/01
 1.0.3
 - Config of scan dir now properly updated on file/dir drop
