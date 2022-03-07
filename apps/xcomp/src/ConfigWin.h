@@ -15,6 +15,7 @@
 #include <unordered_map>
 #include "TimeUtils.h"
 #include "XCConfig.h"
+#include "ImageSystemOCIO.h"
 
 // determine whether we want changes to apply immediately or
 //  if they should be applied only when the user clicks on "Save"
@@ -39,13 +40,17 @@ private:
 
     XCConfig        mLocalVars;
     XCConfig        mStoredVars;
+#ifdef ENABLE_OCIO
+    ImageSystemOCIO mLocalOCIO;
+    ImageSystemOCIO mStoredOCIO;
+#endif
 
     Tab             mNextOpenTab = TAB_NONE;
     bool            mActivate = false;
 
     bool            mHasChangedConfig {};
 #ifdef CONFIG_WIN_IMMEDIATE_APPLY
-    TimedEvent      mApplyChangesTE { TimeUS::ONE_SECOND() / 2 };
+    TimedEvent      mApplyChangesTE { TimeUS::ONE_SECOND() / 10 };
 #endif
 
 public:
@@ -77,9 +82,9 @@ private:
     void drawGeneral();
     void drawColorCorr();
 #ifdef CONFIG_WIN_IMMEDIATE_APPLY
-    void drawSaveCancel();
-#else
     void drawClose();
+#else
+    void drawSaveCancel();
 #endif
 };
 

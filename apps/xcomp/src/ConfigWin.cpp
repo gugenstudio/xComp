@@ -47,6 +47,9 @@ void ConfigWin::ActivateConfigWin( bool onOff, Tab nextOpenTab )
         }
 
         mLocalVars = mStoredVars;
+#ifdef ENABLE_OCIO
+        mLocalOCIO = mStoredOCIO;
+#endif
 
         mNextOpenTab = nextOpenTab;
     }
@@ -58,6 +61,13 @@ void ConfigWin::ActivateConfigWin( bool onOff, Tab nextOpenTab )
 void ConfigWin::UpdateConfig( const std::function<void (XCConfig&)> &fn )
 {
     fn( mLocalVars );
+#ifdef ENABLE_OCIO
+    if (c_auto &fname = mLocalVars.cfg_ccorOCIOCfgFName; FU_FileExists( fname ) )
+    {
+        mLocalOCIO.UpdateConfigOCIO( fname );
+    }
+#endif
+
     if NOT( mActivate )
         writeIfChanged();
 }
@@ -68,6 +78,9 @@ void ConfigWin::writeIfChanged()
     if ( XCConfig::CheckValsChange( mStoredVars, mLocalVars ) )
     {
         mStoredVars = mLocalVars;
+#ifdef ENABLE_OCIO
+        mStoredOCIO = mLocalOCIO;
+#endif
         mHasChangedConfig = true;
     }
 }
@@ -119,9 +132,14 @@ void ConfigWin::drawColorCorr()
 #ifdef ENABLE_OCIO
     if ( mLocalVars.cfg_ccorXform == "ocio" )
     {
+        auto &fname = mLocalVars.cfg_ccorOCIOCfgFName;
         //ImGui::Indent();
-        if ( ImGui::InputText( "OCIO Config File", &mLocalVars.cfg_ccorOCIOCfgFName ) )
+        if ( ImGui::InputText( "OCIO Config File", &fname ) )
         {
+            if ( FU_FileExists( fname ) )
+            {
+                mLocalOCIO.UpdateConfigOCIO( fname );
+            }
         }
         //ImGui::Unindent();
     }

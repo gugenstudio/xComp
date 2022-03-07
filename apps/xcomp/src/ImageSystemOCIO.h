@@ -28,8 +28,7 @@ public:
 
     void ApplyOCIO( const image &srcImg, const DStr &cfgFName );
 
-private:
-    void updateConfigOCIO( const DStr &cfgFName );
+    void UpdateConfigOCIO( const DStr &cfgFName );
 };
 
 #endif

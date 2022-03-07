@@ -26,7 +26,7 @@ void ImageSystemOCIO::ApplyOCIO( const image &srcImg, const DStr &cfgFName )
     try
     {
         // see if we have to load a new config
-        updateConfigOCIO( cfgFName );
+        UpdateConfigOCIO( cfgFName );
 
         //auto config = OCIO::GetCurrentConfig();
         auto processor = msUseCfg->getProcessor(
@@ -50,7 +50,7 @@ void ImageSystemOCIO::ApplyOCIO( const image &srcImg, const DStr &cfgFName )
 }
 
 //==================================================================
-void ImageSystemOCIO::updateConfigOCIO( const DStr &cfgFName )
+void ImageSystemOCIO::UpdateConfigOCIO( const DStr &cfgFName )
 {
     if ( cfgFName == mUseCfgFName )
         return;
