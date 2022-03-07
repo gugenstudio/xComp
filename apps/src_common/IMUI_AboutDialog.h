@@ -21,6 +21,7 @@ struct IMUI_AboutDialogParams
     DStr        fullURL     ;
     bool        *pOpen {};
     DStr        copyrightText;
+    DStr        creditsLine ;
     uint32_t    val_Year  {};
     uint32_t    val_Month {};
     uint32_t    val_Day   {};

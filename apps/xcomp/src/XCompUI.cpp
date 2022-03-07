@@ -591,7 +591,8 @@ void XCompUI::SetupGraphicsAppParams( GraphicsAppParams &par )
             par.appVersion  = GTV_SUITE_VERSION;
             par.dispURL     = GTV_SUITE_DISPURL;
             par.fullURL     = GTV_SUITE_FULLURL;
-            par.copyrightText= "Copyright by Gugen Studio Inc., Japan 2022";
+            par.copyrightText= "Copyright by Gugen Studio Inc., Japan 2022.";
+            par.creditsLine = "Code by Davide Pasca, Marco Azimonti.";
             par.pOpen       = pOpen;
             par.val_Year    = DM_YEAR ;
             par.val_Month   = DM_MONTH;

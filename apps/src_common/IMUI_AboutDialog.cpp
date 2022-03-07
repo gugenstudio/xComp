@@ -11,6 +11,7 @@
 #ifdef ENABLE_IMGUI
 
 #include "imgui.h"
+#include "FileUtils.h"
 #include "IMUI_Utils.h"
 
 //==================================================================
@@ -35,8 +36,8 @@ static void displayLicenses( bool showSmall )
         ,{ "Mesa 3D"            ,"Brian Paul (DLL by fdossena.com)" ,"MIT"           }
         ,{ "zlib"               ,"Jean-loup Gailly, Mark Adler"     ,"zlib"          }
         ,{ "libpng"             ,"multiple"                         ,"libpng"        }
-        ,{ "OpenEXR"            ,"Academy Software Foundation"      ,"OpenEXR"       }
-    };
+        ,{ "OpenEXR"            ,"Academy Software Foundation"      ,"Modified BSD"  }
+        ,{ "OpenColorIO"        ,"Academy Software Foundation"      ,"BSD-3-Clause"  } };
 
     if ( showSmall )
     {
@@ -99,9 +100,6 @@ void IMUI_AboutDialog( const IMUI_AboutDialogParams &par )
 
     IMUI_DrawHeader( par.appLongName + " " + par.appVersion );
 
-    if NOT( par.showSmall )
-        ImGui::NewLine();
-
     if ( par.copyrightText.empty() )
         IMUI_Text( "Copyright by NEWTYPE K.K., Japan 2018-2022" );
     else
@@ -114,24 +112,24 @@ void IMUI_AboutDialog( const IMUI_AboutDialogParams &par )
 "No redistribution is allowed, unless explicity approved by NEWTYPE K.K." );
 #endif
 
-    if NOT( par.showSmall )
+    if ( FU_CanOpenURL() )
     {
-        ImGui::NewLine();
-
-        linkLineBegin();
         ImGui::Text( "Go to" );
         ImGui::SameLine();
-        IMUI_DrawLink( par.fullURL, par.dispURL );
+
+        if ( IMUI_TextURL( (par.dispURL.empty() ? par.fullURL : par.dispURL).c_str() ) )
+        {
+            FU_OpenURL( par.fullURL );
+        }
+
         ImGui::SameLine();
         ImGui::Text( "for more information." );
+    }
 
-        ImGui::NewLine();
-    }
-    else
-    {
-        linkLineBegin();
-        IMUI_DrawLink( par.fullURL, par.dispURL );
-    }
+    if NOT( par.creditsLine.empty() )
+        IMUI_Text( par.creditsLine );
+
+    ImGui::NewLine();
 
     displayLicenses( par.showSmall );
 
