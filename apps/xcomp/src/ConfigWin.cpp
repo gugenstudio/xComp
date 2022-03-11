@@ -48,7 +48,9 @@ void ConfigWin::updateOnLocalChange()
                 : (!vec.empty() ? vec.front() : OCIO::ROLE_SCENE_LINEAR);
     };
 
-    if (c_auto &fname = mLocalVars.cfg_ccorOCIOCfgFName; FU_FileExists( fname ) )
+    auto &locIMSC = mLocalVars.cfg_imsConfig;
+
+    if (c_auto &fname = locIMSC.imsc_ccorOCIOCfgFName; FU_FileExists( fname ) )
     {
         mLocalOCIO.UpdateConfigOCIO( fname );
 
@@ -56,14 +58,14 @@ void ConfigWin::updateOnLocalChange()
         if ( cspaces.end() == std::find(
                                 cspaces.begin(),
                                 cspaces.end(),
-                                mLocalVars.cfg_ccorOCIOCSpace ) )
+                                locIMSC.imsc_ccorOCIOCSpace ) )
         {
-            mLocalVars.cfg_ccorOCIOCSpace = pickDefCSpace( cspaces );
+            locIMSC.imsc_ccorOCIOCSpace = pickDefCSpace( cspaces );
         }
     }
     else
     {
-        mLocalVars.cfg_ccorOCIOCSpace = {};
+        locIMSC.imsc_ccorOCIOCSpace = {};
     }
 #endif
 }
@@ -128,6 +130,8 @@ void ConfigWin::storeIfChanged()
 //==================================================================
 void ConfigWin::drawGeneral()
 {
+    auto &locIMSC = mLocalVars.cfg_imsConfig;
+
     IMUI_DrawHeader( "Folders" );
 
     ImGui::InputText( "Scan Folder", &mLocalVars.cfg_scanDir );
@@ -143,17 +147,19 @@ void ConfigWin::drawGeneral()
 
     IMUI_DrawHeader( "Display" );
 
-    ImGui::Checkbox( "Use Bilinear", &mLocalVars.cfg_dispUseBilinear );
+    ImGui::Checkbox( "Use Bilinear", &locIMSC.imsc_useBilinear );
 }
 
 //==================================================================
 void ConfigWin::drawColorCorr()
 {
+    auto &locIMSC = mLocalVars.cfg_imsConfig;
+
     ImGui::NewLine();
 
-    ImGui::Checkbox( "Apply to RGB Channels Only", &mLocalVars.cfg_ccorRGBOnly );
+    ImGui::Checkbox( "Apply to RGB Channels Only", &locIMSC.imsc_ccorRGBOnly );
 
-    IMUI_ComboText( "Color Transform", mLocalVars.cfg_ccorXform,
+    IMUI_ComboText( "Color Transform", locIMSC.imsc_ccorXform,
                     {"none" ,
 #ifdef ENABLE_OCIO
                      "ocio" ,
@@ -169,9 +175,9 @@ void ConfigWin::drawColorCorr()
 
     ImGui::Indent();
 #ifdef ENABLE_OCIO
-    if ( mLocalVars.cfg_ccorXform == "ocio" )
+    if ( locIMSC.imsc_ccorXform == "ocio" )
     {
-        if ( ImGui::InputText( "OCIO Config File", &mLocalVars.cfg_ccorOCIOCfgFName ) )
+        if ( ImGui::InputText( "OCIO Config File", &locIMSC.imsc_ccorOCIOCfgFName ) )
             updateOnLocalChange();
 
         c_auto &cspaces = mLocalOCIO.GetColorSpaces();
@@ -180,14 +186,14 @@ void ConfigWin::drawColorCorr()
             pList[i] = cspaces[i].c_str();
 
         if NOT( pList.empty() )
-            IMUI_ComboText( "Color Space", mLocalVars.cfg_ccorOCIOCSpace, pList );
+            IMUI_ComboText( "Color Space", locIMSC.imsc_ccorOCIOCSpace, pList );
         else
             IMUI_TextWrappedDisabled( "No available color spaces" );
     }
     else
 #endif
     {
-        ImGui::Checkbox( "sRGB Output", &mLocalVars.cfg_ccorSRGB );
+        ImGui::Checkbox( "sRGB Output", &locIMSC.imsc_ccorSRGB );
     }
     ImGui::Unindent();
 }

@@ -18,12 +18,7 @@ void XCConfig::Serialize( SerialJS &v_ ) const
     SERIALIZE_THIS_MEMBER( v_, cfg_saveDir              );
     SERIALIZE_THIS_MEMBER( v_, cfg_ctrlPanButton        );
     SERIALIZE_THIS_MEMBER( v_, cfg_dispAutoFit          );
-    SERIALIZE_THIS_MEMBER( v_, cfg_dispUseBilinear      );
-    SERIALIZE_THIS_MEMBER( v_, cfg_ccorRGBOnly          );
-    SERIALIZE_THIS_MEMBER( v_, cfg_ccorSRGB             );
-    SERIALIZE_THIS_MEMBER( v_, cfg_ccorXform            );
-    SERIALIZE_THIS_MEMBER( v_, cfg_ccorOCIOCfgFName     );
-    SERIALIZE_THIS_MEMBER( v_, cfg_ccorOCIOCSpace       );
+    SERIALIZE_THIS_MEMBER( v_, cfg_imsConfig           );
     v_.MSerializeObjectEnd();
 }
 
@@ -34,12 +29,7 @@ void XCConfig::Deserialize( DeserialJS &v_ )
     DESERIALIZE_THIS_MEMBER( v_, cfg_saveDir            );
     DESERIALIZE_THIS_MEMBER( v_, cfg_ctrlPanButton      );
     DESERIALIZE_THIS_MEMBER( v_, cfg_dispAutoFit        );
-    DESERIALIZE_THIS_MEMBER( v_, cfg_dispUseBilinear    );
-    DESERIALIZE_THIS_MEMBER( v_, cfg_ccorRGBOnly        );
-    DESERIALIZE_THIS_MEMBER( v_, cfg_ccorSRGB           );
-    DESERIALIZE_THIS_MEMBER( v_, cfg_ccorXform          );
-    DESERIALIZE_THIS_MEMBER( v_, cfg_ccorOCIOCfgFName   );
-    DESERIALIZE_THIS_MEMBER( v_, cfg_ccorOCIOCSpace     );
+    DESERIALIZE_THIS_MEMBER( v_, cfg_imsConfig          );
 
     DStr oldScanDir;
     DeserializeMember( v_, "bls_sourcePath", oldScanDir );

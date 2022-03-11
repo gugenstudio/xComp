@@ -9,6 +9,7 @@
 #ifndef XCCONFIG_H
 #define XCCONFIG_H
 
+#include "ImageSystem.h"
 #include "SerializeJS.h"
 
 //==================================================================
@@ -22,12 +23,8 @@ public:
     DStr                cfg_saveDir             {};
     DStr                cfg_ctrlPanButton       { "left" };
     bool                cfg_dispAutoFit         { true };
-    bool                cfg_dispUseBilinear     { true };
-    bool                cfg_ccorRGBOnly         { true };
-    bool                cfg_ccorSRGB            { true };
-    DStr                cfg_ccorXform           { "filmic" };
-    DStr                cfg_ccorOCIOCfgFName    {};
-    DStr                cfg_ccorOCIOCSpace      {};
+
+    IMSConfig           cfg_imsConfig           {};
 
 public:
     void CopyConfigVals( const XCConfig &from )
@@ -36,12 +33,7 @@ public:
         cfg_saveDir            =    from.cfg_saveDir            ;
         cfg_ctrlPanButton      =    from.cfg_ctrlPanButton      ;
         cfg_dispAutoFit        =    from.cfg_dispAutoFit        ;
-        cfg_dispUseBilinear    =    from.cfg_dispUseBilinear    ;
-        cfg_ccorRGBOnly        =    from.cfg_ccorRGBOnly        ;
-        cfg_ccorSRGB           =    from.cfg_ccorSRGB           ;
-        cfg_ccorXform          =    from.cfg_ccorXform          ;
-        cfg_ccorOCIOCfgFName   =    from.cfg_ccorOCIOCfgFName   ;
-        cfg_ccorOCIOCSpace     =    from.cfg_ccorOCIOCSpace     ;
+        cfg_imsConfig          =    from.cfg_imsConfig          ;
     }
 
     static bool CheckValsChange( const XCConfig &l, const XCConfig &r )
@@ -51,12 +43,7 @@ public:
             l.cfg_saveDir            !=   r.cfg_saveDir            ||
             l.cfg_ctrlPanButton      !=   r.cfg_ctrlPanButton      ||
             l.cfg_dispAutoFit        !=   r.cfg_dispAutoFit        ||
-            l.cfg_dispUseBilinear    !=   r.cfg_dispUseBilinear    ||
-            l.cfg_ccorRGBOnly        !=   r.cfg_ccorRGBOnly        ||
-            l.cfg_ccorSRGB           !=   r.cfg_ccorSRGB           ||
-            l.cfg_ccorXform          !=   r.cfg_ccorXform          ||
-            l.cfg_ccorOCIOCfgFName   !=   r.cfg_ccorOCIOCfgFName   ||
-            l.cfg_ccorOCIOCSpace     !=   r.cfg_ccorOCIOCSpace     ||
+            l.cfg_imsConfig          !=   r.cfg_imsConfig          ||
             false;
     }
 

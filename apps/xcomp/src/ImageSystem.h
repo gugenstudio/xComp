@@ -47,12 +47,26 @@ private:
 class IMSConfig
 {
 public:
-    bool    mUseBilinear        { true };
-    bool    mCCorRGBOnly        { true };
-    bool    mCCorSRGB           { true };
-    DStr    mCCorXform          { "none" };
-    DStr    mCCorOCIOCfgFName   {};
-    DStr    mCCorOCIOCSpace     {};
+    bool    imsc_useBilinear        { true };
+    bool    imsc_ccorRGBOnly        { true };
+    bool    imsc_ccorSRGB           { true };
+    DStr    imsc_ccorXform          { "none" };
+    DStr    imsc_ccorOCIOCfgFName   {};
+    DStr    imsc_ccorOCIOCSpace     {};
+
+    friend bool operator==(const IMSConfig &l, const IMSConfig &r)
+    {
+        return
+            l.imsc_useBilinear      == r.imsc_useBilinear       &&
+            l.imsc_ccorRGBOnly      == r.imsc_ccorRGBOnly       &&
+            l.imsc_ccorSRGB         == r.imsc_ccorSRGB          &&
+            l.imsc_ccorXform        == r.imsc_ccorXform         &&
+            l.imsc_ccorOCIOCfgFName == r.imsc_ccorOCIOCfgFName  &&
+            l.imsc_ccorOCIOCSpace   == r.imsc_ccorOCIOCSpace    &&
+            true;
+    }
+
+    friend bool operator!=(const IMSConfig &l, const IMSConfig &r) { return !(l == r); }
 
     void Serialize( SerialJS &v_ ) const;
     void Deserialize( DeserialJS &v_ );
@@ -69,7 +83,7 @@ public:
     std::map<DStr,ImageEntry>   mEntries;
     uptr<image>                 moComposite;
     DStr                        mCurSelPathFName;
-    IMSConfig                   mIMSConfig;
+    IMSConfig                   mIMSCfg;
 #ifdef ENABLE_OCIO
     uptr<ImageSystemOCIO>       moIS_OCIO;
 #endif
@@ -82,7 +96,7 @@ private:
     std::unordered_set<DStr>    mNotifiedBadPaths;
 
 public:
-    ImageSystem();
+    ImageSystem( const IMSConfig &initCfg={} );
     ~ImageSystem();
 
     void OnNewScanDir( const DStr &path, const DStr &selPathFName );
@@ -93,6 +107,7 @@ public:
     void SetLastCurSel();
 
     void ReqRebuildComposite();
+    void ReqRebuildComposite( const IMSConfig &cfg );
 
     void AnimateIMS();
 

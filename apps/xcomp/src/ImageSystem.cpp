@@ -21,23 +21,23 @@
 void IMSConfig::Serialize( SerialJS &v_ ) const
 {
     v_.MSerializeObjectStart();
-    SERIALIZE_THIS_MEMBER( v_, mUseBilinear         );
-    SERIALIZE_THIS_MEMBER( v_, mCCorRGBOnly         );
-    SERIALIZE_THIS_MEMBER( v_, mCCorSRGB            );
-    SERIALIZE_THIS_MEMBER( v_, mCCorXform           );
-    SERIALIZE_THIS_MEMBER( v_, mCCorOCIOCfgFName    );
-    SERIALIZE_THIS_MEMBER( v_, mCCorOCIOCSpace      );
+    SERIALIZE_THIS_MEMBER( v_, imsc_useBilinear         );
+    SERIALIZE_THIS_MEMBER( v_, imsc_ccorRGBOnly         );
+    SERIALIZE_THIS_MEMBER( v_, imsc_ccorSRGB            );
+    SERIALIZE_THIS_MEMBER( v_, imsc_ccorXform           );
+    SERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOCfgFName    );
+    SERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOCSpace      );
     v_.MSerializeObjectEnd();
 }
 
 void IMSConfig::Deserialize( DeserialJS &v_ )
 {
-    DESERIALIZE_THIS_MEMBER( v_, mUseBilinear       );
-    DESERIALIZE_THIS_MEMBER( v_, mCCorRGBOnly       );
-    DESERIALIZE_THIS_MEMBER( v_, mCCorSRGB          );
-    DESERIALIZE_THIS_MEMBER( v_, mCCorXform         );
-    DESERIALIZE_THIS_MEMBER( v_, mCCorOCIOCfgFName  );
-    DESERIALIZE_THIS_MEMBER( v_, mCCorOCIOCSpace    );
+    DESERIALIZE_THIS_MEMBER( v_, imsc_useBilinear       );
+    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorRGBOnly       );
+    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorSRGB          );
+    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorXform         );
+    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOCfgFName  );
+    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOCSpace    );
 }
 
 //==================================================================
@@ -94,7 +94,8 @@ void ImageEntry::loadEXRImage()
 
 //==================================================================
 //==================================================================
-ImageSystem::ImageSystem()
+ImageSystem::ImageSystem( const IMSConfig &initCfg )
+    : mIMSCfg(initCfg)
 {
 #ifdef ENABLE_OCIO
     moIS_OCIO = std::make_unique<ImageSystemOCIO>();
@@ -480,7 +481,7 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
         par.width   = mainW;
         par.height  = mainH;
         par.chans   = 3;
-        par.flags   = mIMSConfig.mUseBilinear ? image::FLG_USE_BILINEAR : 0;
+        par.flags   = mIMSCfg.imsc_useBilinear ? image::FLG_USE_BILINEAR : 0;
         if ( pEntries[n-1]->moStdImage->IsFloat32() )
         {
             par.depth = 32 * 3;
@@ -611,7 +612,7 @@ void ImageSystem::rebuildComposite()
                 continue;
 
             // if color correction is for layers with RGBA channels only...
-            if ( mIMSConfig.mCCorRGBOnly )
+            if ( mIMSCfg.imsc_ccorRGBOnly )
             {
                 for (c_auto &ch : pLayer->iel_chans)
                 {
@@ -682,15 +683,18 @@ void ImageSystem::rebuildComposite()
     // apply the color correction, if necessary
     if ( doApplyColorCorr && moComposite->IsFloat32() )
     {
-        if ( mIMSConfig.mCCorXform == "filmic" )
+        if ( mIMSCfg.imsc_ccorXform == "filmic" )
             applyFilmic( *moComposite );
 #ifdef ENABLE_OCIO
         else
-        if ( mIMSConfig.mCCorXform == "ocio" )
-            moIS_OCIO->ApplyOCIO( *moComposite, mIMSConfig.mCCorOCIOCfgFName, mIMSConfig.mCCorOCIOCSpace );
+        if ( mIMSCfg.imsc_ccorXform == "ocio" )
+            moIS_OCIO->ApplyOCIO(
+                            *moComposite,
+                            mIMSCfg.imsc_ccorOCIOCfgFName,
+                            mIMSCfg.imsc_ccorOCIOCSpace );
 #endif
         // we ignore this sRGB conversion in case of OCIO
-        if ( mIMSConfig.mCCorSRGB && mIMSConfig.mCCorXform != "ocio" )
+        if ( mIMSCfg.imsc_ccorSRGB && mIMSCfg.imsc_ccorXform != "ocio" )
             applySRGB( *moComposite );
     }
 
@@ -702,6 +706,12 @@ void ImageSystem::rebuildComposite()
 void ImageSystem::ReqRebuildComposite()
 {
     mHasRebuildReq = true;
+}
+
+void ImageSystem::ReqRebuildComposite( const IMSConfig &cfg )
+{
+    mIMSCfg = cfg;
+    ReqRebuildComposite();
 }
 
 //==================================================================

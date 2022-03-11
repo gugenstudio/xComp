@@ -117,13 +117,7 @@ XComp::XComp( const XCompParams &par )
     moXCompUI = std::make_unique<XCompUI>( *this );
 
     //
-    moIMSys = std::make_unique<ImageSystem>();
-    moIMSys->mIMSConfig.mUseBilinear       = mConf.cfg_dispUseBilinear     ;
-    moIMSys->mIMSConfig.mCCorRGBOnly       = mConf.cfg_ccorRGBOnly         ;
-    moIMSys->mIMSConfig.mCCorSRGB          = mConf.cfg_ccorSRGB            ;
-    moIMSys->mIMSConfig.mCCorXform         = mConf.cfg_ccorXform           ;
-    moIMSys->mIMSConfig.mCCorOCIOCfgFName  = mConf.cfg_ccorOCIOCfgFName    ;
-    moIMSys->mIMSConfig.mCCorOCIOCSpace    = mConf.cfg_ccorOCIOCSpace      ;
+    moIMSys = std::make_unique<ImageSystem>( mConf.cfg_imsConfig );
 }
 
 //==================================================================
@@ -402,10 +396,10 @@ void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
             {
                 if ( StrEndsWithI( pathFName, ".ocio" ) )
                 {
-                    io_conf.cfg_ccorOCIOCfgFName = pathFName;
+                    io_conf.cfg_imsConfig.imsc_ccorOCIOCfgFName = pathFName;
 
                     LogOut( 0, "New OpenColorIO config file: %s",
-                                    io_conf.cfg_ccorOCIOCfgFName.c_str() );
+                                io_conf.cfg_imsConfig.imsc_ccorOCIOCfgFName.c_str() );
                 }
                 else
                 {

@@ -515,7 +515,7 @@ void XCompUI::drawCompositeDisp()
                 { (float)img.mW, (float)img.mH },
                 ImGuiTexInspect::InspectorFlags_NoTooltip |
                 ImGuiTexInspect::InspectorFlags_NoGrid |
-                (mXComp.mConf.cfg_dispUseBilinear
+                (mXComp.mConf.cfg_imsConfig.imsc_useBilinear
                     ? ImGuiTexInspect::InspectorFlags_NoForceFilterNearest
                     : 0),
                 ImGuiTexInspect::SizeIncludingBorder{
@@ -774,13 +774,8 @@ void XCompUI::OnAnimateXCUI()
 
         mXComp.reqLazySaveConfig();
 
-        mXComp.moIMSys->mIMSConfig.mUseBilinear        = mXComp.mConf.cfg_dispUseBilinear  ;
-        mXComp.moIMSys->mIMSConfig.mCCorRGBOnly        = mXComp.mConf.cfg_ccorRGBOnly      ;
-        mXComp.moIMSys->mIMSConfig.mCCorSRGB           = mXComp.mConf.cfg_ccorSRGB         ;
-        mXComp.moIMSys->mIMSConfig.mCCorXform          = mXComp.mConf.cfg_ccorXform        ;
-        mXComp.moIMSys->mIMSConfig.mCCorOCIOCfgFName   = mXComp.mConf.cfg_ccorOCIOCfgFName ;
-        mXComp.moIMSys->mIMSConfig.mCCorOCIOCSpace     = mXComp.mConf.cfg_ccorOCIOCSpace   ;
-        mXComp.moIMSys->ReqRebuildComposite();
+        // set thenew configuration and rebuild the composite
+        mXComp.moIMSys->ReqRebuildComposite( mXComp.mConf.cfg_imsConfig );
     }
 }
 
