@@ -26,7 +26,8 @@ void IMSConfig::Serialize( SerialJS &v_ ) const
     SERIALIZE_THIS_MEMBER( v_, imsc_ccorSRGB            );
     SERIALIZE_THIS_MEMBER( v_, imsc_ccorXform           );
     SERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOCfgFName    );
-    SERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOCSpace      );
+    SERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIODisp        );
+    SERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOView        );
     SERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOLook        );
     v_.MSerializeObjectEnd();
 }
@@ -38,7 +39,8 @@ void IMSConfig::Deserialize( DeserialJS &v_ )
     DESERIALIZE_THIS_MEMBER( v_, imsc_ccorSRGB          );
     DESERIALIZE_THIS_MEMBER( v_, imsc_ccorXform         );
     DESERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOCfgFName  );
-    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOCSpace    );
+    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIODisp      );
+    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOView      );
     DESERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOLook      );
 }
 
@@ -693,7 +695,9 @@ void ImageSystem::rebuildComposite()
             moIS_OCIO->ApplyOCIO(
                             *moComposite,
                             mIMSCfg.imsc_ccorOCIOCfgFName,
-                            mIMSCfg.imsc_ccorOCIOCSpace );
+                            mIMSCfg.imsc_ccorOCIODisp,
+                            mIMSCfg.imsc_ccorOCIOView,
+                            mIMSCfg.imsc_ccorOCIOLook );
 #endif
         // we ignore this sRGB conversion in case of OCIO
         if ( mIMSCfg.imsc_ccorSRGB && mIMSCfg.imsc_ccorXform != "ocio" )

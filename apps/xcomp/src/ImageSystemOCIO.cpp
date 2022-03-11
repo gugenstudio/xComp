@@ -24,22 +24,27 @@ ImageSystemOCIO::ImageSystemOCIO()
 void ImageSystemOCIO::ApplyOCIO(
         const image &srcImg,
         const DStr &cfgFName,
-        const DStr &cspaceName )
+        const DStr &dispName,
+        const DStr &viewName,
+        const DStr &lookName )
 {
+    auto getName = []( c_auto &str ) -> const char*
+    {
+        return str.empty() ? nullptr : str == "None" ? "" : str.c_str();
+    };
+
+    c_auto *pDisp = msUseCfg->getDefaultDisplay();
+    c_auto *pView = msUseCfg->getDefaultView( pDisp );
+    c_auto *pLook = msUseCfg->getDisplayViewLooks( pDisp, pView );
+
+    if (c_auto *p = getName( dispName )) pDisp = p;
+    if (c_auto *p = getName( viewName )) pView = p;
+    if (c_auto *p = getName( lookName )) pLook = p;
+
     try
     {
         // see if we have to load a new config
         UpdateConfigOCIO( cfgFName );
-
-        c_auto *pSrcCS = OCIO::ROLE_SCENE_LINEAR;
-        c_auto *pDesCS = cspaceName.empty()
-                            ? OCIO::ROLE_SCENE_LINEAR
-                            : cspaceName.c_str();
-
-        //auto config = OCIO::GetCurrentConfig();
-        auto processor = msUseCfg->getProcessor( pSrcCS, pDesCS );
-
-        auto cpu = processor->getDefaultCPUProcessor();
 
         OCIO::PackedImageDesc ocioImg(
                 (void *)srcImg.GetPixelPtr(0,0),
@@ -47,11 +52,26 @@ void ImageSystemOCIO::ApplyOCIO(
                 srcImg.mH,
                 3 );
 
-        cpu->apply( ocioImg );
+        auto dvt = OCIO::DisplayViewTransform::Create();
+        dvt->setSrc( OCIO::ROLE_SCENE_LINEAR );
+        dvt->setDisplay( pDisp );
+        dvt->setView( pView );
+
+        auto lvp = OCIO::LegacyViewingPipeline::Create();
+        lvp->setDisplayViewTransform( dvt );
+        lvp->setLooksOverrideEnabled( true );
+        lvp->setLooksOverride( pLook );
+
+        auto proc = lvp->getProcessor( msUseCfg, msUseCfg->getCurrentContext() );
+
+        proc->getDefaultCPUProcessor()->apply( ocioImg );
     }
     catch ( OCIO::Exception &ec )
     {
-        LogOut( LOG_ERR, "OpenColorIO Error: %s", ec.what() );
+        LogOut( LOG_ERR, "OpenColorIO Error: %s, while applying"
+                         "disp:%s, view:%s, look:%s",
+                         ec.what(),
+                         pDisp, pView, pLook );
     }
 }
 
@@ -86,15 +106,52 @@ void ImageSystemOCIO::UpdateConfigOCIO( const DStr &cfgFName )
         msUseCfg = msDefaultCfg;
     }
 
+    // collect the names of displays
+    mDispNames.clear();
+    for (int i=0; i < msUseCfg->getNumDisplays(); ++i)
+        mDispNames.push_back( msUseCfg->getDisplay( i ) );
+
     // collect the names of color spaces
-    mColSpaceNames.clear();
-    for (int i=0; i < msUseCfg->getNumColorSpaces(); ++i)
-        mColSpaceNames.push_back( msUseCfg->getColorSpaceNameByIndex( i ) );
+    mViewNames.clear();
+    for (c_auto &disp : mDispNames)
+    {
+        c_auto *pDisp = disp.c_str();
+        for (int i=0; i < msUseCfg->getNumViews( pDisp ); ++i)
+            mViewNames[disp].push_back( msUseCfg->getView( pDisp, i ) );
+    }
 
     // collect the names of the looks
-    mLooksNames.clear();
+    mLookNames.clear();
     for (int i=0; i < msUseCfg->getNumLooks(); ++i)
-        mLooksNames.push_back( msUseCfg->getLookNameByIndex( i ) );
+        mLookNames.push_back( msUseCfg->getLookNameByIndex( i ) );
+}
+
+//==================================================================
+const DVec<DStr> &ImageSystemOCIO::GetViews( const DStr &disp ) const
+{
+    if (auto it = mViewNames.find( disp ); it != mViewNames.end())
+        return it->second;
+
+    static DVec<DStr> sDummy;
+    return sDummy;
+}
+
+//==================================================================
+bool ImageSystemOCIO::HasView( const DStr &disp, const DStr &view ) const
+{
+    auto itView = mViewNames.find( disp );
+    if ( itView == mViewNames.end() )
+        return false;
+
+    c_auto &v = itView->second;
+
+    return std::find( v.begin(), v.end(), view ) != v.end();
+}
+
+//==================================================================
+const char *ImageSystemOCIO::GetDefView( const DStr &disp ) const
+{
+    return msUseCfg->getDefaultView( disp.c_str() );
 }
 
 #endif

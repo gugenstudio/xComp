@@ -21,8 +21,9 @@
 #include "IMUI_Utils.h"
 #include "ConfigWin.h"
 
-static const auto CWIN_PREFERRED_CSPACE = DStr("Filmic Log");
-static const auto CWIN_PREFERRED_LOOK   = DStr("Medium Contrast");
+static const auto CWIN_PREFERRED_DISP = DStr("sRGB");
+static const auto CWIN_PREFERRED_VIEW = DStr("Filmic");
+static const auto CWIN_PREFERRED_LOOK = DStr("Medium Contrast");
 
 //==================================================================
 ConfigWin::ConfigWin( XComp &bl )
@@ -43,52 +44,37 @@ void ConfigWin::updateOnLocalChange()
         return cont.end() != std::find( cont.begin(), cont.end(), val );
     };
 
-    // select a default;
-    auto pickDefCSpace = [&]( c_auto &vec )
-    {
-        return isContained( CWIN_PREFERRED_CSPACE, vec )
-                //  use the preferred value if it exists
-                ? CWIN_PREFERRED_CSPACE
-                // otherwise get the first available color space,
-                //  otherwise just use a standard one
-                : (!vec.empty() ? vec.front() : OCIO::ROLE_SCENE_LINEAR);
-    };
-
-    auto pickDefLook = [&]( c_auto &vec )
-    {
-        return isContained( CWIN_PREFERRED_LOOK, vec )
-                //  use the preferred value if it exists
-                ? CWIN_PREFERRED_LOOK
-                // otherwise get the first available color space,
-                //  otherwise just nothing
-                : (!vec.empty() ? vec.front() : DStr());
-    };
-
     auto &locIMSC = mLocalVars.cfg_imsConfig;
+
+    auto &disp = locIMSC.imsc_ccorOCIODisp;
+    auto &view = locIMSC.imsc_ccorOCIOView;
+    auto &look = locIMSC.imsc_ccorOCIOLook;
 
     if (c_auto &fname = locIMSC.imsc_ccorOCIOCfgFName; FU_FileExists( fname ) )
     {
         // update the config
         mLocalOCIO.UpdateConfigOCIO( fname );
 
-        // default color space, if the selected one isn't available
-        if (c_auto &names = mLocalOCIO.GetColorSpaces();
-                    !isContained( locIMSC.imsc_ccorOCIOCSpace, names ))
-        {
-            locIMSC.imsc_ccorOCIOCSpace = pickDefCSpace( names );
-        }
+        if (c_auto &names = mLocalOCIO.GetDisps(); !isContained( disp, names ))
+            disp = isContained( CWIN_PREFERRED_DISP, names )
+                              ? CWIN_PREFERRED_DISP
+                              : DStr();
 
-        // default look, if the selected one isn't available
-        if (c_auto &names = mLocalOCIO.GetLooks();
-                    !isContained( locIMSC.imsc_ccorOCIOLook, names ))
-        {
-            locIMSC.imsc_ccorOCIOLook = pickDefLook( names );
-        }
+        if (c_auto &names = mLocalOCIO.GetViews( disp ); !isContained( view, names ))
+            view = isContained( CWIN_PREFERRED_VIEW, names )
+                              ? CWIN_PREFERRED_VIEW
+                              : DStr();
+
+        if (c_auto &names = mLocalOCIO.GetLooks(); !isContained( look, names ))
+            look = isContained( CWIN_PREFERRED_LOOK, names )
+                              ? CWIN_PREFERRED_LOOK
+                              : DStr();
     }
     else
     {
-        locIMSC.imsc_ccorOCIOCSpace = {};
-        locIMSC.imsc_ccorOCIOLook = {};
+        disp = {};
+        view = {};
+        look = {};
     }
 #endif
 }
@@ -212,15 +198,23 @@ void ConfigWin::drawColorCorr()
             return pList;
         };
 
-        if (c_auto pList = makeCStrList( mLocalOCIO.GetColorSpaces() ); !pList.empty() )
-            IMUI_ComboText( "Color Space", locIMSC.imsc_ccorOCIOCSpace, pList );
-        else
-            IMUI_TextWrappedDisabled( "No available color spaces" );
+        auto &disp = locIMSC.imsc_ccorOCIODisp;
+        auto &view = locIMSC.imsc_ccorOCIOView;
+        auto &look = locIMSC.imsc_ccorOCIOLook;
+
+        if (c_auto pList = makeCStrList( mLocalOCIO.GetDisps() ); !pList.empty() )
+            IMUI_ComboText( "Display Device", disp, pList );
+
+        if (c_auto pList = makeCStrList( mLocalOCIO.GetViews(disp) ); !pList.empty() )
+        {
+            if NOT( mLocalOCIO.HasView( disp, view ) )
+                view = mLocalOCIO.GetDefView( disp );
+
+            IMUI_ComboText( "View Transform", view, pList );
+        }
 
         if (c_auto pList = makeCStrList( mLocalOCIO.GetLooks() ); !pList.empty() )
-            IMUI_ComboText( "Looks", locIMSC.imsc_ccorOCIOLook, pList );
-        else
-            IMUI_TextWrappedDisabled( "No available looks" );
+            IMUI_ComboText( "Look", look, pList );
     }
     else
 #endif

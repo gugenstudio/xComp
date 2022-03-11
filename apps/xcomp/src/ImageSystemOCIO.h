@@ -23,8 +23,9 @@ class ImageSystemOCIO
     DStr                    mUseCfgFName;
     OCIO::ConstConfigRcPtr  msUseCfg;
 
-    DVec<DStr>              mColSpaceNames;
-    DVec<DStr>              mLooksNames;
+    DVec<DStr>                          mDispNames;
+    std::unordered_map<DStr,DVec<DStr>> mViewNames;
+    DVec<DStr>                          mLookNames;
 
 public:
     ImageSystemOCIO();
@@ -32,12 +33,18 @@ public:
     void ApplyOCIO(
         const image &srcImg,
         const DStr &cfgFName,
-        const DStr &cspaceName );
+        const DStr &dispName,
+        const DStr &viewName,
+        const DStr &lookName );
 
     void UpdateConfigOCIO( const DStr &cfgFName );
 
-    c_auto &GetColorSpaces() const { return mColSpaceNames; }
-    c_auto &GetLooks() const       { return mLooksNames; }
+    const DVec<DStr> &GetDisps() const { return mDispNames; }
+    const DVec<DStr> &GetViews( const DStr &disp ) const;
+    const DVec<DStr> &GetLooks() const { return mLookNames; }
+
+    bool HasView( const DStr &disp, const DStr &view ) const;
+    const char *GetDefView( const DStr &disp ) const;
 };
 
 #endif
