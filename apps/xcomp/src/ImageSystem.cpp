@@ -27,6 +27,7 @@ void IMSConfig::Serialize( SerialJS &v_ ) const
     SERIALIZE_THIS_MEMBER( v_, imsc_ccorXform           );
     SERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOCfgFName    );
     SERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOCSpace      );
+    SERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOLook        );
     v_.MSerializeObjectEnd();
 }
 
@@ -38,6 +39,7 @@ void IMSConfig::Deserialize( DeserialJS &v_ )
     DESERIALIZE_THIS_MEMBER( v_, imsc_ccorXform         );
     DESERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOCfgFName  );
     DESERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOCSpace    );
+    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOLook      );
 }
 
 //==================================================================

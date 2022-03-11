@@ -88,9 +88,13 @@ void ImageSystemOCIO::UpdateConfigOCIO( const DStr &cfgFName )
 
     // collect the names of color spaces
     mColSpaceNames.clear();
-    const int csN = msUseCfg->getNumColorSpaces();
-    for (int i=0; i < csN; ++i)
+    for (int i=0; i < msUseCfg->getNumColorSpaces(); ++i)
         mColSpaceNames.push_back( msUseCfg->getColorSpaceNameByIndex( i ) );
+
+    // collect the names of the looks
+    mLooksNames.clear();
+    for (int i=0; i < msUseCfg->getNumLooks(); ++i)
+        mLooksNames.push_back( msUseCfg->getLookNameByIndex( i ) );
 }
 
 #endif

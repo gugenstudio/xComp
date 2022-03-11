@@ -22,6 +22,7 @@
 #include "ConfigWin.h"
 
 static const auto CWIN_PREFERRED_CSPACE = DStr("Filmic Log");
+static const auto CWIN_PREFERRED_LOOK   = DStr("Medium Contrast");
 
 //==================================================================
 ConfigWin::ConfigWin( XComp &bl )
@@ -36,11 +37,16 @@ ConfigWin::~ConfigWin() = default;
 void ConfigWin::updateOnLocalChange()
 {
 #ifdef ENABLE_OCIO
-    // select a default;
-    auto pickDefCSpace = []( c_auto &vec )
+    // utility function
+    auto isContained = []( c_auto &val, c_auto &cont )
     {
-        return
-            vec.end() != std::find( vec.begin(), vec.end(), CWIN_PREFERRED_CSPACE )
+        return cont.end() != std::find( cont.begin(), cont.end(), val );
+    };
+
+    // select a default;
+    auto pickDefCSpace = [&]( c_auto &vec )
+    {
+        return isContained( CWIN_PREFERRED_CSPACE, vec )
                 //  use the preferred value if it exists
                 ? CWIN_PREFERRED_CSPACE
                 // otherwise get the first available color space,
@@ -48,24 +54,41 @@ void ConfigWin::updateOnLocalChange()
                 : (!vec.empty() ? vec.front() : OCIO::ROLE_SCENE_LINEAR);
     };
 
+    auto pickDefLook = [&]( c_auto &vec )
+    {
+        return isContained( CWIN_PREFERRED_LOOK, vec )
+                //  use the preferred value if it exists
+                ? CWIN_PREFERRED_LOOK
+                // otherwise get the first available color space,
+                //  otherwise just nothing
+                : (!vec.empty() ? vec.front() : DStr());
+    };
+
     auto &locIMSC = mLocalVars.cfg_imsConfig;
 
     if (c_auto &fname = locIMSC.imsc_ccorOCIOCfgFName; FU_FileExists( fname ) )
     {
+        // update the config
         mLocalOCIO.UpdateConfigOCIO( fname );
 
-        c_auto &cspaces = mLocalOCIO.GetColorSpaces();
-        if ( cspaces.end() == std::find(
-                                cspaces.begin(),
-                                cspaces.end(),
-                                locIMSC.imsc_ccorOCIOCSpace ) )
+        // default color space, if the selected one isn't available
+        if (c_auto &names = mLocalOCIO.GetColorSpaces();
+                    !isContained( locIMSC.imsc_ccorOCIOCSpace, names ))
         {
-            locIMSC.imsc_ccorOCIOCSpace = pickDefCSpace( cspaces );
+            locIMSC.imsc_ccorOCIOCSpace = pickDefCSpace( names );
+        }
+
+        // default look, if the selected one isn't available
+        if (c_auto &names = mLocalOCIO.GetLooks();
+                    !isContained( locIMSC.imsc_ccorOCIOLook, names ))
+        {
+            locIMSC.imsc_ccorOCIOLook = pickDefLook( names );
         }
     }
     else
     {
         locIMSC.imsc_ccorOCIOCSpace = {};
+        locIMSC.imsc_ccorOCIOLook = {};
     }
 #endif
 }
@@ -180,15 +203,24 @@ void ConfigWin::drawColorCorr()
         if ( ImGui::InputText( "OCIO Config File", &locIMSC.imsc_ccorOCIOCfgFName ) )
             updateOnLocalChange();
 
-        c_auto &cspaces = mLocalOCIO.GetColorSpaces();
-        DVec<const char *> pList( cspaces.size() );
-        for (size_t i=0; i < cspaces.size(); ++i)
-            pList[i] = cspaces[i].c_str();
+        auto makeCStrList = [&,this]( c_auto &src )
+        {
+            DVec<const char *> pList( src.size() );
+            for (size_t i=0; i < src.size(); ++i)
+                pList[i] = src[i].c_str();
 
-        if NOT( pList.empty() )
+            return pList;
+        };
+
+        if (c_auto pList = makeCStrList( mLocalOCIO.GetColorSpaces() ); !pList.empty() )
             IMUI_ComboText( "Color Space", locIMSC.imsc_ccorOCIOCSpace, pList );
         else
             IMUI_TextWrappedDisabled( "No available color spaces" );
+
+        if (c_auto pList = makeCStrList( mLocalOCIO.GetLooks() ); !pList.empty() )
+            IMUI_ComboText( "Looks", locIMSC.imsc_ccorOCIOLook, pList );
+        else
+            IMUI_TextWrappedDisabled( "No available looks" );
     }
     else
 #endif

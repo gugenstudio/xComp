@@ -24,6 +24,7 @@ class ImageSystemOCIO
     OCIO::ConstConfigRcPtr  msUseCfg;
 
     DVec<DStr>              mColSpaceNames;
+    DVec<DStr>              mLooksNames;
 
 public:
     ImageSystemOCIO();
@@ -36,6 +37,7 @@ public:
     void UpdateConfigOCIO( const DStr &cfgFName );
 
     c_auto &GetColorSpaces() const { return mColSpaceNames; }
+    c_auto &GetLooks() const       { return mLooksNames; }
 };
 
 #endif

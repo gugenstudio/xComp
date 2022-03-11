@@ -53,6 +53,7 @@ public:
     DStr    imsc_ccorXform          { "none" };
     DStr    imsc_ccorOCIOCfgFName   {};
     DStr    imsc_ccorOCIOCSpace     {};
+    DStr    imsc_ccorOCIOLook       {};
 
     friend bool operator==(const IMSConfig &l, const IMSConfig &r)
     {
@@ -63,6 +64,7 @@ public:
             l.imsc_ccorXform        == r.imsc_ccorXform         &&
             l.imsc_ccorOCIOCfgFName == r.imsc_ccorOCIOCfgFName  &&
             l.imsc_ccorOCIOCSpace   == r.imsc_ccorOCIOCSpace    &&
+            l.imsc_ccorOCIOLook     == r.imsc_ccorOCIOLook      &&
             true;
     }
 
