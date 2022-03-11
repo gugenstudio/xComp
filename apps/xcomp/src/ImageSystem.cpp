@@ -10,11 +10,35 @@
 #include "Graphics.h"
 #include "TimeUtils.h"
 #include "FileUtils.h"
+#include "SerializeJS.h"
 #include "ImageConv.h"
 #include "Image_PNG.h"
 #include "Image_EXR.h"
 #include "ImageSystemOCIO.h"
 #include "ImageSystem.h"
+
+//==================================================================
+void IMSConfig::Serialize( SerialJS &v_ ) const
+{
+    v_.MSerializeObjectStart();
+    SERIALIZE_THIS_MEMBER( v_, mUseBilinear         );
+    SERIALIZE_THIS_MEMBER( v_, mCCorRGBOnly         );
+    SERIALIZE_THIS_MEMBER( v_, mCCorSRGB            );
+    SERIALIZE_THIS_MEMBER( v_, mCCorXform           );
+    SERIALIZE_THIS_MEMBER( v_, mCCorOCIOCfgFName    );
+    SERIALIZE_THIS_MEMBER( v_, mCCorOCIOCSpace      );
+    v_.MSerializeObjectEnd();
+}
+
+void IMSConfig::Deserialize( DeserialJS &v_ )
+{
+    DESERIALIZE_THIS_MEMBER( v_, mUseBilinear       );
+    DESERIALIZE_THIS_MEMBER( v_, mCCorRGBOnly       );
+    DESERIALIZE_THIS_MEMBER( v_, mCCorSRGB          );
+    DESERIALIZE_THIS_MEMBER( v_, mCCorXform         );
+    DESERIALIZE_THIS_MEMBER( v_, mCCorOCIOCfgFName  );
+    DESERIALIZE_THIS_MEMBER( v_, mCCorOCIOCSpace    );
+}
 
 //==================================================================
 ImageEntry::ImageEntry( const DStr &pathFName )
@@ -456,7 +480,7 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
         par.width   = mainW;
         par.height  = mainH;
         par.chans   = 3;
-        par.flags   = mUseBilinear ? image::FLG_USE_BILINEAR : 0;
+        par.flags   = mIMSConfig.mUseBilinear ? image::FLG_USE_BILINEAR : 0;
         if ( pEntries[n-1]->moStdImage->IsFloat32() )
         {
             par.depth = 32 * 3;
@@ -587,7 +611,7 @@ void ImageSystem::rebuildComposite()
                 continue;
 
             // if color correction is for layers with RGBA channels only...
-            if ( mCCorRGBOnly )
+            if ( mIMSConfig.mCCorRGBOnly )
             {
                 for (c_auto &ch : pLayer->iel_chans)
                 {
@@ -658,15 +682,15 @@ void ImageSystem::rebuildComposite()
     // apply the color correction, if necessary
     if ( doApplyColorCorr && moComposite->IsFloat32() )
     {
-        if ( mCCorXform == "filmic" )
+        if ( mIMSConfig.mCCorXform == "filmic" )
             applyFilmic( *moComposite );
 #ifdef ENABLE_OCIO
         else
-        if ( mCCorXform == "ocio" )
-            moIS_OCIO->ApplyOCIO( *moComposite, mCCorOCIOCfgFName, mCCorOCIOCSpace );
+        if ( mIMSConfig.mCCorXform == "ocio" )
+            moIS_OCIO->ApplyOCIO( *moComposite, mIMSConfig.mCCorOCIOCfgFName, mIMSConfig.mCCorOCIOCSpace );
 #endif
         // we ignore this sRGB conversion in case of OCIO
-        if ( mCCorSRGB && mCCorXform != "ocio" )
+        if ( mIMSConfig.mCCorSRGB && mIMSConfig.mCCorXform != "ocio" )
             applySRGB( *moComposite );
     }
 

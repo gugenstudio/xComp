@@ -17,6 +17,9 @@
 class ImageSystemOCIO;
 #endif
 
+class SerialJS;
+class DeserialJS;
+
 //==================================================================
 struct ImageEntry
 {
@@ -41,6 +44,24 @@ private:
 };
 
 //==================================================================
+class IMSConfig
+{
+public:
+    bool    mUseBilinear        { true };
+    bool    mCCorRGBOnly        { true };
+    bool    mCCorSRGB           { true };
+    DStr    mCCorXform          { "none" };
+    DStr    mCCorOCIOCfgFName   {};
+    DStr    mCCorOCIOCSpace     {};
+
+    void Serialize( SerialJS &v_ ) const;
+    void Deserialize( DeserialJS &v_ );
+
+    friend void Serialize( SerialJS &v_, const IMSConfig &o_ ){ o_.Serialize(v_);   }
+    friend void Deserialize( DeserialJS &v_,   IMSConfig &o_ ){ o_.Deserialize(v_); }
+};
+
+//==================================================================
 class ImageSystem
 {
 public:
@@ -48,12 +69,7 @@ public:
     std::map<DStr,ImageEntry>   mEntries;
     uptr<image>                 moComposite;
     DStr                        mCurSelPathFName;
-    bool                        mUseBilinear = true;
-    bool                        mCCorRGBOnly = true;
-    bool                        mCCorSRGB = true;
-    DStr                        mCCorXform   { "none" };
-    DStr                        mCCorOCIOCfgFName;
-    DStr                        mCCorOCIOCSpace;
+    IMSConfig                   mIMSConfig;
 #ifdef ENABLE_OCIO
     uptr<ImageSystemOCIO>       moIS_OCIO;
 #endif

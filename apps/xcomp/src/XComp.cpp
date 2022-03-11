@@ -118,12 +118,12 @@ XComp::XComp( const XCompParams &par )
 
     //
     moIMSys = std::make_unique<ImageSystem>();
-    moIMSys->mUseBilinear       = mConf.cfg_dispUseBilinear     ;
-    moIMSys->mCCorRGBOnly       = mConf.cfg_ccorRGBOnly         ;
-    moIMSys->mCCorSRGB          = mConf.cfg_ccorSRGB            ;
-    moIMSys->mCCorXform         = mConf.cfg_ccorXform           ;
-    moIMSys->mCCorOCIOCfgFName  = mConf.cfg_ccorOCIOCfgFName    ;
-    moIMSys->mCCorOCIOCSpace    = mConf.cfg_ccorOCIOCSpace      ;
+    moIMSys->mIMSConfig.mUseBilinear       = mConf.cfg_dispUseBilinear     ;
+    moIMSys->mIMSConfig.mCCorRGBOnly       = mConf.cfg_ccorRGBOnly         ;
+    moIMSys->mIMSConfig.mCCorSRGB          = mConf.cfg_ccorSRGB            ;
+    moIMSys->mIMSConfig.mCCorXform         = mConf.cfg_ccorXform           ;
+    moIMSys->mIMSConfig.mCCorOCIOCfgFName  = mConf.cfg_ccorOCIOCfgFName    ;
+    moIMSys->mIMSConfig.mCCorOCIOCSpace    = mConf.cfg_ccorOCIOCSpace      ;
 }
 
 //==================================================================
