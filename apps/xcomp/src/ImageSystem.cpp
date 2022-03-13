@@ -14,6 +14,7 @@
 #include "ImageConv.h"
 #include "Image_PNG.h"
 #include "Image_EXR.h"
+#include "ImageConv.h"
 #include "ImageSystemOCIO.h"
 #include "ImageSystem.h"
 
@@ -67,25 +68,43 @@ void ImageEntry::loadStdImage()
     image::LoadParams par;
     par.mLP_FName = mImagePathFName;
 
-    moBaseImage = std::make_unique<image>( par );
+    // load
+    auto oImg = std::make_unique<image>( par );
 
-    if ( (moBaseImage->mChans != 3 &&
-          moBaseImage->mChans != 4) ||
-         ((int)moBaseImage->mDepth / (int)moBaseImage->mChans) != 8 )
+    // verify that we support the format, or replace with a dummy
+    if ( (oImg->mChans != 3 &&
+          oImg->mChans != 4) ||
+         ((int)oImg->mDepth / (int)oImg->mChans) != 8 )
     {
         LogOut( LOG_ERR, "Unsupported format for %s. Should be RGB 24 or RGBA 32",
                     mImagePathFName.c_str() );
 
         image::Params newPar;
-        newPar.width    = moBaseImage->mW;
-        newPar.height   = moBaseImage->mH;
+        newPar.width    = oImg->mW;
+        newPar.height   = oImg->mH;
         newPar.depth    = 32;
         newPar.chans    = 4;
-        moBaseImage = std::make_unique<image>( newPar );
-        moBaseImage->Clear();
+        oImg = std::make_unique<image>( newPar );
+        oImg->Clear();
     }
 
-    //Graphics::UploadImageTexture( *moBaseImage );
+    // convert to float
+    {
+        image::Params newPar;
+        newPar.width    = oImg->mW;
+        newPar.height   = oImg->mH;
+        newPar.depth    = oImg->mChans * sizeof(float) * 8;
+        newPar.chans    = oImg->mChans;
+        newPar.flags    = oImg->mFlags | image::FLG_IS_FLOAT32;
+        moBaseImage = std::make_unique<image>( newPar );
+
+        ImageConv::BlitProcess<uint8_t,float>( *oImg, *moBaseImage,
+            [chans=oImg->mChans](const uint8_t *pSrc, float *pDes)
+            {
+                for (int i=0; i != chans; ++i)
+                    pDes[i] = (float)pSrc[i] * (1.f/255);
+            });
+    }
 }
 
 //==================================================================
@@ -487,16 +506,9 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
         par.width   = mainW;
         par.height  = mainH;
         par.chans   = 3;
-        par.flags   = mIMSCfg.imsc_useBilinear ? image::FLG_USE_BILINEAR : 0;
-        if ( pEntries[n-1]->moBaseImage->IsFloat32() )
-        {
-            par.depth = 32 * 3;
-            par.flags = image::FLG_IS_FLOAT32;
-        }
-        else
-        {
-            par.depth = 8 * 3;
-        }
+        par.depth   = 32 * 3;
+        par.flags   = image::FLG_IS_FLOAT32 |
+                        (mIMSCfg.imsc_useBilinear ? image::FLG_USE_BILINEAR : 0);
 
         moComposite = std::make_unique<image>( par );
         moComposite->Clear();
@@ -555,89 +567,38 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
 
         c_auto srcChansN = pUseBSrcImg->mChans;
 
-        if ( moComposite->IsFloat32() )
+        for (u_int y=0; y < mainH; ++y)
         {
-            if ( pUseBSrcImg->IsFloat32() )
-            {
-                for (u_int y=0; y < mainH; ++y)
-                {
-                    c_auto *pSrc = (const float *)pUseBSrcImg->GetPixelPtr( 0, y );
-                      auto *pDes = (float *)moComposite->GetPixelPtr( 0, y );
+            c_auto *pSrc = (const float *)pUseBSrcImg->GetPixelPtr( 0, y );
+              auto *pDes = (float *)moComposite->GetPixelPtr( 0, y );
 
-                    c_auto *pASrc = pUseASrcImg
-                                    ? (const float *)pUseASrcImg->GetPixelPtr( 0, y )
-                                    : (const float *)nullptr;
+            c_auto *pASrc = pUseASrcImg
+                            ? (const float *)pUseASrcImg->GetPixelPtr( 0, y )
+                            : (const float *)nullptr;
 
-                    copyRow<float>( pDes, pSrc, pASrc, mainW, srcChansN );
-                }
-            }
-#if 0
-            else
-            {
-                c_auto sampsN = mainW * srcChansN;
-                DVec<float> tmpRow( sampsN );
-                for (u_int y=0; y < mainH; ++y)
-                {
-                    c_auto *pSrc = (const uint8_t *)pUseBSrcImg->GetPixelPtr( 0, y );
-
-                    for (size_t j=0; j < sampsN; ++j)
-                        tmpRow[j] = (float)pSrc[j] * (1.f/255);
-
-                    auto *pDes = (float *)moComposite->GetPixelPtr( 0, y );
-
-                    copyRow<float>( pDes, tmpRow.data(), mainW, srcChansN );
-                }
-            }
-#endif
+            copyRow<float>( pDes, pSrc, pASrc, mainW, srcChansN );
         }
-#if 0
-        else
-        {
-            if ( pUseBSrcImg->IsFloat32() )
-            {
-                c_auto sampsN = mainW * srcChansN;
-                DVec<uint8_t> tmpRow( sampsN );
-                for (u_int y=0; y < mainH; ++y)
-                {
-                    c_auto *pSrc = (const float *)pUseBSrcImg->GetPixelPtr( 0, y );
-
-                    for (size_t j=0; j < sampsN; ++j)
-                        tmpRow[j] = (uint8_t)DClamp( pSrc[j] * 255.f, 0.f, 255.f );
-
-                    auto *pDes = (uint8_t *)moComposite->GetPixelPtr( 0, y );
-
-                    copyRow<uint8_t>( pDes, tmpRow.data(), mainW, srcChansN );
-                }
-            }
-            else
-            {
-                for (u_int y=0; y < mainH; ++y)
-                {
-                    c_auto *pSrc = (const uint8_t *)pUseBSrcImg->GetPixelPtr( 0, y );
-                      auto *pDes = (uint8_t *)moComposite->GetPixelPtr( 0, y );
-
-                    copyRow<uint8_t>( pDes, pSrc, pASrc, mainW, srcChansN );
-                }
-            }
-        }
-#endif
     }
 }
 
 //==================================================================
 void ImageSystem::rebuildComposite()
 {
-    auto doApplyColorCorr = true;
+    auto doApplyColorCorr = false;
 
 #ifdef ENABLE_OPENEXR
     if NOT( mCurLayerName.empty() )
     {
+        bool hasNonRGBAChans = false;
+        bool hasEXRImage = false;
         for (auto it = mEntries.begin(); it != mEntries.end(); ++it)
         {
             auto &ie = it->second;
 
             if ( !ie.moEXRImage || !ie.mIsImageEnabled )
                 continue;
+
+            hasEXRImage = true;
 
             auto *pLayer = ie.moEXRImage->FindLayerByName( mCurLayerName );
             if NOT( pLayer )
@@ -655,8 +616,7 @@ void ImageSystem::rebuildComposite()
                                 name != "B" &&
                                 name != "A" )
                     {
-                        // ..disable the color correction
-                        doApplyColorCorr = false;
+                        hasNonRGBAChans = true;
                         break;
                     }
                 }
@@ -676,6 +636,9 @@ void ImageSystem::rebuildComposite()
                 ie.moBaseImage = ImageEXR_MakeImageFromLayer( *pLayer, *ie.moEXRImage );
             }
         }
+
+        //
+        doApplyColorCorr = hasEXRImage && !hasNonRGBAChans;
     }
 
     if NOT( mCurLayerAlphaName.empty() )
@@ -742,7 +705,7 @@ void ImageSystem::rebuildComposite()
     makeComposite( pEntries, curSelIdx+1 );
 
     // apply the color correction, if necessary
-    if ( doApplyColorCorr && moComposite->IsFloat32() )
+    if ( doApplyColorCorr )
     {
         if ( mIMSCfg.imsc_ccorXform == "filmic" )
             applyFilmic( *moComposite );
