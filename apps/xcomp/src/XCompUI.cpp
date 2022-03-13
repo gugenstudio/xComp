@@ -312,9 +312,12 @@ void XCompUI::drawLayersList()
         return;
 
     // is current layer now invalid ?
-    if (auto it = pIEntsInLays.find( imsys.mCurLayerName ); it == pIEntsInLays.end())
+    auto assingDefLayer = [&]( auto &io_name )
     {
-        imsys.mCurLayerName = {};
+        if ( pIEntsInLays.find( io_name ) != pIEntsInLays.end())
+            return false;
+
+        io_name = {};
 
         for (c_auto &[k, v] : pIEntsInLays)
         {
@@ -322,18 +325,25 @@ void XCompUI::drawLayersList()
                  StrEndsWithI( k, "composite" ) ||
                  StrEndsWithI( k, "beauty" ) )
             {
-                imsys.mCurLayerName = k;
-                imsys.ReqRebuildComposite();
-                break;
+                io_name = k;
+                return true;
             }
         }
 
-        if ( imsys.mCurLayerName.empty() )
+        if ( io_name.empty() )
         {
-            imsys.mCurLayerName = pIEntsInLays.begin()->first;
-            imsys.ReqRebuildComposite();
+            io_name = pIEntsInLays.begin()->first;
+            return true;
         }
-    }
+
+        return false;
+    };
+
+    c_auto didReplaceLayerBase  = assingDefLayer( imsys.mCurLayerName );
+    c_auto didReplaceLayerAlpha = assingDefLayer( imsys.mCurLayerAlphaName );
+
+    if ( didReplaceLayerBase || didReplaceLayerAlpha )
+        imsys.ReqRebuildComposite();
 
     if ( pIEntsInLays.size() == 1 )
         return;
@@ -361,7 +371,7 @@ void XCompUI::drawLayersList()
 
     IMUI_DrawHeader( "Layers", false );
 
-    RU_IMUITableMaker tmak( "Layers", 3, false );
+    RU_IMUITableMaker tmak( "Layers", 4, false );
     tmak.BeginHead();
     tmak.NewCell();
     tmak.AddText( "Name" + (commonStem.empty() ? "" : " ("+commonStem+")") );
@@ -369,6 +379,8 @@ void XCompUI::drawLayersList()
     tmak.AddText( "Chans" );
     tmak.NewCell();
     tmak.AddText( "Types" );
+    tmak.NewCell();
+    tmak.AddText( "Mask" );
     tmak.EndHead();
 
     bool hasChangedLayer = false;
@@ -379,7 +391,8 @@ void XCompUI::drawLayersList()
         if ( ImGui::Selectable(
                     k.c_str() + (stemIdx != DNPOS ? stemIdx+1 : 0),
                     k == imsys.mCurLayerName,
-                    ImGuiSelectableFlags_SpanAllColumns ) )
+                    ImGuiSelectableFlags_SpanAllColumns |
+                    ImGuiSelectableFlags_AllowItemOverlap ) )
         {
             hasChangedLayer = true;
             imsys.mCurLayerName = k;
@@ -389,6 +402,8 @@ void XCompUI::drawLayersList()
         {
             DStr chNames;
             DStr chTypes;
+
+            bool hasAlpha = false;
 
             c_auto &e = *v.front();
 #ifdef ENABLE_OPENEXR
@@ -403,6 +418,8 @@ void XCompUI::drawLayersList()
 
                         if ( ch.iec_chanName.empty() )
                             continue;
+
+                        hasAlpha |= ch.GetChanNameOnly() == "A";
 
                         chNames += ch.GetChanNameOnly();
 
@@ -426,14 +443,38 @@ void XCompUI::drawLayersList()
             {
                 chNames = "R,G,B,A";
                 chTypes = "8,8,8,8";
+                hasAlpha = true;
             }
             tmak.NewCell();
             IMUI_Text( chNames );
             tmak.NewCell();
             IMUI_Text( chTypes );
+
+            tmak.NewCell( 0 );
+            if ( hasAlpha )
+            {
+#if 0
+                bool useAlpha = imsys.mCurLayerAlphaName == k;
+                if ( ImGui::RadioButton( ("##Mask"+k).c_str(), &useAlpha ) )
+                {
+                    if ( useAlpha )
+                        imsys.mCurLayerAlphaName = k;
+                }
+#else
+                if ( IMUI_SmallButtonEnabled(
+                        (DStr(imsys.mCurLayerAlphaName == k ? "ON" : "")
+                            + ("##Mask"+k)).c_str(),
+                        true,
+                        {60,0} ) )
+                {
+                    imsys.mCurLayerAlphaName = k;
+                }
+#endif
+            }
         }
         else
         {
+            tmak.NewCell();
             tmak.NewCell();
             tmak.NewCell();
         }

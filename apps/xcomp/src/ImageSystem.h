@@ -27,8 +27,12 @@ struct ImageEntry
 
     DStr            mImagePathFName;
     bool            mIsImageEnabled { true };
-    DStr            mCurLayerForImage;
+
+    DStr            mCurLayerForStdImage;
     uptr<image>     moStdImage;
+
+    DStr            mCurlayerForAlphaImage;
+    uptr<image>     moAlphaImage;
 #ifdef ENABLE_OPENEXR
     uptr<ImageEXR>  moEXRImage;
 #endif
@@ -93,6 +97,7 @@ public:
 #endif
 
     DStr                        mCurLayerName;
+    DStr                        mCurLayerAlphaName;
 
     bool                        mHasRebuildReq = false;
 

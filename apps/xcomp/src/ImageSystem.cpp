@@ -642,10 +642,39 @@ void ImageSystem::rebuildComposite()
                 ImageEXR_LoadLayer( *ie.moEXRImage, mCurLayerName );
             }
 
-            if ( ie.mCurLayerForImage != mCurLayerName || didLoad )
+            if ( ie.mCurLayerForStdImage != mCurLayerName || didLoad )
             {
-                ie.mCurLayerForImage = mCurLayerName;
+                ie.mCurLayerForStdImage = mCurLayerName;
                 ie.moStdImage = ImageEXR_MakeImageFromLayer( *pLayer, *ie.moEXRImage );
+            }
+        }
+    }
+
+    if NOT( mCurLayerAlphaName.empty() )
+    {
+        for (auto it = mEntries.begin(); it != mEntries.end(); ++it)
+        {
+            auto &ie = it->second;
+
+            if ( !ie.moEXRImage || !ie.mIsImageEnabled )
+                continue;
+
+            auto *pLayer = ie.moEXRImage->FindLayerByName( mCurLayerAlphaName );
+            if NOT( pLayer )
+                continue;
+
+            //
+            bool didLoad = false;
+            if NOT( pLayer->IsLayerDataLoaded() )
+            {
+                didLoad = true;
+                ImageEXR_LoadLayer( *ie.moEXRImage, mCurLayerAlphaName );
+            }
+
+            if ( ie.mCurlayerForAlphaImage != mCurLayerAlphaName || didLoad )
+            {
+                ie.mCurlayerForAlphaImage = mCurLayerAlphaName;
+                ie.moAlphaImage = ImageEXR_MakeImageFromLayer( *pLayer, *ie.moEXRImage );
             }
         }
     }
