@@ -332,7 +332,7 @@ void ImageSystem::SetLastCurSel()
 
 //==================================================================
 template <typename T>
-static auto copyRow = []( auto *pDes, c_auto *pSrc, size_t w, size_t chN )
+static auto copyRow = []( auto *pDes, c_auto *pSrc, c_auto *pASrc, size_t w, size_t chN )
 {
     if ( chN >= 4 )
     {
@@ -340,11 +340,12 @@ static auto copyRow = []( auto *pDes, c_auto *pSrc, size_t w, size_t chN )
         {
             //if ( pSrc[3] )
             {
+                c_auto srcA = pASrc ? pASrc[0] : pSrc[3];
                 float a;
                 if ( std::is_integral<T>::value )
-                    a = (float)pSrc[3] * (1.0f / 255);
+                    a = (float)srcA * (1.0f / 255);
                 else
-                    a = DClamp( (float)pSrc[3], 0.f, 1.f );
+                    a = DClamp( (float)srcA, 0.f, 1.f );
 
                 pDes[0] = (T)DLerp( (float)pDes[0], (float)pSrc[0], a );
                 pDes[1] = (T)DLerp( (float)pDes[1], (float)pSrc[1], a );
@@ -353,6 +354,7 @@ static auto copyRow = []( auto *pDes, c_auto *pSrc, size_t w, size_t chN )
 
             pDes += 3;
             pSrc += 4;
+            pASrc += pASrc ? 1 : 0;
         }
     }
     else
@@ -505,10 +507,12 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
         auto &e = *pEntries[i];
 
         const image *pUseSrcImg {};
+        const image *pUseASrcImg {};
 
         if ( e.moStdImage->mW == mainW && e.moStdImage->mH == mainH )
         {
             pUseSrcImg = e.moStdImage.get();
+            pUseASrcImg = e.moAlphaImage.get();
         }
         else
         {
@@ -516,21 +520,37 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
                  e.moStdImageScaled->mW != mainW ||
                  e.moStdImageScaled->mH != mainH )
             {
+                c_auto &simg = e.moStdImage;
+
                 image::Params par;
                 par.width   = mainW;
                 par.height  = mainH;
-                par.depth   = e.moStdImage->mDepth;
-                par.chans   = e.moStdImage->mChans;
-                par.flags   = e.moStdImage->mFlags; // for "float"
+                par.depth   = simg->mDepth;
+                par.chans   = simg->mChans;
+                par.flags   = simg->mFlags; // for "float"
 
                 e.moStdImageScaled = std::make_unique<image>( par );
 
                 ImageConv::BlitStretch(
-                    *e.moStdImage,       0, 0, e.moStdImage->mW, e.moStdImage->mH,
-                    *e.moStdImageScaled, 0, 0, mainW,            mainH      );
+                    *simg,               0, 0, simg->mW, simg->mH,
+                    *e.moStdImageScaled, 0, 0, mainW,    mainH     );
+
+                if (c_auto &aimg = e.moAlphaImage)
+                {
+                    par.depth   = aimg->mDepth;
+                    par.chans   = aimg->mChans;
+                    par.flags   = aimg->mFlags; // for "float"
+
+                    e.moAlphaImageScaled = std::make_unique<image>( par );
+
+                    ImageConv::BlitStretch(
+                        *aimg,                 0, 0, aimg->mW, aimg->mH,
+                        *e.moAlphaImageScaled, 0, 0, mainW,    mainH     );
+                }
             }
 
             pUseSrcImg = e.moStdImageScaled.get();
+            pUseASrcImg = e.moAlphaImageScaled.get();
         }
 
         c_auto srcChansN = pUseSrcImg->mChans;
@@ -544,9 +564,14 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
                     c_auto *pSrc = (const float *)pUseSrcImg->GetPixelPtr( 0, y );
                       auto *pDes = (float *)moComposite->GetPixelPtr( 0, y );
 
-                    copyRow<float>( pDes, pSrc, mainW, srcChansN );
+                    c_auto *pASrc = pUseASrcImg
+                                    ? (const float *)pUseASrcImg->GetPixelPtr( 0, y )
+                                    : (const float *)nullptr;
+
+                    copyRow<float>( pDes, pSrc, pASrc, mainW, srcChansN );
                 }
             }
+#if 0
             else
             {
                 c_auto sampsN = mainW * srcChansN;
@@ -563,7 +588,9 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
                     copyRow<float>( pDes, tmpRow.data(), mainW, srcChansN );
                 }
             }
+#endif
         }
+#if 0
         else
         {
             if ( pUseSrcImg->IsFloat32() )
@@ -589,10 +616,11 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
                     c_auto *pSrc = (const uint8_t *)pUseSrcImg->GetPixelPtr( 0, y );
                       auto *pDes = (uint8_t *)moComposite->GetPixelPtr( 0, y );
 
-                    copyRow<uint8_t>( pDes, pSrc, mainW, srcChansN );
+                    copyRow<uint8_t>( pDes, pSrc, pASrc, mainW, srcChansN );
                 }
             }
         }
+#endif
     }
 }
 
@@ -674,7 +702,7 @@ void ImageSystem::rebuildComposite()
             if ( ie.mCurlayerForAlphaImage != mCurLayerAlphaName || didLoad )
             {
                 ie.mCurlayerForAlphaImage = mCurLayerAlphaName;
-                ie.moAlphaImage = ImageEXR_MakeImageFromLayer( *pLayer, *ie.moEXRImage );
+                ie.moAlphaImage = ImageEXR_MakeAlphaImageFromLayer( *pLayer, *ie.moEXRImage );
             }
         }
     }

@@ -38,6 +38,7 @@ struct ImageEntry
 #endif
 private:
     uptr<image>     moStdImageScaled;
+    uptr<image>     moAlphaImageScaled;
 public:
     ImageEntry() {}
     ImageEntry( const DStr &pathFName );

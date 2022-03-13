@@ -318,13 +318,8 @@ static auto convertSrcImage = [](
 };
 
 //==================================================================
-uptr<image> ImageEXR_MakeImageFromLayer( ImageEXRLayer &layer, const ImageEXR &ie )
+inline auto makeImageFromIE = []( const ImageEXR &ie, c_auto useChans )
 {
-    if NOT( layer.IsLayerDataLoaded() )
-        DEX_RUNTIME_ERROR( "Source layer data was not loaded" );
-
-    c_auto useChans = std::min( (size_t)4, layer.iel_chans.size() );
-
     image::Params par;
     par.width  = (u_int)ie.ie_w;
     par.height = (u_int)ie.ie_h;
@@ -336,7 +331,18 @@ uptr<image> ImageEXR_MakeImageFromLayer( ImageEXRLayer &layer, const ImageEXR &i
     par.depth  = (u_int)useChans * 8;
 #endif
 
-    auto oImage = std::make_unique<image>( par );
+    return std::make_unique<image>( par );
+};
+
+//==================================================================
+uptr<image> ImageEXR_MakeImageFromLayer( ImageEXRLayer &layer, const ImageEXR &ie )
+{
+    if NOT( layer.IsLayerDataLoaded() )
+        DEX_RUNTIME_ERROR( "Source layer data was not loaded" );
+
+    c_auto useChans = std::min( (size_t)4, layer.iel_chans.size() );
+
+    auto oImage = makeImageFromIE( ie, useChans );
 
     for (size_t chI=0; chI < layer.iel_chans.size(); ++chI)
     {
@@ -350,6 +356,34 @@ uptr<image> ImageEXR_MakeImageFromLayer( ImageEXRLayer &layer, const ImageEXR &i
                 useChans,
                 desChI,
                 ch.iec_dataSrc );
+    }
+
+    return oImage;
+}
+
+//==================================================================
+uptr<image> ImageEXR_MakeAlphaImageFromLayer( ImageEXRLayer &layer, const ImageEXR &ie )
+{
+    if NOT( layer.IsLayerDataLoaded() )
+        DEX_RUNTIME_ERROR( "Source layer data was not loaded" );
+
+    c_auto useChans = (size_t)1;
+
+    auto oImage = makeImageFromIE( ie, useChans );
+    oImage->Clear();
+
+    for (c_auto &ch : layer.iel_chans)
+    {
+        if ( ch.GetChanNameOnly() == "A" )
+        {
+            convertSrcImage(
+                    *oImage,
+                    ch.iec_dataType,
+                    useChans,
+                    0,
+                    ch.iec_dataSrc );
+            break;
+        }
     }
 
     return oImage;

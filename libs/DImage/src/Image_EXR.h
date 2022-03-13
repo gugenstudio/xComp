@@ -113,6 +113,7 @@ public:
 uptr<ImageEXR> ImageEXR_Load( const DStr &pathFName, const DStr &dummyLayerName );
 void ImageEXR_LoadLayer( ImageEXR &ie, const DStr &loadLayerName );
 uptr<image> ImageEXR_MakeImageFromLayer( ImageEXRLayer &layer, const ImageEXR &ie );
+uptr<image> ImageEXR_MakeAlphaImageFromLayer( ImageEXRLayer &layer, const ImageEXR &ie );
 
 #endif
 
