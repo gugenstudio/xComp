@@ -67,25 +67,25 @@ void ImageEntry::loadStdImage()
     image::LoadParams par;
     par.mLP_FName = mImagePathFName;
 
-    moStdImage = std::make_unique<image>( par );
+    moBaseImage = std::make_unique<image>( par );
 
-    if ( (moStdImage->mChans != 3 &&
-          moStdImage->mChans != 4) ||
-         ((int)moStdImage->mDepth / (int)moStdImage->mChans) != 8 )
+    if ( (moBaseImage->mChans != 3 &&
+          moBaseImage->mChans != 4) ||
+         ((int)moBaseImage->mDepth / (int)moBaseImage->mChans) != 8 )
     {
         LogOut( LOG_ERR, "Unsupported format for %s. Should be RGB 24 or RGBA 32",
                     mImagePathFName.c_str() );
 
         image::Params newPar;
-        newPar.width    = moStdImage->mW;
-        newPar.height   = moStdImage->mH;
+        newPar.width    = moBaseImage->mW;
+        newPar.height   = moBaseImage->mH;
         newPar.depth    = 32;
         newPar.chans    = 4;
-        moStdImage = std::make_unique<image>( newPar );
-        moStdImage->Clear();
+        moBaseImage = std::make_unique<image>( newPar );
+        moBaseImage->Clear();
     }
 
-    //Graphics::UploadImageTexture( *moStdImage );
+    //Graphics::UploadImageTexture( *moBaseImage );
 }
 
 //==================================================================
@@ -479,8 +479,8 @@ void ImageSystem::makeDummyComposite()
 //==================================================================
 void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
 {
-    c_auto mainW = pEntries[n-1]->moStdImage->mW;
-    c_auto mainH = pEntries[n-1]->moStdImage->mH;
+    c_auto mainW = pEntries[n-1]->moBaseImage->mW;
+    c_auto mainH = pEntries[n-1]->moBaseImage->mH;
 
     {
         image::Params par;
@@ -488,7 +488,7 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
         par.height  = mainH;
         par.chans   = 3;
         par.flags   = mIMSCfg.imsc_useBilinear ? image::FLG_USE_BILINEAR : 0;
-        if ( pEntries[n-1]->moStdImage->IsFloat32() )
+        if ( pEntries[n-1]->moBaseImage->IsFloat32() )
         {
             par.depth = 32 * 3;
             par.flags = image::FLG_IS_FLOAT32;
@@ -506,21 +506,21 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
     {
         auto &e = *pEntries[i];
 
-        const image *pUseSrcImg {};
+        const image *pUseBSrcImg {};
         const image *pUseASrcImg {};
 
-        if ( e.moStdImage->mW == mainW && e.moStdImage->mH == mainH )
+        if ( e.moBaseImage->mW == mainW && e.moBaseImage->mH == mainH )
         {
-            pUseSrcImg = e.moStdImage.get();
+            pUseBSrcImg = e.moBaseImage.get();
             pUseASrcImg = e.moAlphaImage.get();
         }
         else
         {
-            if ( !e.moStdImageScaled ||
-                 e.moStdImageScaled->mW != mainW ||
-                 e.moStdImageScaled->mH != mainH )
+            if ( !e.moBaseImageScaled ||
+                 e.moBaseImageScaled->mW != mainW ||
+                 e.moBaseImageScaled->mH != mainH )
             {
-                c_auto &simg = e.moStdImage;
+                c_auto &simg = e.moBaseImage;
 
                 image::Params par;
                 par.width   = mainW;
@@ -529,11 +529,11 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
                 par.chans   = simg->mChans;
                 par.flags   = simg->mFlags; // for "float"
 
-                e.moStdImageScaled = std::make_unique<image>( par );
+                e.moBaseImageScaled = std::make_unique<image>( par );
 
                 ImageConv::BlitStretch(
                     *simg,               0, 0, simg->mW, simg->mH,
-                    *e.moStdImageScaled, 0, 0, mainW,    mainH     );
+                    *e.moBaseImageScaled, 0, 0, mainW,    mainH     );
 
                 if (c_auto &aimg = e.moAlphaImage)
                 {
@@ -549,19 +549,19 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
                 }
             }
 
-            pUseSrcImg = e.moStdImageScaled.get();
+            pUseBSrcImg = e.moBaseImageScaled.get();
             pUseASrcImg = e.moAlphaImageScaled.get();
         }
 
-        c_auto srcChansN = pUseSrcImg->mChans;
+        c_auto srcChansN = pUseBSrcImg->mChans;
 
         if ( moComposite->IsFloat32() )
         {
-            if ( pUseSrcImg->IsFloat32() )
+            if ( pUseBSrcImg->IsFloat32() )
             {
                 for (u_int y=0; y < mainH; ++y)
                 {
-                    c_auto *pSrc = (const float *)pUseSrcImg->GetPixelPtr( 0, y );
+                    c_auto *pSrc = (const float *)pUseBSrcImg->GetPixelPtr( 0, y );
                       auto *pDes = (float *)moComposite->GetPixelPtr( 0, y );
 
                     c_auto *pASrc = pUseASrcImg
@@ -578,7 +578,7 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
                 DVec<float> tmpRow( sampsN );
                 for (u_int y=0; y < mainH; ++y)
                 {
-                    c_auto *pSrc = (const uint8_t *)pUseSrcImg->GetPixelPtr( 0, y );
+                    c_auto *pSrc = (const uint8_t *)pUseBSrcImg->GetPixelPtr( 0, y );
 
                     for (size_t j=0; j < sampsN; ++j)
                         tmpRow[j] = (float)pSrc[j] * (1.f/255);
@@ -593,13 +593,13 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
 #if 0
         else
         {
-            if ( pUseSrcImg->IsFloat32() )
+            if ( pUseBSrcImg->IsFloat32() )
             {
                 c_auto sampsN = mainW * srcChansN;
                 DVec<uint8_t> tmpRow( sampsN );
                 for (u_int y=0; y < mainH; ++y)
                 {
-                    c_auto *pSrc = (const float *)pUseSrcImg->GetPixelPtr( 0, y );
+                    c_auto *pSrc = (const float *)pUseBSrcImg->GetPixelPtr( 0, y );
 
                     for (size_t j=0; j < sampsN; ++j)
                         tmpRow[j] = (uint8_t)DClamp( pSrc[j] * 255.f, 0.f, 255.f );
@@ -613,7 +613,7 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
             {
                 for (u_int y=0; y < mainH; ++y)
                 {
-                    c_auto *pSrc = (const uint8_t *)pUseSrcImg->GetPixelPtr( 0, y );
+                    c_auto *pSrc = (const uint8_t *)pUseBSrcImg->GetPixelPtr( 0, y );
                       auto *pDes = (uint8_t *)moComposite->GetPixelPtr( 0, y );
 
                     copyRow<uint8_t>( pDes, pSrc, pASrc, mainW, srcChansN );
@@ -670,10 +670,10 @@ void ImageSystem::rebuildComposite()
                 ImageEXR_LoadLayer( *ie.moEXRImage, mCurLayerName );
             }
 
-            if ( ie.mCurLayerForStdImage != mCurLayerName || didLoad )
+            if ( ie.mBaseImageCurLayer != mCurLayerName || didLoad )
             {
-                ie.mCurLayerForStdImage = mCurLayerName;
-                ie.moStdImage = ImageEXR_MakeImageFromLayer( *pLayer, *ie.moEXRImage );
+                ie.mBaseImageCurLayer = mCurLayerName;
+                ie.moBaseImage = ImageEXR_MakeImageFromLayer( *pLayer, *ie.moEXRImage );
             }
         }
     }
@@ -699,9 +699,9 @@ void ImageSystem::rebuildComposite()
                 ImageEXR_LoadLayer( *ie.moEXRImage, mCurLayerAlphaName );
             }
 
-            if ( ie.mCurlayerForAlphaImage != mCurLayerAlphaName || didLoad )
+            if ( ie.mAlphaImageCurlayer != mCurLayerAlphaName || didLoad )
             {
-                ie.mCurlayerForAlphaImage = mCurLayerAlphaName;
+                ie.mAlphaImageCurlayer = mCurLayerAlphaName;
                 ie.moAlphaImage = ImageEXR_MakeAlphaImageFromLayer( *pLayer, *ie.moEXRImage );
             }
         }
@@ -715,7 +715,7 @@ void ImageSystem::rebuildComposite()
     for (auto it = mEntries.begin(); it != mEntries.end(); ++it)
     {
         auto &e = it->second;
-        if ( e.moStdImage && e.mIsImageEnabled )
+        if ( e.moBaseImage && e.mIsImageEnabled )
         {
 #ifdef ENABLE_OPENEXR
             if ( (e.moEXRImage && e.moEXRImage->FindLayerByName( mCurLayerName )) ||

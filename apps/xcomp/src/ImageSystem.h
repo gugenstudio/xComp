@@ -28,16 +28,16 @@ struct ImageEntry
     DStr            mImagePathFName;
     bool            mIsImageEnabled { true };
 
-    DStr            mCurLayerForStdImage;
-    uptr<image>     moStdImage;
+    DStr            mBaseImageCurLayer;
+    uptr<image>     moBaseImage;
 
-    DStr            mCurlayerForAlphaImage;
+    DStr            mAlphaImageCurlayer;
     uptr<image>     moAlphaImage;
 #ifdef ENABLE_OPENEXR
     uptr<ImageEXR>  moEXRImage;
 #endif
 private:
-    uptr<image>     moStdImageScaled;
+    uptr<image>     moBaseImageScaled;
     uptr<image>     moAlphaImageScaled;
 public:
     ImageEntry() {}

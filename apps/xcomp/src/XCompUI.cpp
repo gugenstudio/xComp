@@ -95,7 +95,7 @@ void XCompUI::drawImgList()
     DVec<DStr>          fExts;
 
     for (auto it = imsys.mEntries.begin(); it != imsys.mEntries.end(); ++it)
-        if ( it->second.moStdImage
+        if ( it->second.moBaseImage
 #ifdef ENABLE_OPENEXR
                 || it->second.moEXRImage
 #endif
@@ -246,10 +246,10 @@ void XCompUI::drawImgList()
         }
         else
 #endif
-        if ( e.moStdImage )
+        if ( e.moBaseImage )
         {
-            w = e.moStdImage->mW;
-            h = e.moStdImage->mH;
+            w = e.moBaseImage->mW;
+            h = e.moBaseImage->mH;
             laysN = 0;
         }
 
@@ -439,7 +439,7 @@ void XCompUI::drawLayersList()
             }
             else
 #endif
-            if ( e.moStdImage )
+            if ( e.moBaseImage )
             {
                 chNames = "R,G,B,A";
                 chTypes = "8,8,8,8";
