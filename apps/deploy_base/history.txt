@@ -1,5 +1,11 @@
 # Version history for xComp
 
+2022/03/14
+1.1.2
+- Alpha channel of combined layer can now be used as a mask for other layers
+- Improved determination of default layer to select
+- Enabled multi-threading for faster EXR loading
+
 2022/03/12
 1.1.1
 - Improved OpenColorIO support. Working well with Blender's config
