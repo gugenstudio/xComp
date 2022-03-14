@@ -69,7 +69,7 @@ void ImageSystemOCIO::ApplyOCIO(
     catch ( OCIO::Exception &ec )
     {
         LogOut( LOG_ERR, "OpenColorIO Error: %s, while applying"
-                         "disp:%s, view:%s, look:%s",
+                         " disp:%s, view:%s, look:%s",
                          ec.what(),
                          pDisp, pView, pLook );
     }
