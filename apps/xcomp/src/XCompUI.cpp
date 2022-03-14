@@ -467,7 +467,11 @@ void XCompUI::drawLayersList()
                         true,
                         {60,0} ) )
                 {
-                    imsys.mCurLayerAlphaName = k;
+                    if ( imsys.mCurLayerAlphaName != k )
+                    {
+                        imsys.mCurLayerAlphaName = k;
+                        hasChangedLayer = true;
+                    }
                 }
 #endif
             }

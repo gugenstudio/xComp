@@ -350,67 +350,97 @@ void ImageSystem::SetLastCurSel()
 }
 
 //==================================================================
-template <typename T>
-static auto copyRow = []( auto *pDes, c_auto *pSrc, c_auto *pASrc, size_t w, size_t chN )
+inline auto copyRow = []( auto *pDes, c_auto *pSrc, size_t w, size_t chN )
 {
     if ( chN >= 4 )
     {
         for (size_t x=0; x < w; ++x)
         {
-            //if ( pSrc[3] )
-            {
-                c_auto srcA = pASrc ? pASrc[0] : pSrc[3];
-                float a;
-                if ( std::is_integral<T>::value )
-                    a = (float)srcA * (1.0f / 255);
-                else
-                    a = DClamp( (float)srcA, 0.f, 1.f );
-
-                pDes[0] = (T)DLerp( (float)pDes[0], (float)pSrc[0], a );
-                pDes[1] = (T)DLerp( (float)pDes[1], (float)pSrc[1], a );
-                pDes[2] = (T)DLerp( (float)pDes[2], (float)pSrc[2], a );
-            }
-
+            c_auto a = DClamp( pSrc[3], 0.f, 1.f );
+            pDes[0] = DLerp( pDes[0], pSrc[0], a );
+            pDes[1] = DLerp( pDes[1], pSrc[1], a );
+            pDes[2] = DLerp( pDes[2], pSrc[2], a );
             pDes += 3;
-            pSrc += 4;
-            pASrc += pASrc ? 1 : 0;
+            pSrc += chN;
+        }
+    }
+    else
+    if ( chN == 3 )
+    {
+        for (size_t x=0; x < w; ++x)
+        {
+            pDes[0] = pSrc[0];
+            pDes[1] = pSrc[1];
+            pDes[2] = pSrc[2];
+            pDes += 3;
+            pSrc += chN;
+        }
+    }
+    else
+    if ( chN == 2 )
+    {
+        for (size_t x=0; x < w; ++x)
+        {
+            pDes[0] = pSrc[0];
+            pDes[1] = pSrc[1];
+            pDes[2] = 0;
+            pDes += 3;
+            pSrc += 2;
         }
     }
     else
     {
-        if ( chN >= 3 )
+        for (size_t x=0; x < w; ++x)
         {
-            for (size_t x=0; x < w; ++x)
-            {
-                pDes[0] = pSrc[0];
-                pDes[1] = pSrc[1];
-                pDes[2] = pSrc[2];
-                pDes += 3;
-                pSrc += 3;
-            }
+            pDes[0] = pSrc[0];
+            pDes[1] = pSrc[0];
+            pDes[2] = pSrc[0];
+            pDes += 3;
+            pSrc += 1;
         }
-        else
-        if ( chN >= 2 )
+    }
+};
+
+inline auto copyRowA = []( auto *pDes, c_auto *pSrc, c_auto *pASrc, size_t w, size_t chN )
+{
+    if ( chN >= 3 )
+    {
+        for (size_t x=0; x < w; ++x)
         {
-            for (size_t x=0; x < w; ++x)
-            {
-                pDes[0] = pSrc[0];
-                pDes[1] = pSrc[1];
-                pDes[2] = 0;
-                pDes += 3;
-                pSrc += 2;
-            }
+            c_auto a = DClamp( pASrc[0], 0.f, 1.f );
+            pASrc += 1;
+            pDes[0] = DLerp( pDes[0], pSrc[0], a );
+            pDes[1] = DLerp( pDes[1], pSrc[1], a );
+            pDes[2] = DLerp( pDes[2], pSrc[2], a );
+            pDes += 3;
+            pSrc += chN;
         }
-        else
+    }
+    else
+    if ( chN >= 2 )
+    {
+        for (size_t x=0; x < w; ++x)
         {
-            for (size_t x=0; x < w; ++x)
-            {
-                pDes[0] = pSrc[0];
-                pDes[1] = pSrc[0];
-                pDes[2] = pSrc[0];
-                pDes += 3;
-                pSrc += 1;
-            }
+            c_auto a = DClamp( pASrc[0], 0.f, 1.f );
+            pASrc += 1;
+            pDes[0] = DLerp( pDes[0], pSrc[0], a );
+            pDes[1] = DLerp( pDes[1], pSrc[1], a );
+            pDes[2] = 0;
+            pDes += 3;
+            pSrc += 2;
+        }
+    }
+    else
+    {
+        for (size_t x=0; x < w; ++x)
+        {
+            c_auto a = DClamp( pASrc[0], 0.f, 1.f );
+            pASrc += 1;
+            pDes[0] =
+            pDes[1] =
+            pDes[2] = DLerp( pDes[0], pSrc[0], a );
+            pDes += 3;
+            pSrc += 1;
         }
     }
 };
@@ -506,7 +536,7 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
         par.width   = mainW;
         par.height  = mainH;
         par.chans   = 3;
-        par.depth   = 32 * 3;
+        par.depth   = 3 * sizeof(float) * 8;
         par.flags   = image::FLG_IS_FLOAT32 |
                         (mIMSCfg.imsc_useBilinear ? image::FLG_USE_BILINEAR : 0);
 
@@ -565,18 +595,22 @@ void ImageSystem::makeComposite( DVec<ImageEntry *> pEntries, size_t n )
             pUseASrcImg = e.moAlphaImageScaled.get();
         }
 
-        c_auto srcChansN = pUseBSrcImg->mChans;
+        c_auto srcChansN = (size_t)pUseBSrcImg->mChans;
 
         for (u_int y=0; y < mainH; ++y)
         {
             c_auto *pSrc = (const float *)pUseBSrcImg->GetPixelPtr( 0, y );
-              auto *pDes = (float *)moComposite->GetPixelPtr( 0, y );
+              auto *pDes = (      float *)moComposite->GetPixelPtr( 0, y );
 
-            c_auto *pASrc = pUseASrcImg
-                            ? (const float *)pUseASrcImg->GetPixelPtr( 0, y )
-                            : (const float *)nullptr;
-
-            copyRow<float>( pDes, pSrc, pASrc, mainW, srcChansN );
+            if ( pUseASrcImg )
+            {
+                c_auto *pASrc = (const float *)pUseASrcImg->GetPixelPtr( 0, y );
+                copyRowA( pDes, pSrc, pASrc, mainW, srcChansN );
+            }
+            else
+            {
+                copyRow( pDes, pSrc, mainW, srcChansN );
+            }
         }
     }
 }
