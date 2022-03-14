@@ -12,6 +12,7 @@
 #include <stdlib.h>
 
 #include <set>
+#include <thread>
 
 #include <ImfNamespace.h>
 
@@ -100,6 +101,14 @@ static auto makeIMFPixType = []( auto iexrDType )
 //==================================================================
 uptr<ImageEXR> ImageEXR_Load( const DStr &pathFName, const DStr &dummyLayerName )
 {
+    // it's a bit hacky here, but it works
+    static bool sHasSetIMFThreads;
+    if NOT( sHasSetIMFThreads )
+    {
+        sHasSetIMFThreads = true;
+        Imf::setGlobalThreadCount( std::thread::hardware_concurrency() );
+    }
+
     auto oIE = std::make_unique<ImageEXR>( pathFName );
 
 #ifdef IMAGE_EXR_KEEP_FILE_OPEN
