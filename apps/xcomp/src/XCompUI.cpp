@@ -317,26 +317,29 @@ void XCompUI::drawLayersList()
         if ( pIEntsInLays.find( io_name ) != pIEntsInLays.end())
             return false;
 
+        // select a layer name
         io_name = {};
-
+        size_t bestCnt = 0;
         for (c_auto &[k, v] : pIEntsInLays)
         {
             if ( StrEndsWithI( k, "combined" )  ||
                  StrEndsWithI( k, "composite" ) ||
                  StrEndsWithI( k, "beauty" ) )
             {
-                io_name = k;
-                return true;
+                // assign the new layer name if this one is present
+                //  in more entries/images than the current one
+                if ( v.size() > bestCnt )
+                {
+                    bestCnt = v.size();
+                    io_name = k;
+                }
             }
         }
 
         if ( io_name.empty() )
-        {
             io_name = pIEntsInLays.begin()->first;
-            return true;
-        }
 
-        return false;
+        return true;
     };
 
     c_auto didReplaceLayerBase  = assingDefLayer( imsys.mCurLayerName );
