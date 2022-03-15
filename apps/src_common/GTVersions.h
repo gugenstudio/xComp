@@ -12,7 +12,7 @@
 #define GTV_XCOMP_NAME      "xComp"
 #define GTV_XCOMP_LONGNAME  "xComp - Sequential image comparer"
 
-#define GTV_SUITE_VERSION "1.1.2"
+#define GTV_SUITE_VERSION "1.1.3"
 #define GTV_SUITE_DISPURL "www.gugenstudio.co.jp"
 #define GTV_SUITE_FULLURL "http://www.gugenstudio.co.jp"
 

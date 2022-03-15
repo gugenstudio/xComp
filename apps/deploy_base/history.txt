@@ -1,5 +1,9 @@
 # Version history for xComp
 
+2022/03/16
+1.1.3
+- Image list now shows if the alpha mask is not being applied
+
 2022/03/14
 1.1.2
 - Alpha channel of combined layer can now be used as a mask for other layers
