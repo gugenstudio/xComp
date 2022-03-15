@@ -27,6 +27,8 @@
 #include "XComp.h"
 #include "XCompUI.h"
 
+//#define HIDE_LAYERS_COMMON_PREFIX
+
 //==================================================================
 XCompUI::XCompUI( XComp &bl )
     : mXComp(bl)
@@ -76,6 +78,19 @@ static DStr findCommonPrefix(
 
     return str0.substr( 0, maxMatch );
 }
+
+//==================================================================
+inline auto beginGreenCheckbox = []( bool isGreen )
+{
+    c_auto col = (isGreen ? Display::GREEN : Display::GRAY);
+    IMUI_PushStyleColor(ImGuiCol_FrameBg,        col.ScaleRGB(0.35f) );
+    IMUI_PushStyleColor(ImGuiCol_FrameBgHovered, col.ScaleRGB(0.55f) );
+    IMUI_PushStyleColor(ImGuiCol_CheckMark,      col  );
+};
+inline auto endGreenCheckbox = []()
+{
+    IMUI_PopStyleColor(3);
+};
 
 //==================================================================
 void XCompUI::drawImgList()
@@ -191,13 +206,8 @@ void XCompUI::drawImgList()
             isInSelRange = true;
 
         tmak.NewCell();
-        {
-            c_auto col = (isInSelRange ? Display::GREEN : Display::GRAY);
-            IMUI_PushStyleColor(ImGuiCol_FrameBg,        col.ScaleRGB(0.35f) );
-            IMUI_PushStyleColor(ImGuiCol_FrameBgHovered, col.ScaleRGB(0.55f) );
-            IMUI_PushStyleColor(ImGuiCol_CheckMark,      col  );
-        }
 
+        beginGreenCheckbox( isInSelRange );
 #if 1
         if ( ImGui::Checkbox( SSPrintFS("##ImgItem%zu",i).c_str(), &e.mIsImageEnabled ) )
         {
@@ -210,8 +220,7 @@ void XCompUI::drawImgList()
             e.mIsImageEnabled = !e.mIsImageEnabled;
         }
 #endif
-
-        IMUI_PopStyleColor(3);
+        endGreenCheckbox();
 
         if NOT( isInSelRange )
             IMUI_PushDisabledStyle();
@@ -353,6 +362,7 @@ void XCompUI::drawLayersList()
 
     DStr commonStem;
     size_t stemIdx = DNPOS;
+#ifdef HIDE_LAYERS_COMMON_PREFIX
     {
         c_auto &refLayerName = pIEntsInLays.begin()->first;
 
@@ -371,11 +381,14 @@ void XCompUI::drawLayersList()
             }
         }
     }
+#endif
 
     IMUI_DrawHeader( "Layers", false );
 
-    RU_IMUITableMaker tmak( "Layers", 4, false );
+    RU_IMUITableMaker tmak( "Layers", 5, false );
     tmak.BeginHead();
+    tmak.NewCell();
+    tmak.AddText( "" );
     tmak.NewCell();
     tmak.AddText( "Name" + (commonStem.empty() ? "" : " ("+commonStem+")") );
     tmak.NewCell();
@@ -383,22 +396,43 @@ void XCompUI::drawLayersList()
     tmak.NewCell();
     tmak.AddText( "Types" );
     tmak.NewCell();
-    tmak.AddText( "Mask" );
+    tmak.AddText( "Alpha" );
     tmak.EndHead();
 
     bool hasChangedLayer = false;
 
     for (c_auto &[k, v] : pIEntsInLays)
     {
+        c_auto isCurSel = imsys.mCurLayerName == k;
+
+        //
+        tmak.NewCell();
+        IMUI_PushButtonColors( isCurSel
+                                ? Display::GREEN.ScaleRGB(0.80f)
+                                : Display::GRAY.ScaleRGB(0.50f) );
+        if ( IMUI_SmallButtonEnabled( ("##SelBut"+k).c_str(), true, {20,0} ) )
+        {
+            if NOT( isCurSel )
+            {
+                hasChangedLayer = true;
+                imsys.mCurLayerName = k;
+            }
+        }
+        IMUI_PopButtonColors();
+
+        //
         tmak.NewCell();
         if ( ImGui::Selectable(
                     k.c_str() + (stemIdx != DNPOS ? stemIdx+1 : 0),
-                    k == imsys.mCurLayerName,
+                    isCurSel,
                     ImGuiSelectableFlags_SpanAllColumns |
                     ImGuiSelectableFlags_AllowItemOverlap ) )
         {
-            hasChangedLayer = true;
-            imsys.mCurLayerName = k;
+            if NOT( isCurSel )
+            {
+                hasChangedLayer = true;
+                imsys.mCurLayerName = k;
+            }
         }
 
         if NOT( v.empty() )
@@ -465,7 +499,7 @@ void XCompUI::drawLayersList()
                 }
 #else
                 if ( IMUI_SmallButtonEnabled(
-                        (DStr(imsys.mCurLayerAlphaName == k ? "ON" : "")
+                        (DStr(imsys.mCurLayerAlphaName == k ? "MASK" : "")
                             + ("##Mask"+k)).c_str(),
                         true,
                         {60,0} ) )
