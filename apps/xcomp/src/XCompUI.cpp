@@ -139,7 +139,7 @@ void XCompUI::drawImgList()
 
     c_auto stemIdx = commonStem.size();
 
-    RU_IMUITableMaker tmak( "Images", 5, false );
+    RU_IMUITableMaker tmak( "Images", 6, false );
     tmak.BeginHead();
     tmak.NewCell();
     tmak.AddText( "On" );
@@ -151,6 +151,8 @@ void XCompUI::drawImgList()
     tmak.AddText( "Size" );
     tmak.NewCell();
     tmak.AddText( "Layers" );
+    tmak.NewCell();
+    tmak.AddText( "Mask" );
     tmak.EndHead();
 
     {
@@ -183,6 +185,7 @@ void XCompUI::drawImgList()
                     e.mIsImageEnabled = false;
             }
         });
+        tmak.NewCell();
         tmak.NewCell();
         tmak.NewCell();
         tmak.NewCell();
@@ -265,12 +268,36 @@ void XCompUI::drawImgList()
         tmak.NewCell();
 
         if ( w || h )
-            IMUI_Text( SSPrintFS("%zux%zu", w, h) );
+            tmak.AddText( SSPrintFS("%zux%zu", w, h) );
 
         tmak.NewCell();
 
         if ( laysN )
-            IMUI_Text( std::to_string( laysN ) );
+            tmak.AddText( std::to_string( laysN ) );
+
+        tmak.NewCell();
+
+#ifdef ENABLE_OPENEXR
+        if (c_auto &oIEXR = e.moEXRImage; oIEXR)
+        {
+            if ( oIEXR->FindLayerByName(  imsys.mCurLayerAlphaName ) )
+            {
+                tmak.AddText( "OK" );
+            }
+            else
+            {
+                tmak.AddText( Display::RED, "N/A" );
+                tmak.AddTooltip( SSPrintFS(
+                    "This image is not contributing to the composite because it"
+                    " does not contain the \"%s\" layer that is selected as Alpha Mask.",
+                    imsys.mCurLayerAlphaName.c_str() ) );
+            }
+        }
+        else
+#endif
+        {
+            tmak.AddText( "OK" );
+        }
 
         if NOT( isInSelRange )
             IMUI_PopDisabledStyle();
