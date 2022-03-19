@@ -28,6 +28,7 @@ public:
     IMSConfig           cfg_imsConfig           {};
 
 public:
+#if 0
     void CopyConfigVals( const XCConfig &from )
     {
         cfg_scanDir            =    from.cfg_scanDir            ;
@@ -37,7 +38,7 @@ public:
         cfg_dispAutoFit        =    from.cfg_dispAutoFit        ;
         cfg_imsConfig          =    from.cfg_imsConfig          ;
     }
-
+#endif
     static bool CheckValsChange( const XCConfig &l, const XCConfig &r )
     {
         return
@@ -50,7 +51,7 @@ public:
             false;
     }
 
-    bool AppendScanDirToRecent();
+    bool AddScanDirToHistory();
 
     void Serialize( SerialJS &v_ ) const;
     void Deserialize( DeserialJS &v_ );

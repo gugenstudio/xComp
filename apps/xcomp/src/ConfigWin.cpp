@@ -93,6 +93,7 @@ void ConfigWin::ActivateConfigWin( bool onOff, Tab nextOpenTab )
         if ( mIsFirstEntrySinceStart )
         {
             mStoredVars = mXComp.GetConfigXC();
+            // try a new scan (file may have changed)
             mIsFirstEntrySinceStart = false;
         }
 

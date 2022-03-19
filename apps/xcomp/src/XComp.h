@@ -43,7 +43,6 @@ class XComp
     GraphicsApp         *mpGfxApp {};
     AppBaseConfig       mAppBaseConfig;
     uptr<XCompUI>       moXCompUI;
-    XCConfig            mConf;
 
     TimedEvent          mCheckFilesTE { TimeUS::ONE_SECOND() * 5 };
 
@@ -60,7 +59,8 @@ public:
 
     c_auto &GetParamsXC() const { return mPar; }
 
-    c_auto &GetConfigXC() const { return mConf; }
+          XCConfig &GetConfigXC();
+    const XCConfig &GetConfigXC() const;
 
     const DStr &GetCacheDir() const { return mPar.mAppCacheDir; }
     const DStr &GetUserPofDir() const { return mPar.mAppUserProfDir; }

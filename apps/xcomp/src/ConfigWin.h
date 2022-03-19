@@ -65,14 +65,16 @@ public:
 
     void UpdateConfig( const std::function<void (XCConfig&)> &fn );
 
-    std::optional<XCConfig> GetChangedConfig()
+          XCConfig &GetConfigCW()       { return mLocalVars; }
+    const XCConfig &GetConfigCW() const { return mLocalVars; }
+
+    bool GetChangedConfigMsg()
     {
         if NOT( mHasChangedConfig )
-            return {};
+            return false;
 
-        c_auto ret = mHasChangedConfig;
         mHasChangedConfig = false;
-        return { mStoredVars };
+        return true;
     }
 
 private:

@@ -98,9 +98,13 @@ XComp::XComp( const XCompParams &par )
         //return;
     }
 
+    //
+    moXCompUI = std::make_unique<XCompUI>( *this );
+
+    //
     try {
         // deserialize
-        DeserializeFromFile( mPar.mConfigPathFName, mConf );
+        DeserializeFromFile( mPar.mConfigPathFName, GetConfigXC() );
     }
     catch ( const std::exception &ex )
     {
@@ -114,10 +118,7 @@ XComp::XComp( const XCompParams &par )
     }
 
     //
-    moXCompUI = std::make_unique<XCompUI>( *this );
-
-    //
-    moIMSys = std::make_unique<ImageSystem>( mConf.cfg_imsConfig );
+    moIMSys = std::make_unique<ImageSystem>( GetConfigXC().cfg_imsConfig );
 }
 
 //==================================================================
@@ -125,7 +126,18 @@ XComp::~XComp()
 {
     // save the pending config as we go out
     if ( mLazySaveConfigTimeUS )
-        saveConfig( mPar.mConfigPathFName, mConf );
+        saveConfig( mPar.mConfigPathFName, GetConfigXC() );
+}
+
+//==================================================================
+XCConfig &XComp::GetConfigXC()
+{
+    return moXCompUI->moConfigWin->GetConfigCW();
+}
+
+const XCConfig &XComp::GetConfigXC() const
+{
+    return moXCompUI->moConfigWin->GetConfigCW();
 }
 
 //==================================================================
@@ -142,7 +154,7 @@ void XComp::checkLazySaveConfig( TimeUS curTimeUS )
     {
         mLazySaveConfigTimeUS = {};
 
-        saveConfig( mPar.mConfigPathFName, mConf );
+        saveConfig( mPar.mConfigPathFName, GetConfigXC() );
     }
 }
 
@@ -154,13 +166,14 @@ void XComp::animateApp( TimeUS curTimeUS )
     // periodically check the proceses and update the groups
     if ( mCheckFilesTE.CheckTimedEvent( curTimeUS ) )
     {
-        if (c_auto &dir = mConf.cfg_scanDir; !dir.empty() )
+        // have a scan directory ?
+        if (c_auto &dir = GetConfigXC().cfg_scanDir; !dir.empty() )
         {
+            // try a new scan (file may have changed)
             if ( moIMSys->OnNewScanDir( dir, mNextSelPathFName ) )
             {
-                // since the dir is probably good, we add it to the recent
-                if ( mConf.AppendScanDirToRecent() )
-                    reqLazySaveConfig();
+                // since the dir is probably good, we add it to the history
+                GetConfigXC().AddScanDirToHistory();
             }
 
             // clear after use
@@ -181,9 +194,10 @@ void XComp::SaveCompositeXC()
 
     c_auto &img = *moIMSys->moComposite;
 
-    c_auto outDir = mConf.cfg_saveDir.empty()
-                            ? mConf.cfg_scanDir
-                            : mConf.cfg_saveDir;
+    c_auto &conf = GetConfigXC();
+    c_auto outDir = conf.cfg_saveDir.empty()
+                            ? conf.cfg_scanDir
+                            : conf.cfg_saveDir;
 
     if NOT( FU_DirectoryExists( outDir ) )
     {

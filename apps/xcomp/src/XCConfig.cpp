@@ -32,13 +32,23 @@ void XCConfig::Deserialize( DeserialJS &v_ )
     DESERIALIZE_THIS_MEMBER( v_, cfg_ctrlPanButton      );
     DESERIALIZE_THIS_MEMBER( v_, cfg_dispAutoFit        );
     DESERIALIZE_THIS_MEMBER( v_, cfg_imsConfig          );
+
+    // remove empty or unreachable directories
+    for (auto it=cfg_scanDirHist.begin(); it != cfg_scanDirHist.end();)
+    {
+        if ( it->empty() || !FU_DirectoryExists( *it ) )
+            it = cfg_scanDirHist.erase( it );
+        else
+            ++it;
+    }
 }
 
 //==================================================================
-bool XCConfig::AppendScanDirToRecent()
+bool XCConfig::AddScanDirToHistory()
 {
     auto &v = cfg_scanDirHist;
-    if ( v.end() == std::find( v.begin(), v.end(), cfg_scanDir ) )
+    if ( !cfg_scanDir.empty() &&
+         v.end() == std::find( v.begin(), v.end(), cfg_scanDir ) )
     {
         // erase the oldest, if there are too many entries
         if ( v.size() > 10 )

@@ -580,7 +580,7 @@ void XCompUI::drawCompositeDisp()
 
     c_auto &img = *imsys.moComposite;
 
-    if ( mXComp.mConf.cfg_dispAutoFit )
+    if ( moConfigWin->GetConfigCW().cfg_dispAutoFit )
     {
         c_auto sW = (float)dispW / img.mW;
         c_auto sH = (float)dispH / img.mH;
@@ -608,11 +608,11 @@ void XCompUI::drawCompositeDisp()
     ImGuiTexInspect::SetZoomRate( 2.0f );
 
     ImGuiTexInspect::SetPanButton(
-        mXComp.mConf.cfg_ctrlPanButton == "left"
+        moConfigWin->GetConfigCW().cfg_ctrlPanButton == "left"
             ? ImGuiMouseButton_Left
             : ImGuiMouseButton_Right );
 
-    //if ( mXComp.mConf.cfg_dispAutoFit )
+    //if ( moConfigWin->GetConfigCW().cfg_dispAutoFit )
     //{
     //    ImGui::Image( (void *)(ptrdiff_t)img.GetTextureID(), { useDispW, useDispH } );
     //}
@@ -624,7 +624,7 @@ void XCompUI::drawCompositeDisp()
                 { (float)img.mW, (float)img.mH },
                 ImGuiTexInspect::InspectorFlags_NoTooltip |
                 ImGuiTexInspect::InspectorFlags_NoGrid |
-                (mXComp.mConf.cfg_imsConfig.imsc_useBilinear
+                (moConfigWin->GetConfigCW().cfg_imsConfig.imsc_useBilinear
                     ? ImGuiTexInspect::InspectorFlags_NoForceFilterNearest
                     : 0),
                 ImGuiTexInspect::SizeIncludingBorder{
@@ -674,7 +674,7 @@ void XCompUI::drawDisplayHead()
 #if 0
     ImGui::SameLine();
 
-    if ( ImGui::Checkbox( "Autofit", &mXComp.mConf.cfg_dispAutoFit ) )
+    if ( ImGui::Checkbox( "Autofit", &moConfigWin->GetConfigCW().cfg_dispAutoFit ) )
     {
         mXComp.reqLazySaveConfig();
     }
@@ -733,7 +733,7 @@ void XCompUI::SetupGraphicsAppParams( GraphicsAppParams &par )
         , .wd_closeCross = false
         , .wd_winDrawFn = [this]()
         {
-            if ( mXComp.mConf.cfg_scanDir.empty() )
+            if ( moConfigWin->GetConfigCW().cfg_scanDir.empty() )
             {
                 if ( ImGui::Button( "Config..." ) )
                     moConfigWin->ActivateConfigWin( true, ConfigWin::TAB_GENERAL );
@@ -877,14 +877,12 @@ void XCompUI::OnAnimateXCUI()
         mXComp.mAppBaseConfig.SaveAppBaseConfig();
     }
 
-    if (c_auto optConfig = moConfigWin->GetChangedConfig() )
+    if ( moConfigWin->GetChangedConfigMsg() )
     {
-        mXComp.mConf.CopyConfigVals( *optConfig );
-
         mXComp.reqLazySaveConfig();
 
-        // set thenew configuration and rebuild the composite
-        mXComp.moIMSys->ReqRebuildComposite( mXComp.mConf.cfg_imsConfig );
+        // set the new configuration and rebuild the composite
+        mXComp.moIMSys->ReqRebuildComposite( moConfigWin->GetConfigCW().cfg_imsConfig );
     }
 }
 
