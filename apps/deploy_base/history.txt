@@ -1,5 +1,9 @@
 # Version history for xComp
 
+2022/03/
+1.1.4
+- Added history for scan directories and OpenColorIO config files
+
 2022/03/16
 1.1.3
 - Image list now shows if the alpha mask is not being applied
