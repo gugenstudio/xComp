@@ -221,22 +221,27 @@ endif()
 if (ENABLE_OCIO)
     set(OCIO_BUILD_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/externals/local/ocio/_build)
 
-    if (WIN32)
-        set(OCIO_BUILD_ROOT_REL ${OCIO_BUILD_ROOT}/Release)
-        set(OCIO_BUILD_ROOT_DBG ${OCIO_BUILD_ROOT}/Debug)
+    set(OCIO_BUILD_ROOT_REL ${OCIO_BUILD_ROOT}/Release)
+    set(OCIO_BUILD_ROOT_DBG ${OCIO_BUILD_ROOT}/Debug)
 
+    set(OCIO_LIBRARY_DIRS
+            ${OCIO_BUILD_LIBS_REL}
+            ${OCIO_BUILD_LIBS_DBG})
+
+    if (WIN32)
         set(OCIO_BUILD_LIBS_REL ${OCIO_BUILD_ROOT_REL}/src/OpenColorIO/Release)
         set(OCIO_BUILD_LIBS_DBG ${OCIO_BUILD_ROOT_DBG}/src/OpenColorIO/Debug)
-
-        set(OCIO_LIBRARY_DIRS
-                ${OCIO_BUILD_LIBS_REL}
-                ${OCIO_BUILD_LIBS_DBG})
 
         set(OCIO_LIBRARIES
             optimized ${OCIO_BUILD_LIBS_REL}/OpenColorIO.lib
             debug     ${OCIO_BUILD_LIBS_DBG}/OpenColorIO.lib)
-
     elseif (UNIX)
+        set(OCIO_BUILD_LIBS_REL ${OCIO_BUILD_ROOT_REL}/src/OpenColorIO)
+        set(OCIO_BUILD_LIBS_DBG ${OCIO_BUILD_ROOT_DBG}/src/OpenColorIO)
+
+        set(OCIO_LIBRARIES
+            optimized ${OCIO_BUILD_LIBS_REL}/libOpenColorIO.so
+            debug     ${OCIO_BUILD_LIBS_DBG}/libOpenColorIO.so)
     endif()
 
     include_directories( externals/local/ocio/_build/$<CONFIG>/include/OpenColorIO )

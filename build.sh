@@ -94,9 +94,9 @@ create_package_linux(){
 	strip -s _bin/xcomp -o ${PACKAGELINUXDIR}/bin/xcomp
 	chrpath -d ${PACKAGELINUXDIR}/bin/xcomp
 
-    # TODO: tentative name, to be replaced once we have the actual lib name
-    strip -s _bin/OpenColorIO_2_2.so -o ${PACKAGELINUXDIR}/bin/OpenColorIO_2_2.so
-	chmod 644 ${PACKAGELINUXDIR}/bin/OpenColorIO_2_2.so
+    OCIO_SO_DIR=externals/local/ocio/_build/Release/src/OpenColorIO
+    OCIO_SO_NAME=libOpenColorIO.so.2.2
+    cp ${OCIO_SO_DIR}/${OCIO_SO_NAME} ${PACKAGELINUXDIR}/bin/${OCIO_SO_NAME}
 
 	mkdir -p ${PACKAGELINUXDIR}/share/icons
 	mkdir -p ${PACKAGELINUXDIR}/share/fonts

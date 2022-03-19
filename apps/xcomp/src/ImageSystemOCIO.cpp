@@ -10,7 +10,7 @@
 
 #include "DLogOut.h"
 #include "FileUtils.h"
-#include "image.h"
+#include "Image.h"
 #include "ImageSystemOCIO.h"
 
 //==================================================================
