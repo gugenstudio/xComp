@@ -53,10 +53,10 @@ static constexpr int    PRELAUNCH_SECS_N        = 5;
 static constexpr int    FAILED_LAUNCH_SECS_N    = 10;
 
 //==================================================================
-static void saveConfig( const DStr &fname, const XCConfig &blsys )
+static void saveConfig( const DStr &fname, const XCConfig &conf )
 {
     try {
-        SerializeToFile( fname, blsys );
+        SerializeToFile( fname, conf );
     } catch (...) {
         LogOut( LOG_ERR, "Could not write to %s", fname.c_str() );
     }
@@ -154,9 +154,15 @@ void XComp::animateApp( TimeUS curTimeUS )
     // periodically check the proceses and update the groups
     if ( mCheckFilesTE.CheckTimedEvent( curTimeUS ) )
     {
-        if NOT( mConf.cfg_scanDir.empty() )
+        if (c_auto &dir = mConf.cfg_scanDir; !dir.empty() )
         {
-            moIMSys->OnNewScanDir( mConf.cfg_scanDir, mNextSelPathFName );
+            if ( moIMSys->OnNewScanDir( dir, mNextSelPathFName ) )
+            {
+                // since the dir is probably good, we add it to the recent
+                if ( mConf.AppendScanDirToRecent() )
+                    reqLazySaveConfig();
+            }
+
             // clear after use
             mNextSelPathFName = {};
         }

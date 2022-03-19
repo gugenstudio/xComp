@@ -15,6 +15,7 @@ void XCConfig::Serialize( SerialJS &v_ ) const
     v_.MSerializeObjectStart();
     SerializeMember( v_, "cfg_savedVer", DStr(GTV_SUITE_VERSION) );
     SERIALIZE_THIS_MEMBER( v_, cfg_scanDir              );
+    SERIALIZE_THIS_MEMBER( v_, cfg_scanDirHist          );
     SERIALIZE_THIS_MEMBER( v_, cfg_saveDir              );
     SERIALIZE_THIS_MEMBER( v_, cfg_ctrlPanButton        );
     SERIALIZE_THIS_MEMBER( v_, cfg_dispAutoFit          );
@@ -26,13 +27,27 @@ void XCConfig::Deserialize( DeserialJS &v_ )
 {
     DESERIALIZE_THIS_MEMBER( v_, cfg_savedVer           );
     DESERIALIZE_THIS_MEMBER( v_, cfg_scanDir            );
+    DESERIALIZE_THIS_MEMBER( v_, cfg_scanDirHist        );
     DESERIALIZE_THIS_MEMBER( v_, cfg_saveDir            );
     DESERIALIZE_THIS_MEMBER( v_, cfg_ctrlPanButton      );
     DESERIALIZE_THIS_MEMBER( v_, cfg_dispAutoFit        );
     DESERIALIZE_THIS_MEMBER( v_, cfg_imsConfig          );
+}
 
-    DStr oldScanDir;
-    DeserializeMember( v_, "bls_sourcePath", oldScanDir );
-    if ( cfg_scanDir.empty() )
-        cfg_scanDir = oldScanDir;
+//==================================================================
+bool XCConfig::AppendScanDirToRecent()
+{
+    auto &v = cfg_scanDirHist;
+    if ( v.end() == std::find( v.begin(), v.end(), cfg_scanDir ) )
+    {
+        // erase the oldest, if there are too many entries
+        if ( v.size() > 10 )
+            v.erase( v.begin() );
+
+        // append the new one
+        v.push_back( cfg_scanDir );
+        return true;
+    }
+
+    return false;
 }

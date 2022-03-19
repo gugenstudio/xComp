@@ -6,6 +6,7 @@
 /// copyright info.
 //==================================================================
 
+#include <set>
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "imgui_stdlib.h"
@@ -143,7 +144,23 @@ void ConfigWin::drawGeneral()
 
     IMUI_DrawHeader( "Folders" );
 
+#if 0
     ImGui::InputText( "Scan Folder", &mLocalVars.cfg_scanDir );
+#else
+    {
+        std::set<DStr> sorted;
+        for (c_auto &str : mLocalVars.cfg_scanDirHist)
+            sorted.insert( str );
+
+        DVec<const char *> pStrs;
+        pStrs.reserve( sorted.size() );
+
+        for (c_auto &str : sorted)
+            pStrs.push_back( str.c_str() );
+
+        IMUI_EditableCombo( "Scan Folder", mLocalVars.cfg_scanDir, pStrs );
+    }
+#endif
     ImGui::InputText( "Save Folder", &mLocalVars.cfg_saveDir );
 
     IMUI_DrawHeader( "Controls" );

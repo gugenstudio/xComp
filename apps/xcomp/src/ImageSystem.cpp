@@ -171,7 +171,7 @@ void ImageSystem::SaveComposite( const DStr &path ) const
 }
 
 //==================================================================
-void ImageSystem::OnNewScanDir( const DStr &path, const DStr &selPathFName )
+bool ImageSystem::OnNewScanDir( const DStr &path, const DStr &selPathFName )
 {
     std::unordered_set<DStr>  newNames;
 
@@ -184,7 +184,7 @@ void ImageSystem::OnNewScanDir( const DStr &path, const DStr &selPathFName )
                 mNotifiedBadPaths.insert( path );
                 LogOut( LOG_WRN, "Folder %s is unreachable", path.c_str() );
             }
-            return;
+            return false;
         }
         else
         {
@@ -257,6 +257,7 @@ void ImageSystem::OnNewScanDir( const DStr &path, const DStr &selPathFName )
         }
 
         ReqRebuildComposite();
+        return true;
     }
     else
     if ( !selPathFName.empty() && mCurSelPathFName != selPathFName )
@@ -269,6 +270,7 @@ void ImageSystem::OnNewScanDir( const DStr &path, const DStr &selPathFName )
             e.mIsImageEnabled = (e.mImagePathFName == selPathFName);
 
         ReqRebuildComposite();
+        return true;
     }
 
 #if 0
@@ -276,6 +278,8 @@ void ImageSystem::OnNewScanDir( const DStr &path, const DStr &selPathFName )
     for (c_auto &[k, e] : mEntries)
         LogOut( LOG_DBG, "F: %s", k.c_str() );
 #endif
+
+    return false;
 }
 
 //==================================================================

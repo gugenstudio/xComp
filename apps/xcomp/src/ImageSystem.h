@@ -109,7 +109,7 @@ public:
     ImageSystem( const IMSConfig &initCfg={} );
     ~ImageSystem();
 
-    void OnNewScanDir( const DStr &path, const DStr &selPathFName );
+    bool OnNewScanDir( const DStr &path, const DStr &selPathFName );
 
     void SaveComposite( const DStr &path ) const;
     bool IncCurSel( int step );
