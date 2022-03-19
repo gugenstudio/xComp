@@ -51,7 +51,7 @@ bool XCConfig::AddScanDirToHistory()
          v.end() == std::find( v.begin(), v.end(), cfg_scanDir ) )
     {
         // erase the oldest, if there are too many entries
-        if ( v.size() > 10 )
+        if ( v.size() >= 10 )
             v.erase( v.begin() );
 
         // append the new one

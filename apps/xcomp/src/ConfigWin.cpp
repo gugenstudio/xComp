@@ -139,6 +139,22 @@ void ConfigWin::storeIfChanged()
 }
 
 //==================================================================
+inline auto makeEditComboWithHist = []( c_auto *pTitle, auto &io_str, c_auto &hist )
+{
+    std::set<DStr> sorted;
+    for (c_auto &str : hist)
+        sorted.insert( str );
+
+    DVec<const char *> pStrs;
+    pStrs.reserve( sorted.size() );
+
+    for (c_auto &str : sorted)
+        pStrs.push_back( str.c_str() );
+
+    return IMUI_EditableCombo( pTitle, io_str, pStrs );
+};
+
+//==================================================================
 void ConfigWin::drawGeneral()
 {
     auto &locIMSC = mLocalVars.cfg_imsConfig;
@@ -148,19 +164,10 @@ void ConfigWin::drawGeneral()
 #if 0
     ImGui::InputText( "Scan Folder", &mLocalVars.cfg_scanDir );
 #else
-    {
-        std::set<DStr> sorted;
-        for (c_auto &str : mLocalVars.cfg_scanDirHist)
-            sorted.insert( str );
-
-        DVec<const char *> pStrs;
-        pStrs.reserve( sorted.size() );
-
-        for (c_auto &str : sorted)
-            pStrs.push_back( str.c_str() );
-
-        IMUI_EditableCombo( "Scan Folder", mLocalVars.cfg_scanDir, pStrs );
-    }
+    makeEditComboWithHist(
+                "Scan Folder",
+                mLocalVars.cfg_scanDir,
+                mLocalVars.cfg_scanDirHist );
 #endif
     ImGui::InputText( "Save Folder", &mLocalVars.cfg_saveDir );
 
@@ -204,8 +211,19 @@ void ConfigWin::drawColorCorr()
 #ifdef ENABLE_OCIO
     if ( locIMSC.imsc_ccorXform == "ocio" )
     {
-        if ( ImGui::InputText( "OCIO Config File", &locIMSC.imsc_ccorOCIOCfgFName ) )
+        auto ocioFName = locIMSC.imsc_ccorOCIOCfgFName;
+#if 0
+        if ( ImGui::InputText( "OCIO Config File", &ocioFName ) )
+#else
+        if ( makeEditComboWithHist(
+                        "OCIO Config File",
+                        ocioFName,
+                        locIMSC.imsc_ccorOCIOCfgFNameHist ) )
+#endif
+        {
+            locIMSC.SetOCIOFName( ocioFName );
             updateOnLocalChange();
+        }
 
         auto makeCStrList = [&,this]( c_auto &src )
         {

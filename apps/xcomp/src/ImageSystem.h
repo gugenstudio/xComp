@@ -52,31 +52,37 @@ private:
 class IMSConfig
 {
 public:
-    bool    imsc_useBilinear        { true };
-    bool    imsc_ccorRGBOnly        { true };
-    bool    imsc_ccorSRGB           { true };
-    DStr    imsc_ccorXform          { "none" };
-    DStr    imsc_ccorOCIOCfgFName   {};
-    DStr    imsc_ccorOCIODisp       {};
-    DStr    imsc_ccorOCIOView       {};
-    DStr    imsc_ccorOCIOLook       {};
+    bool        imsc_useBilinear            { true };
+    bool        imsc_ccorRGBOnly            { true };
+    bool        imsc_ccorSRGB               { true };
+    DStr        imsc_ccorXform              { "none" };
+    DStr        imsc_ccorOCIOCfgFName       {};
+    DVec<DStr>  imsc_ccorOCIOCfgFNameHist   {};
+    DStr        imsc_ccorOCIODisp           {};
+    DStr        imsc_ccorOCIOView           {};
+    DStr        imsc_ccorOCIOLook           {};
 
     friend bool operator==(const IMSConfig &l, const IMSConfig &r)
     {
         return
-            l.imsc_useBilinear      == r.imsc_useBilinear       &&
-            l.imsc_ccorRGBOnly      == r.imsc_ccorRGBOnly       &&
-            l.imsc_ccorSRGB         == r.imsc_ccorSRGB          &&
-            l.imsc_ccorXform        == r.imsc_ccorXform         &&
-            l.imsc_ccorOCIOCfgFName == r.imsc_ccorOCIOCfgFName  &&
-            l.imsc_ccorOCIODisp     == r.imsc_ccorOCIODisp      &&
-            l.imsc_ccorOCIOView     == r.imsc_ccorOCIOView      &&
-            l.imsc_ccorOCIOLook     == r.imsc_ccorOCIOLook      &&
+            l.imsc_useBilinear          == r.imsc_useBilinear           &&
+            l.imsc_ccorRGBOnly          == r.imsc_ccorRGBOnly           &&
+            l.imsc_ccorSRGB             == r.imsc_ccorSRGB              &&
+            l.imsc_ccorXform            == r.imsc_ccorXform             &&
+            l.imsc_ccorOCIOCfgFName     == r.imsc_ccorOCIOCfgFName      &&
+            l.imsc_ccorOCIOCfgFNameHist == r.imsc_ccorOCIOCfgFNameHist  &&
+            l.imsc_ccorOCIODisp         == r.imsc_ccorOCIODisp          &&
+            l.imsc_ccorOCIOView         == r.imsc_ccorOCIOView          &&
+            l.imsc_ccorOCIOLook         == r.imsc_ccorOCIOLook          &&
             true;
     }
 
     friend bool operator!=(const IMSConfig &l, const IMSConfig &r) { return !(l == r); }
 
+    void SetOCIOFName( const DStr &fname );
+private:
+    bool addOCIOFNameToHistory();
+public:
     void Serialize( SerialJS &v_ ) const;
     void Deserialize( DeserialJS &v_ );
 

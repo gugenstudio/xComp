@@ -416,7 +416,7 @@ void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
             {
                 if ( StrEndsWithI( pathFName, ".ocio" ) )
                 {
-                    io_conf.cfg_imsConfig.imsc_ccorOCIOCfgFName = pathFName;
+                    io_conf.cfg_imsConfig.SetOCIOFName( pathFName );
 
                     LogOut( 0, "New OpenColorIO config file: %s",
                                 io_conf.cfg_imsConfig.imsc_ccorOCIOCfgFName.c_str() );

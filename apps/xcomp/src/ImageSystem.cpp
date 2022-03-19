@@ -22,27 +22,65 @@
 void IMSConfig::Serialize( SerialJS &v_ ) const
 {
     v_.MSerializeObjectStart();
-    SERIALIZE_THIS_MEMBER( v_, imsc_useBilinear         );
-    SERIALIZE_THIS_MEMBER( v_, imsc_ccorRGBOnly         );
-    SERIALIZE_THIS_MEMBER( v_, imsc_ccorSRGB            );
-    SERIALIZE_THIS_MEMBER( v_, imsc_ccorXform           );
-    SERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOCfgFName    );
-    SERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIODisp        );
-    SERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOView        );
-    SERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOLook        );
+    SERIALIZE_THIS_MEMBER( v_, imsc_useBilinear             );
+    SERIALIZE_THIS_MEMBER( v_, imsc_ccorRGBOnly             );
+    SERIALIZE_THIS_MEMBER( v_, imsc_ccorSRGB                );
+    SERIALIZE_THIS_MEMBER( v_, imsc_ccorXform               );
+    SERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOCfgFName        );
+    SERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOCfgFNameHist    );
+    SERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIODisp            );
+    SERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOView            );
+    SERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOLook            );
     v_.MSerializeObjectEnd();
 }
 
 void IMSConfig::Deserialize( DeserialJS &v_ )
 {
-    DESERIALIZE_THIS_MEMBER( v_, imsc_useBilinear       );
-    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorRGBOnly       );
-    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorSRGB          );
-    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorXform         );
-    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOCfgFName  );
-    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIODisp      );
-    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOView      );
-    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOLook      );
+    DESERIALIZE_THIS_MEMBER( v_, imsc_useBilinear           );
+    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorRGBOnly           );
+    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorSRGB              );
+    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorXform             );
+    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOCfgFName      );
+    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOCfgFNameHist  );
+    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIODisp          );
+    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOView          );
+    DESERIALIZE_THIS_MEMBER( v_, imsc_ccorOCIOLook          );
+
+    // remove empty or unreachable files
+    auto &h = imsc_ccorOCIOCfgFNameHist;
+    for (auto it=h.begin(); it != h.end();)
+    {
+        if ( it->empty() || !FU_FileExists( *it ) )
+            it = h.erase( it );
+        else
+            ++it;
+    }
+}
+
+//==================================================================
+void IMSConfig::SetOCIOFName( const DStr &fname )
+{
+    imsc_ccorOCIOCfgFName = fname;
+    addOCIOFNameToHistory();
+}
+
+//==================================================================
+bool IMSConfig::addOCIOFNameToHistory()
+{
+    auto &v = imsc_ccorOCIOCfgFNameHist;
+    if ( !imsc_ccorOCIOCfgFName.empty() &&
+         v.end() == std::find( v.begin(), v.end(), imsc_ccorOCIOCfgFName ) )
+    {
+        // erase the oldest, if there are too many entries
+        if ( v.size() >= 10 )
+            v.erase( v.begin() );
+
+        // append the new one
+        v.push_back( imsc_ccorOCIOCfgFName );
+        return true;
+    }
+
+    return false;
 }
 
 //==================================================================
