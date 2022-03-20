@@ -235,6 +235,13 @@ if (ENABLE_OCIO)
         set(OCIO_LIBRARIES
             optimized ${OCIO_BUILD_LIBS_REL}/OpenColorIO.lib
             debug     ${OCIO_BUILD_LIBS_DBG}/OpenColorIO.lib)
+    elseif (APPLE)
+        set(OCIO_BUILD_LIBS_REL ${OCIO_BUILD_ROOT_REL}/src/OpenColorIO)
+        set(OCIO_BUILD_LIBS_DBG ${OCIO_BUILD_ROOT_DBG}/src/OpenColorIO)
+
+        set(OCIO_LIBRARIES
+            optimized ${OCIO_BUILD_LIBS_REL}/libOpenColorIO.dylib
+            debug     ${OCIO_BUILD_LIBS_DBG}/libOpenColorIO.dylib)
     elseif (UNIX)
         set(OCIO_BUILD_LIBS_REL ${OCIO_BUILD_ROOT_REL}/src/OpenColorIO)
         set(OCIO_BUILD_LIBS_DBG ${OCIO_BUILD_ROOT_DBG}/src/OpenColorIO)
