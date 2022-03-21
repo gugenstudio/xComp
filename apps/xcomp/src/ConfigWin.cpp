@@ -139,7 +139,12 @@ void ConfigWin::storeIfChanged()
 }
 
 //==================================================================
-inline auto makeEditComboWithHist = []( c_auto *pTitle, auto &io_str, c_auto &hist )
+inline auto makePathsCombo = [](
+                c_auto *pTitle,
+                auto &io_str,
+                c_auto &hist,
+                c_auto isDirPath,
+                const char *pHelpStr )
 {
     std::set<DStr> sorted;
     for (c_auto &str : hist)
@@ -151,7 +156,22 @@ inline auto makeEditComboWithHist = []( c_auto *pTitle, auto &io_str, c_auto &hi
     for (c_auto &str : sorted)
         pStrs.push_back( str.c_str() );
 
-    return IMUI_EditableCombo( pTitle, io_str, pStrs );
+    c_auto changed = IMUI_EditableCombo( pTitle, io_str, pStrs );
+    if ( pHelpStr )
+    {
+        IMUI_SameLine();
+        IMUI_HelpMarker( pHelpStr );
+    }
+
+    if NOT( isDirPath ? FU_DirectoryExists( io_str )
+                      : FU_FileExists( io_str ) )
+    {
+        IMUI_TextColored(
+            Display::ORANGE,
+            DStr( isDirPath ? "Directory" : "File" ) + " does not exist." );
+    }
+
+    return changed;
 };
 
 //==================================================================
@@ -164,10 +184,12 @@ void ConfigWin::drawGeneral()
 #if 0
     ImGui::InputText( "Scan Folder", &mLocalVars.cfg_scanDir );
 #else
-    makeEditComboWithHist(
+    makePathsCombo(
                 "Scan Folder",
                 mLocalVars.cfg_scanDir,
-                mLocalVars.cfg_scanDirHist );
+                mLocalVars.cfg_scanDirHist,
+                true,
+                nullptr );
 #endif
     ImGui::InputText( "Save Folder", &mLocalVars.cfg_saveDir );
 
@@ -213,12 +235,15 @@ void ConfigWin::drawColorCorr()
     {
         auto ocioFName = locIMSC.imsc_ccorOCIOCfgFName;
 #if 0
-        if ( ImGui::InputText( "OCIO Config File", &ocioFName ) )
+        if ( ImGui::InputText( "Config File", &ocioFName ) )
 #else
-        if ( makeEditComboWithHist(
-                        "OCIO Config File",
-                        ocioFName,
-                        locIMSC.imsc_ccorOCIOCfgFNameHist ) )
+        if ( makePathsCombo(
+                "Config File",
+                ocioFName,
+                locIMSC.imsc_ccorOCIOCfgFNameHist,
+                false,
+                "Example:\n"
+                "\"<...>/blender/3.0/datafiles/colormanagement/config.ocio\"" ) )
 #endif
         {
             locIMSC.SetOCIOFName( ocioFName );
