@@ -829,6 +829,14 @@ void XCompUI::SetupGraphicsAppParamsDispConfigMenu( GraphicsAppParams &par )
                 [this](){ mXComp.mpGfxApp->SetUIWindowOpen( "About", true ); }
     });
 
+    par.mMenuItems.push_back({
+              .mi_menuName   = "Help"
+            , .mi_itemName   = "Check for Updates..."
+            , .mi_pCheckOnOff = nullptr
+            , .mi_onItemSelectFn =
+                [this](){ FU_OpenURL( "https://github.com/gugenstudio/xComp/releases" ); }
+    });
+
 #ifdef DEBUG
     par.mMenuItems.push_back({
               .mi_menuName   = "File"

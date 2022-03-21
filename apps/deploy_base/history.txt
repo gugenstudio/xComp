@@ -1,6 +1,9 @@
 # Version history for xComp
 
 2022/03/21
+1.1.5
+- Added "Check for Updates..." menu entry
+2022/03/21
 1.1.4
 - Added recent history of scan directory and OpenColorIO config paths
 - Now building with OpenColorIO on Linux and macOS
