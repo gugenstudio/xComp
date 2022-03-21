@@ -661,7 +661,7 @@ void XCompUI::drawDisplayHead()
 
     ImGui::SameLine();
 
-    if ( ImGui::Button( "Color Corr..." ) )
+    if ( ImGui::Button( "Colors..." ) )
         moConfigWin->ActivateConfigWin( true, ConfigWin::TAB_COLOR_CORR );
 
     // visible message for possible UI freeze

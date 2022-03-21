@@ -84,7 +84,10 @@ void ConfigWin::updateOnLocalChange()
 void ConfigWin::ActivateConfigWin( bool onOff, Tab nextOpenTab )
 {
     if ( mActivate == onOff )
+    {
+        mNextOpenTab = nextOpenTab; // just switch
         return;
+    }
 
     if ( onOff )
     {
