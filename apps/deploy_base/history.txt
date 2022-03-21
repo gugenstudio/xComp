@@ -5,6 +5,8 @@
 - Added "Check for Updates..." menu entry
 - Modified text in main window's title bar
 - Updated About window
+- Improved management of scan directory and OpenColorIO config
+- Minor UI improvements
 
 2022/03/21
 1.1.4
