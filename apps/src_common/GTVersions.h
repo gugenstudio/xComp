@@ -11,10 +11,14 @@
 
 #define GTV_XCOMP_NAME      "xComp"
 #define GTV_XCOMP_LONGNAME  "xComp - Sequential image comparer"
+#define GTV_XCOMP_SUBTITLE  "Gugen Studio, Inc."
 
 #define GTV_SUITE_VERSION "1.1.4"
 #define GTV_SUITE_DISPURL "www.gugenstudio.co.jp"
 #define GTV_SUITE_FULLURL "http://www.gugenstudio.co.jp"
+
+#define GTV_SUITE_COPYRIGHT "Copyright by Gugen Studio Inc., Japan 2022."
+#define GTV_SUITE_CREDITS   "Code by Davide Pasca, Marco Azimonti."
 
 #include <array>
 #include <string>

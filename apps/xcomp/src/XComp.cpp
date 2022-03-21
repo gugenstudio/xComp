@@ -252,12 +252,9 @@ static void addMenuFolderEntry(
 }
 
 //==================================================================
-static DStr makeWindowTitle(
-            const DStr &appName,
-            const DStr &suiteVer,
-            const DStr &profDisplay )
+inline auto makeWindowTitle( c_auto appName, c_auto suiteVer, c_auto subtitle )
 {
-    return appName + " " + suiteVer + " (" + profDisplay + ")";
+    return DStr(appName) + " " + suiteVer + " -- " + subtitle;
 }
 
 //==================================================================
@@ -269,10 +266,7 @@ void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
 
     par.mNonInteracIntervalUS = mPar.mIsNoFrameSkipUI ? TimeUS() : TimeUS::ONE_SECOND() / 2;
 
-    par.mTitle = makeWindowTitle(
-                    GTV_XCOMP_NAME,
-                    GTV_SUITE_VERSION,
-                    GetUserProfDisplay() );
+    par.mTitle = makeWindowTitle( GTV_XCOMP_NAME, GTV_SUITE_VERSION, GTV_XCOMP_SUBTITLE );
 
     if (c_auto pos = mAppBaseConfig.GetWinPosABC())
     {

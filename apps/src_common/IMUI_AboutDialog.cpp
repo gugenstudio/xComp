@@ -33,7 +33,6 @@ static void displayLicenses( bool showSmall )
 #endif
         ,{ "GLEW"               ,"multiple"                         ,"MIT"           }
         ,{ "GLFW"               ,"Marcus Geelnard, Camilla Löwy"    ,"zlib/libpng"   }
-        ,{ "Mesa 3D"            ,"Brian Paul (DLL by fdossena.com)" ,"MIT"           }
         ,{ "zlib"               ,"Jean-loup Gailly, Mark Adler"     ,"zlib"          }
         ,{ "libpng"             ,"multiple"                         ,"libpng"        }
         ,{ "OpenEXR"            ,"Academy Software Foundation"      ,"Modified BSD"  }
@@ -100,10 +99,7 @@ void IMUI_AboutDialog( const IMUI_AboutDialogParams &par )
 
     IMUI_DrawHeader( par.appLongName + " " + par.appVersion );
 
-    if ( par.copyrightText.empty() )
-        IMUI_Text( "Copyright by NEWTYPE K.K., Japan 2018-2022" );
-    else
-        IMUI_Text( par.copyrightText );
+    IMUI_Text( par.copyrightText );
 
 #if 0
     ImGui::NewLine();
