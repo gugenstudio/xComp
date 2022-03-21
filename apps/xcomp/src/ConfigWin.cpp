@@ -163,8 +163,9 @@ inline auto makePathsCombo = [](
         IMUI_HelpMarker( pHelpStr );
     }
 
-    if NOT( isDirPath ? FU_DirectoryExists( io_str )
-                      : FU_FileExists( io_str ) )
+    if NOT( io_str.empty() ||
+            (isDirPath ? FU_DirectoryExists( io_str )
+                       : FU_FileExists( io_str )) )
     {
         IMUI_TextColored(
             Display::ORANGE,

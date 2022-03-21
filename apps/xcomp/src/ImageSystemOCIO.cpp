@@ -28,6 +28,23 @@ void ImageSystemOCIO::ApplyOCIO(
         const DStr &viewName,
         const DStr &lookName )
 {
+    auto logErr = []( c_auto &msg )
+    {
+        LogOut( LOG_ERR, "OpenColorIO Error: " + msg );
+    };
+
+    // see if we have to load a new config
+    try
+    {
+        UpdateConfigOCIO( cfgFName );
+    }
+    catch ( OCIO::Exception &ec )
+    {
+        logErr( SSPrintFS( "%s, while reading the config", ec.what() ) );
+        return;
+    }
+
+    //
     auto getName = []( c_auto &str ) -> const char*
     {
         return str.empty() ? nullptr : str == "None" ? "" : str.c_str();
@@ -41,11 +58,12 @@ void ImageSystemOCIO::ApplyOCIO(
     if (c_auto *p = getName( viewName )) pView = p;
     if (c_auto *p = getName( lookName )) pLook = p;
 
+    // must have all params to proceed
+    if NOT( strlen( pDisp ) && strlen( pView ) && strlen( pLook ) )
+        return;
+
     try
     {
-        // see if we have to load a new config
-        UpdateConfigOCIO( cfgFName );
-
         OCIO::PackedImageDesc ocioImg(
                 (void *)srcImg.GetPixelPtr(0,0),
                 srcImg.mW,
@@ -68,10 +86,9 @@ void ImageSystemOCIO::ApplyOCIO(
     }
     catch ( OCIO::Exception &ec )
     {
-        LogOut( LOG_ERR, "OpenColorIO Error: %s, while applying"
-                         " disp:%s, view:%s, look:%s",
-                         ec.what(),
-                         pDisp, pView, pLook );
+        logErr( SSPrintFS( "%s, while applying disp:%s, view:%s, look:%s",
+             ec.what(),
+             pDisp, pView, pLook ) );
     }
 }
 
@@ -95,7 +112,7 @@ void ImageSystemOCIO::UpdateConfigOCIO( const DStr &cfgFName )
         }
         else
         {
-            LogOut( LOG_ERR, "Could not find %s", mUseCfgFName.c_str() );
+            //LogOut( LOG_ERR, "Could not find %s", mUseCfgFName.c_str() );
             // settle for the default
             msUseCfg = msDefaultCfg;
         }

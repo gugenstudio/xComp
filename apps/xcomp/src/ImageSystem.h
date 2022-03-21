@@ -108,9 +108,6 @@ public:
 
     bool                        mHasRebuildReq = false;
 
-private:
-    std::unordered_set<DStr>    mNotifiedBadPaths;
-
 public:
     ImageSystem( const IMSConfig &initCfg={} );
     ~ImageSystem();

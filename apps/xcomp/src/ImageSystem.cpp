@@ -213,23 +213,9 @@ bool ImageSystem::OnNewScanDir( const DStr &path, const DStr &selPathFName )
 {
     std::unordered_set<DStr>  newNames;
 
-    {
-        auto it = mNotifiedBadPaths.find( path );
-        if NOT( FU_DirectoryExists( path ) )
-        {
-            if ( it == mNotifiedBadPaths.end() )
-            {
-                mNotifiedBadPaths.insert( path );
-                LogOut( LOG_WRN, "Folder %s is unreachable", path.c_str() );
-            }
-            return false;
-        }
-        else
-        {
-            if ( it != mNotifiedBadPaths.end() )
-                mNotifiedBadPaths.erase( it );
-        }
-    }
+    // fail silently
+    if NOT( FU_DirectoryExists( path ) )
+        return false;
 
     for (auto it  = fs::recursive_directory_iterator( path );
               it != fs::recursive_directory_iterator(); ++it)
