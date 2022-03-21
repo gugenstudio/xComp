@@ -190,17 +190,20 @@ inline bool IMUI_NegCheckbox( const char *pLabel, bool *pNegatedVal )
 }
 
 //==================================================================
-inline bool IMUI_ButtonEnabled( const char *pLabel, bool doEnable, const ImVec2 siz={0,0} )
+bool IMUI_ButtonEnabled(
+        const char *pLabel,
+        bool doEnable,
+        const ImVec2 &siz={0,0},
+        const ColorF &col={0,0,0,0} );
+
+//
+inline bool IMUI_ButtonEnabled(
+        const DStr &label,
+        bool doEnable,
+        const ImVec2 &siz={0,0},
+        const ColorF &col={0,0,0,0} )
 {
-    if NOT( doEnable )
-        IMUI_PushDisabled();
-
-    c_auto didClick = ImGui::Button( pLabel, siz ) && doEnable;
-
-    if NOT( doEnable )
-        IMUI_PopDisabled();
-
-    return didClick;
+    return IMUI_ButtonEnabled( label.c_str(), doEnable, siz, col );
 }
 
 //

@@ -768,6 +768,30 @@ bool IMUI_BeginChildWithBottom(
 }
 
 //==================================================================
+bool IMUI_ButtonEnabled(
+        const char *pLabel,
+        bool doEnable,
+        const ImVec2 &siz,
+        const ColorF &col )
+{
+    if ( col[3] )
+        IMUI_PushButtonColors( col );
+
+    if NOT( doEnable )
+        IMUI_PushDisabled();
+
+    c_auto didClick = ImGui::Button( pLabel, siz * _gsContentScale ) && doEnable;
+
+    if NOT( doEnable )
+        IMUI_PopDisabled();
+
+    if ( col[3] )
+        IMUI_PopButtonColors();
+
+    return didClick;
+}
+
+//==================================================================
 bool IMUI_SmallButtonEnabled( const char *pLabel, bool doEnable, const ImVec2 siz )
 {
     if NOT( doEnable )
