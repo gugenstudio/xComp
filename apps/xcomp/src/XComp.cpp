@@ -258,6 +258,65 @@ inline auto makeWindowTitle( c_auto appName, c_auto suiteVer, c_auto subtitle )
 }
 
 //==================================================================
+bool XComp::onDrop( int count, const char **ppPathFnames )
+{
+    if ( count <= 0 )
+        return false;
+
+    if ( count > 1 )
+        LogOut( 0, "%i files dropped. Using only the first one.", count );
+
+    c_auto pathFName = DStr( ppPathFnames[0] );
+
+    namespace fs = std::filesystem;
+
+    c_auto st = fs::status( pathFName );
+
+    if NOT( fs::exists( st ) )
+    {
+        LogOut( LOG_ERR, "%s doesn't seem to exist", pathFName.c_str() );
+        return false;
+    }
+
+    if ( fs::is_directory( st ) )
+    {
+        moXCompUI->moConfigWin->UpdateConfig( [&]( auto &io_conf )
+        {
+            io_conf.cfg_scanDir = pathFName;
+
+            LogOut( 0, "Changed the scan directory to " + io_conf.cfg_scanDir );
+        });
+    }
+    else
+    {
+        moXCompUI->moConfigWin->UpdateConfig( [&]( auto &io_conf )
+        {
+            // is it a config file for OpenColorIO ?
+            if ( StrEndsWithI( pathFName, ".ocio" ) )
+            {
+                auto &cfg = io_conf.cfg_imsConfig;
+                cfg.SetOCIOXForm();
+                cfg.SetOCIOFName( pathFName );
+
+                LogOut( 0, "New OpenColorIO config file: " + cfg.imsc_ccorOCIOCfgFName );
+            }
+            else
+            // ...else, assume it's an image file
+            {
+                c_auto path = fs::path( pathFName );
+                io_conf.cfg_scanDir = StrFromU8Str( path.parent_path().u8string() );
+
+                mNextSelPathFName = pathFName;
+
+                LogOut( 0, "New scan directory: " + io_conf.cfg_scanDir );
+            }
+        });
+    }
+
+    return true;
+}
+
+//==================================================================
 void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
 {
     GraphicsAppParams par;
@@ -377,58 +436,7 @@ void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
     //
     par.mOnDropFn = [this]( int count, const char **ppPathFnames )
     {
-        if ( count <= 0 )
-            return false;
-
-        if ( count > 1 )
-            LogOut( 0, "%i files dropped. Using only the first one.", count );
-
-        c_auto pathFName = DStr( ppPathFnames[0] );
-
-        namespace fs = std::filesystem;
-
-        c_auto st = fs::status( pathFName );
-
-        if NOT( fs::exists( st ) )
-        {
-            LogOut( LOG_ERR, "%s doesn't seem to exist", pathFName.c_str() );
-            return false;
-        }
-
-        if ( fs::is_directory( st ) )
-        {
-            moXCompUI->moConfigWin->UpdateConfig( [&]( auto &io_conf )
-            {
-                io_conf.cfg_scanDir = pathFName;
-
-                LogOut( 0, "Changed the scan directory to %s", io_conf.cfg_scanDir.c_str() );
-            });
-        }
-        else
-        {
-            moXCompUI->moConfigWin->UpdateConfig( [&]( auto &io_conf )
-            {
-                if ( StrEndsWithI( pathFName, ".ocio" ) )
-                {
-                    io_conf.cfg_imsConfig.SetOCIOFName( pathFName );
-
-                    LogOut( 0, "New OpenColorIO config file: %s",
-                                io_conf.cfg_imsConfig.imsc_ccorOCIOCfgFName.c_str() );
-                }
-                else
-                {
-                    c_auto path = fs::path( pathFName );
-                    io_conf.cfg_scanDir = StrFromU8Str( path.parent_path().u8string() );
-
-                    mNextSelPathFName = pathFName;
-
-                    LogOut( 0, "New scan directory: %s",
-                                    io_conf.cfg_scanDir.c_str() );
-                }
-            });
-        }
-
-        return true;
+        return onDrop( count, ppPathFnames );
     };
 
     //

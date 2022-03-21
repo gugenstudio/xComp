@@ -78,6 +78,8 @@ private:
     void reqLazySaveConfig();
     void checkLazySaveConfig( TimeUS curTimeUS );
 
+    bool onDrop( int count, const char **ppPathFnames );
+
     void animateApp( TimeUS curTimeUS );
 };
 

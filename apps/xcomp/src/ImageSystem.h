@@ -80,6 +80,7 @@ public:
     friend bool operator!=(const IMSConfig &l, const IMSConfig &r) { return !(l == r); }
 
     void SetOCIOFName( const DStr &fname );
+    void SetOCIOXForm() { imsc_ccorXform = "ocio"; }
 private:
     bool addOCIOFNameToHistory();
 public:
