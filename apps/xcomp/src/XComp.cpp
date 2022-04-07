@@ -252,10 +252,10 @@ static void addMenuFolderEntry(
 }
 
 //==================================================================
-inline auto makeWindowTitle( c_auto appName, c_auto suiteVer, c_auto subtitle )
+inline auto makeWindowTitle = []( c_auto appName, c_auto suiteVer, c_auto subtitle )
 {
     return DStr(appName) + " " + suiteVer + " -- " + subtitle;
-}
+};
 
 //==================================================================
 bool XComp::onDrop( int count, const char **ppPathFnames )
