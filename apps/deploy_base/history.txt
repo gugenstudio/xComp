@@ -1,5 +1,9 @@
 # Version history for xComp
 
+2022/04/08
+1.1.6
+- macOS packaging with notarization
+
 2022/03/21
 1.1.5
 - Added "Check for Updates..." menu entry
