@@ -9,6 +9,16 @@ case "${unameOut}" in
     *)          echo "unsupported architecture"; exit 1
 esac
 
+# Set all option to FALSE
+CLEANBUILD="FALSE"
+CREATE_PACKAGE="FALSE"
+CREATE_PACKAGE_SERVER="FALSE"
+DEPLOY_BINARY="FALSE"
+DEPLOY_PACKAGE="FALSE"
+DRY_RUN="FALSE"
+UPDATEMAKEFILES="FALSE"
+SIGNPACKAGE="FALSE"
+
 BASHSCRIPTDIR="$(cd "$(dirname "$0")" || exit; pwd)"
 ROOTDIR=${BASHSCRIPTDIR}
 SOURCEDIR=${BASHSCRIPTDIR}
@@ -16,6 +26,13 @@ BUILDDIR=${ROOTDIR}/_build/${MACHINE}
 SOURCEDIR=${ROOTDIR}/apps
 SOURCE2DIR=${ROOTDIR}/libs
 NBFILES=${BUILDDIR}/.nbfiles
+if [ "${MACHINE}" != "win" ]; then
+	VERSION_ID="$(awk '$2 == "GTV_SUITE_VERSION" {print substr($3,2,length($3)-2)}' apps/src_common/GTVersions.h)"
+fi
+if [ "${MACHINE}" == "macos" ]; then
+    ALTOOL=${ALTOOL:-"/Applications/Xcode.app/Contents/Developer/usr/bin/altool"}
+    STAPLER=${STAPLER:-"/Applications/Xcode.app/Contents/Developer/usr/bin/stapler"}
+fi
 
 displayusage() {
     echo " ================================================================================= "
@@ -32,6 +49,7 @@ displayusage() {
 	echo "| -n) --nproc)          sets the number of parallel processing (default nproc -1) |"
     echo "| -p) --package)        creates a package without dir removal                     |"
     echo "| -t) --build-type)     specifies a different cmake build type (e.g. \"-t -Debug\") |"
+    echo "| -s) --sign)           signs and notarizes                     |"
     echo "| -w) --cmake-params)   specifies cmake options in quoted (e.g. \"-DVAR=value\")    |"
 	echo "| [no arguments]        automatically updates the build when necessary            |"
     echo " ================================================================================= "
@@ -79,7 +97,6 @@ emake(){
 
 create_package_linux(){
 	PACKAGELINUXDIR=_tmp/xcomp
-	VERSION_ID="$(awk '$2 == "GTV_SUITE_VERSION" {print substr($3,2,length($3)-2)}' apps/src_common/GTVersions.h)"
 
 	rm -rf _tmp/xcomp
 	mkdir -p ${PACKAGELINUXDIR}/bin
@@ -114,9 +131,7 @@ create_package_linux(){
 
 create_package_macos(){
 	PACKAGEMACOSDIR=_tmp/xcomp
-	VERSION_ID="$(awk '$2 == "GTV_SUITE_VERSION" {print substr($3,2,length($3)-2)}' apps/src_common/GTVersions.h)"
-
-	rm -rf _tmp/xcomp _tmp/xcomp.dmg _tmp/xcomp*.command
+	rm -rf _tmp/xcomp _tmp/xcomp*.dmg _tmp/xcomp*.zip _tmp/xcomp*.pkg _tmp/xcomp*.command
 	mkdir -p ${PACKAGEMACOSDIR}/bin
 	mkdir -p ${PACKAGEMACOSDIR}/share
 	mkdir -p ${PACKAGEMACOSDIR}/share/icons
@@ -125,19 +140,61 @@ create_package_macos(){
 
 	strip -o ${PACKAGEMACOSDIR}/bin/xcomp _bin/xcomp
 
-    # TODO: tentative name, to be replaced once we have the actual lib name
-	cp _bin/OpenColorIO_2_2.dylib ${PACKAGEMACOSDIR}/bin/
+    OCIO_SO_DIR=externals/local/ocio/_build/Release/src/OpenColorIO
+    cp -av ${OCIO_SO_DIR}/*.dylib ${PACKAGEMACOSDIR}/redistr
+	chmod 755 ${PACKAGEMACOSDIR}/redistr/*.dylib
 
 	cp apps/deploy_base/icons/* ${PACKAGEMACOSDIR}/share/icons
 	cp apps/deploy_base/fonts/* ${PACKAGEMACOSDIR}/share/fonts
 	cp apps/deploy_base/history.txt ${PACKAGEMACOSDIR}
 	cp apps/deploy_base/license.txt ${PACKAGEMACOSDIR}
-	cp apps/deploy_base/run_macos.sh ${PACKAGEMACOSDIR}/run.sh
-	cp apps/deploy_base/run_macos.sh ${PACKAGEMACOSDIR}/run.command
-	sed "s/XCOMP_VERSION/${VERSION_ID}-$(uname -m)/g" apps/deploy_base/deploy_macos.sh > "_tmp/xcomp_${VERSION_ID}-$(uname -m).command"
-	chmod 755 "_tmp/xcomp_${VERSION_ID}-$(uname -m).command"
+	cp apps/deploy_base/run_macos.sh ${PACKAGEMACOSDIR}/xcomp.command
 
-	create-dmg --volname "xcomp" --volicon "apps/resources/xcomp_icon.icns" "_tmp/xcomp_${VERSION_ID}-$(uname -m).dmg" "${PACKAGEMACOSDIR}"
+    BUNDLEID="com.gugenstudio.${VERSION_ID}.$(date +%s)"
+    echo "Bundle ID is ${BUNDLEID}"
+    PACKAGENAME="xcomp_${VERSION_ID}-$(uname -m).pkg"
+
+    if [[ "${SIGNPACKAGE}" == "TRUE" ]] ; then
+        if [[ -z "${MACOS_SIGN_IDENTITY}" ]]; then
+            echo "Evironment variable MACOS_SIGN_IDENTITY must be defined"
+            exit 1
+        fi
+        if [[ -z "${MACOS_PROVIDER_SHORTNAME}" ]]; then
+            echo "Evironment variable MACOS_PROVIDER_SHORTNAME must be defined"
+            exit 1
+        fi
+
+        codesign --timestamp --deep --force --verify --verbose --sign "${MACOS_SIGN_IDENTITY}" \
+            --options runtime _tmp/xcomp/*.command  --entitlements apps/deploy_base/entitlements.plist
+        codesign --timestamp --deep --force --verify --verbose --sign "${MACOS_SIGN_IDENTITY}" \
+            --options runtime _tmp/xcomp/bin/*     --entitlements apps/deploy_base/entitlements.plist
+        codesign --timestamp --deep --force --verify --verbose --sign "${MACOS_SIGN_IDENTITY}" \
+            --options runtime _tmp/xcomp/redistr/* --entitlements apps/deploy_base/entitlements.plist
+
+        pushd _tmp
+        pkgbuild --root "xcomp" \
+               --identifier "com.gugenstudio.xcomp" \
+               --version "${VERSION_ID}" \
+               --install-location "/Applications/xcomp" \
+               --sign "${MACOS_SIGN_IDENTITY}" \
+               "${PACKAGENAME}"
+
+        # NOTE: relying on "pass" command here
+        ${ALTOOL} -type osx --notarize-app --primary-bundle-id "${BUNDLEID}" \
+                --username "$(pass show common/remote/apple/dev_username)" \
+                --password "$(pass show common/remote/apple/dev_secret)" \
+                --asc-provider "${MACOS_PROVIDER_SHORTNAME}" \
+                --file "${PACKAGENAME}"
+        popd
+    else
+        pushd _tmp
+        pkgbuild --root "xcomp" \
+               --identifier "com.gugenstudio.xcomp" \
+               --version "${VERSION_ID}" \
+               --install-location "/Applications/xcomp" \
+               "${PACKAGENAME}"
+        popd
+    fi
 }
 
 create_package_win(){
@@ -189,7 +246,7 @@ done
 
 # Parse short options
 OPTIND=1
-while getopts "bcdfhilmn:pqrt:w:?" opt
+while getopts "bcdfhilmn:pqrst:w:?" opt
 do
 	case "$opt" in
 		"b") build; exit 0;;
@@ -202,6 +259,7 @@ do
 		"n") NPROC=${OPTARG};;
 		"p") CREATE_PACKAGE="TRUE"; UPDATEMAKEFILES="TRUE"; git pull;  git submodule update --init --recursive;;
 		"t") BUILDTYPE=${OPTARG}; UPDATEMAKEFILES="TRUE";;
+		"s") SIGNPACKAGE="TRUE";;
 		"w") CMAKEOPTS+="${OPTARG} "; UPDATEMAKEFILES="TRUE";;
         "?") displayusage; exit 0;;
     esac
