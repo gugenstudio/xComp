@@ -15,7 +15,7 @@ Note that because ordering of compositing is dictated by file name, images shoul
 There are 3 ways:
 
 - Drag and drop your first render into xComp, if the folder is full of images it can take few second to load.
-- Open xComp, under File/Configuration, in "scan folder" paste the image's path.
+- under the *Display* window there is the *config* button, press it to assign the image's folder location, or under File/Configuration, in "scan folder" paste the image's path.
 - If you are on Windows edit the `mt_compare_config.json` file inside C:\Users\***\AppData\Roaming\Xcomp\profile_default
 
 **How to save correctly your renders**
