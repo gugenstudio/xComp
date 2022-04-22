@@ -16,7 +16,7 @@ There are 3 ways:
 
 1- Drag and drop your first render into xComp, if the folder is full of images it can take few second to load.
 2- Open xComp, under File/Configuration, in "scan folder" paste the image's path.
-3- If you are on Windows edit the "mt_compare_config.json" file inside C:\Users\idomp\AppData\Roaming\Xcomp\profile_default
+3- If you are on Windows edit the "mt_compare_config.json" file inside C:\Users\***\AppData\Roaming\Xcomp\profile_default
 
 **How to save correctly your renders**
 
