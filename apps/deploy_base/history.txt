@@ -1,5 +1,9 @@
 # Version history for xComp
 
+2022/04/22
+1.1.7
+- Fixed compositing crash bug with images with very differen sizes
+
 2022/04/08
 1.1.6
 - macOS packaging with notarization
