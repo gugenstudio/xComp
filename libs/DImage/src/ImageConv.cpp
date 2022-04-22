@@ -385,40 +385,33 @@ DFORCEINLINE void blitStretchBase(
 {
     DASSERT( srcImg.mChans == desImg.mChans );
 
-    bool flipX = false;
-    bool flipY = false;
-    if ( dw < 0 )
+    c_auto flipX = dw < 0;
+    c_auto flipY = dh < 0;
+
+    dw = std::abs( dw );
+    dh = std::abs( dh );
+
+    c_auto d_x = (double)sw / dw;
+    c_auto d_y = (double)sh / dh;
+
+    c_auto dx_end = dx + dw;
+    c_auto dy_end = dy + dh;
+
+    for (int dyi=dy; dyi < dy_end; ++dyi)
     {
-        dw = -dw;
-        flipX = true;
-    }
-    if ( dh < 0 )
-    {
-        dh = -dh;
-        flipY = true;
-    }
+        c_auto syi0 =           sy + (int)floor((double)(dyi+0) * d_y);
+        c_auto syi1 = std::min( sy + (int)ceil( (double)(dyi+1) * d_y), sh-1 );
 
-    float d_x = (float)sw / dw;
-    float d_y = (float)sh / dh;
+        c_auto dyi2 = (flipY ? dh-1-dyi : dyi);
 
-    int dx_end = dx + dw;
-    int dy_end = dy + dh;
-
-    for (int dyi=dy; dyi != dy_end; ++dyi)
-    {
-        int syi0 = sy + (int)floor((float)(dyi+0) * d_y);
-        int syi1 = sy + (int)ceil( (float)(dyi+1) * d_y);
-
-        int dyi2 = (flipY ? dh-1-dyi : dyi);
-
-        for (int dxi=dx; dxi != dx_end; ++dxi)
+        for (int dxi=dx; dxi < dx_end; ++dxi)
         {
-            int dxi2 = (flipX ? dw-1-dxi : dxi);
+            c_auto dxi2 = (flipX ? dw-1-dxi : dxi);
 
-            int sxi0 = sx + (int)floor((float)(dxi+0) * d_x);
-            int sxi1 = sx + (int)ceil( (float)(dxi+1) * d_x);
+            c_auto sxi0 =           sx + (int)floor((double)(dxi+0) * d_x);
+            c_auto sxi1 = std::min( sx + (int)ceil( (double)(dxi+1) * d_x), sw-1 );
 
-            U8 *pDesPix = desImg.GetPixelPtr( dxi2, dyi2 );
+            auto *pDesPix = desImg.GetPixelPtr( dxi2, dyi2 );
             subSampleRectFn( sxi0, syi0, sxi1, syi1, pDesPix );
         }
     }
