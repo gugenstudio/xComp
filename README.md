@@ -21,7 +21,7 @@ There are 3 ways:
 **How to save correctly your renders**
 
 xComp use the saved image's numbering to define the correct order of the layers.
-So in my experience it's better to save the images with this forma _001, _002 etc..
+So in my experience it's better to save the images with this format _001, _002 etc..
 
 
 ## Building Requirements
