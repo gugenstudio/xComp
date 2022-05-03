@@ -1,6 +1,6 @@
 # xComp
 
-![xComp icon](https://github.com/gugenstudio/xComp/blob/master/apps/deploy_base/icons/xcomp_icon.png)
+![xComp icon](apps/deploy_base/icons/xcomp_icon.png)
 
 **xComp** is an image viewer capable of building composites of a stack of images with transparent regions.
 
