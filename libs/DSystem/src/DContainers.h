@@ -308,7 +308,7 @@ public:
 
     constexpr size_t capacity() const { return SIZE; }
 
-    void clear()    { return mValsN = 0; }
+    void clear()    { mValsN = 0; }
 
     bool empty() const { return size() == 0; }
 
@@ -344,7 +344,7 @@ public:
 
     constexpr size_t capacity() const { return SIZE; }
 
-    void clear()    { return mVals.clear(); }
+    void clear()    { mVals.clear(); }
 
     bool empty() const { return size() == 0; }
 

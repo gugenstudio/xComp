@@ -30,8 +30,11 @@ namespace fs = std::filesystem;
 #include <io.h>
 #elif defined(__APPLE__)
 # include <sys/syslimits.h>
-#else
+#elif defined(__linux__)
 # include <linux/limits.h>
+# include <sys/file.h>
+#elif defined(__EMSCRIPTEN__)
+# include <limits.h>
 # include <sys/file.h>
 #endif
 

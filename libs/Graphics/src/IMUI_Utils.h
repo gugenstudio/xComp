@@ -78,7 +78,7 @@ void IMUI_Text( const DStr &txt );
 void IMUI_TextRightAligned( const DStr &text );
 void IMUI_TextWrappedDisabled( const DStr &text );
 
-void IMUI_DrawHeader( const DStr &str, bool topPadding=true );
+void IMUI_DrawHeader( const DStr &str, bool topPadding=false );
 
 //==================================================================
 void IMUI_MakeTooltip( const DStr &str );

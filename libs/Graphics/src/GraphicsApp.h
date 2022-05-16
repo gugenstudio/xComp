@@ -80,6 +80,7 @@ struct GraphicsAppParams
         DFun<void ()>   wd_winDrawFn;
         DFun<void ()>   wd_winUpdateFn;
         DFun<void (const DStr&, bool*)> wd_winUpdateCustomFn;
+        bool            wd_isCustomMainPaint = false;
     };
     DVec<WindowDef> mWinDefs;
 
@@ -136,7 +137,6 @@ class GraphicsApp
     GLFWwindow  *mpWin {};
 
     DStr        mWinTitleBase;
-    DVec<DStr>  mWinStatusMsg;
 
     bool        mMainWin_IsMouseDown[2] {};
     Double2     mMainWin_MouseClickPos {0,0};
@@ -202,6 +202,7 @@ public:
 
     void ShowWindowGA( bool onOff );
     bool IsWindowVisibleGA() const;
+    bool IsUserInteracting() const;
 
     Double2 GetMousePos() const { return mMainWin_MousePos; }
 
@@ -216,8 +217,6 @@ public:
     bool GetIsUIWindowOpen( const DStr &winName ) const;
     bool GetIsUIWindowShowing( const DStr &winName ) const;
     bool GetIsUILightMode() const;
-
-    void SetStatusMessage( const DVec<DStr> &strs );
 
       auto &GetGraphics()       { return *moGfx; }
     c_auto &GetGraphics() const { return *moGfx; }

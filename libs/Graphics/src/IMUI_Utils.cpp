@@ -678,11 +678,17 @@ bool IMUI_BeginChildMouseOverlay()
 
     c_auto mousePos = ImGui::GetMousePos();
 
+    if ( mousePos.x < rc.Min.x || mousePos.y < rc.Min.y ||
+         mousePos.x > rc.Max.x || mousePos.y > rc.Max.y )
+    {
+        return false;
+    }
+
     c_auto alignX = mousePos.x < winMidX ? -1 : 1;
     c_auto alignY = mousePos.y < winMidY ? -1 : 1;
 
     const float DISTANCE_X = 10.0f;
-    const float DISTANCE_Y = 35.0f;
+    const float DISTANCE_Y = 100.0f;
 
     c_auto piv = ImVec2( (alignX + 1) * 0.5f,
                          (alignY + 1) * 0.5f );
@@ -1142,7 +1148,7 @@ bool IMUI_BeginTabItem(const char* label, bool* p_open, ImGuiTabItemFlags flags)
     auto ret = ImGui::BeginTabItem(label, p_open, flags);
 
     if ( ret )
-        ImGui::NewLine();
+        IMUI_ShortNewLine();
 
     return ret;
 }

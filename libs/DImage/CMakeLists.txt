@@ -10,7 +10,7 @@ source_group( Sources FILES ${SRCS} ${INCS} )
 
 add_definitions( -DGLEW_STATIC )
 
-add_library( ${PROJECT_NAME} STATIC ${SRCS} )
+add_library( ${PROJECT_NAME} STATIC ${SRCS} ${INCS} )
 set_property( TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE 1 )
 target_link_libraries(${PROJECT_NAME} DMath)
 

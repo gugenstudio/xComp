@@ -27,6 +27,13 @@ inline void GU_DrawCrossLine(
     g.DrawLine( c[0], y0, c[0], y1, col );
 }
 
+void GU_DrawCrossW(
+                Graphics &g,
+                const Double2 &c,
+                const Double4 &rc,
+                const double thick,
+                const ColorF &col );
+
 void GU_DrawCross(
                 Graphics &g,
                 const Double2 &c,
@@ -38,6 +45,14 @@ void GU_DrawCrossBG(
                 const Double2 &c,
                 const Double4 &rc,
                 const ColorF &col );
+
+void GU_DrawDirTriangle(
+                Graphics &g,
+                Double2 c,
+                const Double4 &rc,
+                const char dir,
+                const ColorF &col,
+                const double outline=0 );
 
 void GU_DrawCrossStipple(
                 Graphics &g,

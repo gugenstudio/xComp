@@ -60,6 +60,37 @@ void GU_DrawCrossBG(
 }
 
 //==================================================================
+void GU_DrawDirTriangle(
+                Graphics &g,
+                Double2 c,
+                const Double4 &rc,
+                const char dir,
+                const ColorF &col,
+                const double outline )
+{
+    c_auto o = g.GetCurPixSize() * outline;
+
+    auto x0 = rc[0]         - o[0];
+    auto x1 = rc[0] + rc[2] + o[0];
+    auto y0 = rc[1]         - o[1];
+    auto y1 = rc[1] + rc[3] + o[1];
+
+    auto dr = [&]( const Double2 &v0, const Double2 &v1, const Double2 &v2 )
+    {
+        g.DrawTri( {v0, v1, v2}, col );
+    };
+
+    switch ( dir )
+    {
+    default:
+    case 'l': y0-=o[1]; y1+=o[1]; dr( {c[0]-o[0], c[1]}, {x1,y1}, {x1,y0} ); break;
+    case 'r': y0-=o[1]; y1+=o[1]; dr( {c[0]+o[0], c[1]}, {x0,y1}, {x0,y0} ); break;
+    case 'u': x0-=o[0]; x1+=o[0]; dr( {c[0], c[1]+o[1]}, {x0,y0}, {x1,y0} ); break;
+    case 'd': x0-=o[0]; x1+=o[0]; dr( {c[0], c[1]-o[1]}, {x0,y1}, {x1,y1} ); break;
+    }
+}
+
+//==================================================================
 void GU_DrawHLineStipple(
                 Graphics &g,
                 const Double2 &pos,

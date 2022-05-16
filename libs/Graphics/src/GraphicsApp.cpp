@@ -157,22 +157,6 @@ void GraphicsApp::draw_masterImguiWin( GraphicsAppWindowState &ws )
         rend.mMainWinRC[3] = rc.Max[1] - rend.mMainWinRC[1];
     }
 
-    if NOT( mWinStatusMsg.empty() )
-    {
-        if ( IMUI_BeginChildMouseOverlay() )
-        {
-            for (size_t i=0; i < mWinStatusMsg.size(); ++i)
-            {
-                if ( i > 0 )
-                    ImGui::Separator();
-
-                IMUI_Text( mWinStatusMsg[i] );
-            }
-
-            ImGui::End();
-        }
-    }
-
     //if ( ImGui::IsWindowFocused() || ImGui::IsWindowHovered() )
     moIMGUIWinEvents->CheckEvents( rend.mMainWinRC, ImGui::IsWindowHovered() );
 
@@ -558,20 +542,7 @@ bool GraphicsApp::mainLoop()
     if NOT( isWinVisible )
         return true;
 
-    c_auto isLFState = [&]()
-    {
-        c_auto pos = GetSysMousePos();
-        c_auto siz = GetSysWinSize();
-
-        return
-            (mIsSWRendering ||
-                (pos[0] <  (double)0      ||
-                 pos[1] <  (double)0      ||
-                 pos[0] >= (double)siz[0] ||
-                 pos[1] >= (double)siz[1])
-            ) &&
-            (GetSteadyTimeS() - mLastEventTimeS) > 10.0;
-    }();
+    c_auto isLFState = !IsUserInteracting() && mIsSWRendering;
 
     c_auto curTimeUS = GetEpochTimeUS();
 
@@ -659,6 +630,10 @@ bool GraphicsApp::mainLoop()
                             def.wd_closeCross ? &ws.ws_isOpen : 0 ) )
                 {
                     ws.ws_isShowing = true;
+
+                    if ( def.wd_isCustomMainPaint )
+                        draw_masterImguiWin( ws );
+
                     def.wd_winDrawFn();
                 }
 
@@ -671,40 +646,6 @@ bool GraphicsApp::mainLoop()
                 def.wd_winUpdateCustomFn(
                         def.wd_name,
                         def.wd_closeCross ? &ws.ws_isOpen : 0 );
-            }
-            else
-            {
-                c_auto needs0Pad = false;//(def.wd_dir == "right");
-
-                auto padOff = [&]()
-                {
-                    if ( needs0Pad )
-                        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
-                };
-
-                auto padOn = [&]()
-                {
-                    if ( needs0Pad )
-                        ImGui::PopStyleVar();
-                };
-
-                padOff();
-
-                ws.ws_isShowing = false;
-                if ( ImGui::Begin( def.wd_name.c_str() ) )
-                {
-                    ws.ws_isShowing = true;
-                    padOn();
-
-                    if ( def.wd_dir == "right" )
-                        draw_masterImguiWin( ws );
-
-                    padOff();
-                }
-
-                ImGui::End();
-
-                padOn();
             }
         }
 
@@ -973,7 +914,16 @@ static bool checkIfRetinaDisplay()
 #ifdef ENABLE_IMGUI
 
 #ifdef __APPLE__
-    auto *pWin = glfwCreateWindow( 512, 512, "RetinaTestWindow", NULL, NULL );
+    static const char *pWinName = "RetinaTestWindow";
+
+    auto *pWin = glfwCreateWindow( 512, 512, pWinName, NULL, NULL );
+    if NOT( pWin )
+    {
+        LogOut( LOG_ERR, "Failed to create the window %s", pWinName );
+
+        glfwTerminate();
+        exit(EXIT_FAILURE);
+    }
 
     int ws[2] {};
     glfwGetWindowSize( pWin, &ws[0], &ws[1] );
@@ -1444,7 +1394,27 @@ void GraphicsApp::ShowWindowGA( bool onOff )
 bool GraphicsApp::IsWindowVisibleGA() const
 {
 #ifdef ENABLE_OPENGL
-    return (bool)glfwGetWindowAttrib( mpWin, GLFW_VISIBLE );
+    return mpWin && (bool)glfwGetWindowAttrib( mpWin, GLFW_VISIBLE );
+#else
+    return false;
+#endif
+}
+
+//==================================================================
+bool GraphicsApp::IsUserInteracting() const
+{
+#ifdef ENABLE_OPENGL
+    if NOT( IsWindowVisibleGA() )
+        return false;
+
+    c_auto pos = GetSysMousePos();
+    c_auto siz = GetSysWinSize();
+
+    return (pos[0] >= (double)0      &&
+            pos[1] >= (double)0      &&
+            pos[0] <  (double)siz[0] &&
+            pos[1] <  (double)siz[1])
+                || (GetSteadyTimeS() - mLastEventTimeS) <= 10.0;
 #else
     return false;
 #endif
@@ -1533,23 +1503,6 @@ bool GraphicsApp::GetIsUILightMode() const
     return IMUI_IsLightMode();
 #else
     return false;
-#endif
-}
-
-//========================================================================
-void GraphicsApp::SetStatusMessage( const DVec<DStr> &strs )
-{
-    mWinStatusMsg = strs;
-
-    if ( mPar.mIsNoUIMode )
-        return;
-
-#ifdef ENABLE_IMGUI
-#else
-# ifdef ENABLE_OPENGL
-    c_auto disp = mWinStatusMsg.empty() ? DStr() : mWinStatusMsg.first();
-    glfwSetWindowTitle( mpWin, (mWinTitleBase + " -- " + mWinStatusMsg).c_str() );
-# endif
 #endif
 }
 

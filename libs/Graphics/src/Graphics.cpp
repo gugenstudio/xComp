@@ -17,38 +17,6 @@
 //#define USE_HARD_MIPMAPS
 
 //==================================================================
-template <typename D, typename S>
-inline void setQuadStripAsTrigsP( D out_des[6], const S &v0, const S &v1, const S &v2, const S &v3 )
-{
-    out_des[0].pos = v0;
-    out_des[1].pos = v1;
-    out_des[2].pos = v2;
-    out_des[3].pos = v3;
-    out_des[4].pos = v2;
-    out_des[5].pos = v1;
-}
-template <typename D, typename S>
-inline void setQuadStripAsTrigsC( D out_des[6], const S &v0, const S &v1, const S &v2, const S &v3 )
-{
-    out_des[0].col = v0;
-    out_des[1].col = v1;
-    out_des[2].col = v2;
-    out_des[3].col = v3;
-    out_des[4].col = v2;
-    out_des[5].col = v1;
-}
-template <typename D, typename S>
-inline void setQuadStripAsTrigsT( D out_des[6], const S &v0, const S &v1, const S &v2, const S &v3 )
-{
-    out_des[0].tc0 = v0;
-    out_des[1].tc0 = v1;
-    out_des[2].tc0 = v2;
-    out_des[3].tc0 = v3;
-    out_des[4].tc0 = v2;
-    out_des[5].tc0 = v1;
-}
-
-//==================================================================
 Graphics::Graphics( int majorVer, bool isSWRendering )
 {
 #ifdef ENABLE_OPENGL
@@ -447,63 +415,6 @@ void Graphics::DrawRectTex(
     c_auto tc2 = Float2( txcBox[0], txcBox[3] );
     c_auto tc3 = Float2( txcBox[2], txcBox[3] );
     setQuadStripAsTrigsT( pVtx, tc0, tc1, tc2, tc3 );
-#endif
-}
-
-//==================================================================
-void Graphics::DrawQuad( const std::array<Double2,4> &vps, const ColorF &col )
-{
-#ifdef ENABLE_OPENGL
-    switchModeFlags( 0 );
-
-    auto *pVtx = Dgrow( mVtxPC, 6 );
-
-    setQuadStripAsTrigsP(
-            pVtx,
-            MakeXformedP( vps[0] ),
-            MakeXformedP( vps[1] ),
-            MakeXformedP( vps[2] ),
-            MakeXformedP( vps[3] ) );
-
-    c_auto colxf = MakeXformedC( col );
-    setQuadStripAsTrigsC( pVtx, colxf, colxf, colxf, colxf );
-#endif
-}
-
-//==================================================================
-void Graphics::DrawLine(
-        const Double2 &p1,
-        const Double2 &p2,
-        const ColorF &col )
-{
-#ifdef ENABLE_OPENGL
-    switchModeFlags( FLG_LINES );
-
-    auto *pVtx = Dgrow( mVtxPC, 2 );
-    pVtx[0].pos = MakeXformedP( p1 );
-    pVtx[1].pos = MakeXformedP( p2 );
-
-    pVtx[0].col =
-    pVtx[1].col = MakeXformedC( col );
-#endif
-}
-
-//==================================================================
-void Graphics::DrawLine(
-        const Double2 &p1,
-        const Double2 &p2,
-        const ColorF &col1,
-        const ColorF &col2 )
-{
-#ifdef ENABLE_OPENGL
-    switchModeFlags( FLG_LINES );
-
-    auto *pVtx = Dgrow( mVtxPC, 2 );
-    pVtx[0].pos = MakeXformedP( p1 );
-    pVtx[1].pos = MakeXformedP( p2 );
-
-    pVtx[0].col = MakeXformedC( col1 );
-    pVtx[1].col = MakeXformedC( col2 );
 #endif
 }
 

@@ -385,7 +385,7 @@ DVec<char *> VecStrTok_StrQuot(
 {
     DVec<char *> vec;
 
-    char *pContext;
+    char *pContext {};
 
     char *pTok = StrTok_StrQuot( pSrcStr, &pContext, nullptr, pSeps );
     if NOT( pTok )

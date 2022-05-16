@@ -6,7 +6,7 @@ file( GLOB INCS "src/*.h" )
 
 source_group( src FILES ${SRCS} ${INCS} )
 
-add_library( ${PROJECT_NAME} STATIC ${SRCS} )
+add_library( ${PROJECT_NAME} STATIC ${SRCS} ${INCS} )
 set_property( TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE 1 )
 
 if (MSVC OR APPLE)
