@@ -46,12 +46,12 @@ displayusage() {
     echo "| -h) --help)           print this help                                           |"
     echo "| -l) --deploy)         deploys the binaries remotely                             |"
     echo "| -m) --make)           performs make                                             |"
-	echo "| -n) --nproc)          sets the number of parallel processing (default nproc -1) |"
+    echo "| -n) --nproc)          sets the number of parallel processing (default nproc -1) |"
     echo "| -p) --package)        creates a package without dir removal                     |"
-    echo "| -t) --build-type)     specifies a different cmake build type (e.g. \"-t -Debug\") |"
+    echo "| -t) --build-type)     specifies a different cmake build type (e.g. \"-t Debug\")  |"
     echo "| -s) --sign)           signs and notarizes                     |"
     echo "| -w) --cmake-params)   specifies cmake options in quoted (e.g. \"-DVAR=value\")    |"
-	echo "| [no arguments]        automatically updates the build when necessary            |"
+    echo "| [no arguments]        automatically updates the build when necessary            |"
     echo " ================================================================================= "
 }
 
