@@ -1,6 +1,6 @@
 # xComp
 
-![xComp icon](apps/docs/xcomp_sshot_01.jpg)
+![xComp icon](docs/xcomp_sshot_01.jpg)
 
 **xComp** is an image viewer capable of building composites of a stack of images with transparent regions.
 
