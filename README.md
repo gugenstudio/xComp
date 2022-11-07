@@ -1,30 +1,15 @@
-# xComp
-
 ![xComp icon](docs/xcomp_sshot_01.jpg)
 
 **xComp** is an image viewer capable of building composites of a stack of images with transparent regions.
 
 This tool was built to visualize region updates of a render on top of previous renders, in real-time. Images found in a chosen folder to scan for, are quickly composited with alpha blending in a stack. OpenColorIO transformations are optionally added to the composite image, which can be saved out as a PNG.
 
-Note that because ordering of compositing is dictated by file name, images should be titled by a timestamp, or with a sequential number.
+## User Manual
 
-**xComp** is also useful to quickly view EXR images and their various layers.
-
-**How to setup xComp**
-
-There are 3 ways:
-
-- Drag and drop your first render into xComp, if the folder is full of images it can take few second to load.
-- under the *Display* window there is the *config* button, press it to assign the image's folder location, or under File/Configuration, in "scan folder" paste the image's path.
-- If you are on Windows edit the `mt_compare_config.json` file inside C:\Users\***\AppData\Roaming\Xcomp\profile_default
-
-**How to save correctly your renders**
-
-xComp use the saved image's numbering to define the correct order of the layers.
-So in my experience it's better to save the images with this format _001, _002 etc..
-
+The user documentation can be found at [docs/README.md](https://github.com/gugenstudio/xComp/blob/master/docs/README.md)
 
 ## Building Requirements
+
 ### General
 - git
 - CMake (>= 3.7)
