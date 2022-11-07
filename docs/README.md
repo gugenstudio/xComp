@@ -16,14 +16,14 @@ Note that because ordering of compositing is dictated by file name, images shoul
 
 ### How to setup xComp
 
-There are 3 ways:
+There are three possible ways:
 
-a. Drag and drop your first render into **xComp**. Notice that it may take a few seconds to load, if there are serveral images in the folder.
-a. Click on the *Config...* button in the *Display* panel, or select *File->Configuration* from the menu, then paste the path of the folder with your images into the **Scan Folder** edit box.
-a. If you are on Windows edit the `mt_compare_config.json` file inside `%APPDATA%\Xcomp\profile_default` (which translated to `C:\Users\<username>\AppData\Roaming\Xcomp\profile_default`)
+1. Drag and drop your first render into **xComp**. Notice that it may take a few seconds to load, if there are serveral images in the folder.
+1. Click on the *Config...* button in the *Display* panel, or select *File->Configuration* from the menu, then paste the path of the folder with your images into the ***Scan Folder*** edit box.
+1. If you are on Windows, manually edit `mt_compare_config.json` found inside `%APPDATA%\Xcomp\profile_default`.
 
-### How to save correctly your renders
+### Correctly naming the images from the renderer
 
-xComp use the saved image's numbering to define the correct order of the layers.
+**xComp** determines the order of the layers based on the numbering of the rendered images.
 For this reason, we suggest saving the renders with a numerical postfix like `_001`, `_002`, etc..
 
