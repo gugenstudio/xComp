@@ -64,7 +64,7 @@ update_makefiles(){
     elif [ "${MACHINE}" == "linux" ]; then
         cmake "${ROOTDIR}" -DCMAKE_BUILD_TYPE="${BUILDTYPE:-Release}" ${CMAKEOPTS:+$CMAKEOPTS}
     elif [ "${MACHINE}" == "win" ]; then
-        cmake -G "Visual Studio 16 2019" -A x64 "${ROOTDIR}" -DCMAKE_BUILD_TYPE="${BUILDTYPE:-Release}" ${CMAKEOPTS:+$CMAKEOPTS}
+        cmake -A x64 "${ROOTDIR}" -DCMAKE_BUILD_TYPE="${BUILDTYPE:-Release}" ${CMAKEOPTS:+$CMAKEOPTS}
     fi
     CMAKE_RET=$?
 	if [ $CMAKE_RET -ne 0 ] ; then exit ${CMAKE_RET}; fi
