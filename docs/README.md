@@ -14,13 +14,22 @@ Note that because ordering of compositing is dictated by file name, images shoul
 
 ## Quick Start
 
-### How to setup xComp
+### Loading images into xComp
 
-There are three possible ways:
+There are three possible ways to load an image or a folder of images into **xComp**.
 
-1. Drag and drop your first render into **xComp**. Notice that it may take a few seconds to load, if there are serveral images in the folder.
-1. Click on the *Config...* button in the *Display* panel, or select *File->Configuration* from the menu, then paste the path of the folder with your images into the ***Scan Folder*** edit box.
-1. If you are on Windows, manually edit `mt_compare_config.json` found inside `%APPDATA%\Xcomp\profile_default`.
+### 1. Drag & Drop
+
+Drag and drop your first render into **xComp**.
+Notice that it may take a few seconds to load, if there are serveral images in the folder.
+
+### 2. Set the path in the config panel
+
+Click on the *Config...* button in the *Display* panel, or select *File->Configuration* from the menu, then paste the path of the folder with your images into the ***Scan Folder*** edit box.
+
+### 3. Manually edit the config file
+
+If you are on Windows, manually edit `mt_compare_config.json` found inside `%APPDATA%\Xcomp\profile_default`.
 
 ### Correctly naming the images from the renderer
 
