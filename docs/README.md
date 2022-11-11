@@ -36,3 +36,9 @@ If you are on Windows, manually edit `mt_compare_config.json` found inside `%APP
 **xComp** determines the order of the layers based on the numbering of the rendered images.
 For this reason, we suggest saving the renders with a numerical postfix like `_001`, `_002`, etc..
 
+## Tips
+
+- EXR files can be very heavy, and they use a large amount of memory, be careful.
+- EXR files are usually color-managed in post-production. At the moment **xComp** supports OpenColorIO configurations that allows the user to plug-in custom OCIO files.
+- Avoid using images that are directly on the desktop. There's a _known issue_ that may make the application crash in some cases.
+
