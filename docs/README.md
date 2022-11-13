@@ -23,6 +23,8 @@ There are three possible ways to load an image or a folder of images into **xCom
 Drag and drop your first render into **xComp**.
 Notice that it may take a few seconds to load, if there are serveral images in the folder.
 
+![Drag & drop](drag_and_drop_sample.jpg){:width="50%"}
+
 ### 2. Set the path in the config panel
 
 Click on the *Config...* button in the *Display* panel, or select *File->Configuration* from the menu, then paste the path of the folder with your images into the ***Scan Folder*** edit box.
