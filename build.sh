@@ -30,7 +30,7 @@ if [ "${MACHINE}" != "win" ]; then
 	VERSION_ID="$(awk '$2 == "GTV_SUITE_VERSION" {print substr($3,2,length($3)-2)}' apps/src_common/GTVersions.h)"
 fi
 if [ "${MACHINE}" == "macos" ]; then
-    ALTOOL=${ALTOOL:-"/Applications/Xcode.app/Contents/Developer/usr/bin/altool"}
+    NOTARYTOOL=${NOTARYTOOL:-"/Applications/Xcode.app/Contents/Developer/usr/bin/notarytool"}
     STAPLER=${STAPLER:-"/Applications/Xcode.app/Contents/Developer/usr/bin/stapler"}
 fi
 
@@ -53,6 +53,28 @@ displayusage() {
     echo "| -w) --cmake-params)   specifies cmake options in quoted (e.g. \"-DVAR=value\")    |"
     echo "| [no arguments]        automatically updates the build when necessary            |"
     echo " ================================================================================= "
+}
+
+resolve_secret_from_env_or_pass() {
+    LOCAL_ENV_NAME=$1
+    PASS_NAME=$2
+    LOCAL_VALUE="${!LOCAL_ENV_NAME}"
+
+    if [[ -n "${LOCAL_VALUE}" ]]; then
+        printf '%s' "${LOCAL_VALUE}"
+        return 0
+    fi
+
+    if command -v pass >/dev/null 2>&1 && [[ -n "${PASS_NAME}" ]] && pass show "${PASS_NAME}" >/dev/null 2>&1; then
+        pass show "${PASS_NAME}"
+        return 0
+    fi
+
+    return 1
+}
+
+extract_team_id_from_identity() {
+    printf '%s\n' "$1" | sed -n 's/.*(\([A-Z0-9]\{10\}\)).*/\1/p'
 }
 
 update_makefiles(){
@@ -155,20 +177,31 @@ create_package_macos(){
     PACKAGENAME="xcomp_${VERSION_ID}-$(uname -m).pkg"
 
     if [[ "${SIGNPACKAGE}" == "TRUE" ]] ; then
-        if [[ -z "${MACOS_SIGN_IDENTITY}" ]]; then
-            echo "Evironment variable MACOS_SIGN_IDENTITY must be defined"
-            exit 1
+        APP_SIGN_IDENTITY="${MACOS_SIGN_IDENTITY_APP:-${MACOS_SIGN_IDENTITY:-}}"
+        INSTALLER_SIGN_IDENTITY="${MACOS_SIGN_IDENTITY_INSTALLER:-${MACOS_SIGN_IDENTITY:-}}"
+        NOTARY_APPLE_ID="$(resolve_secret_from_env_or_pass MACOS_NOTARY_APPLE_ID common/remote/apple/dev_username || true)"
+        NOTARY_APP_PASSWORD="$(resolve_secret_from_env_or_pass MACOS_NOTARY_APP_PASSWORD common/remote/apple/dev_secret || true)"
+        NOTARY_TEAM_ID="${MACOS_NOTARY_TEAM_ID:-${MACOS_TEAM_ID:-}}"
+
+        if [[ -z "${NOTARY_TEAM_ID}" ]] && [[ -n "${APP_SIGN_IDENTITY}" ]]; then
+            NOTARY_TEAM_ID="$(extract_team_id_from_identity "${APP_SIGN_IDENTITY}")"
         fi
-        if [[ -z "${MACOS_PROVIDER_SHORTNAME}" ]]; then
-            echo "Evironment variable MACOS_PROVIDER_SHORTNAME must be defined"
+
+        if [[ -z "${APP_SIGN_IDENTITY}" ]]; then
+            echo "Environment variable MACOS_SIGN_IDENTITY_APP or MACOS_SIGN_IDENTITY must be defined"
             exit 1
         fi
 
-        codesign --timestamp --deep --force --verify --verbose --sign "${MACOS_SIGN_IDENTITY}" \
+        if [[ -z "${INSTALLER_SIGN_IDENTITY}" ]]; then
+            echo "Environment variable MACOS_SIGN_IDENTITY_INSTALLER or MACOS_SIGN_IDENTITY must be defined"
+            exit 1
+        fi
+
+        codesign --timestamp --deep --force --verify --verbose --sign "${APP_SIGN_IDENTITY}" \
             --options runtime _tmp/xcomp/*.command  --entitlements apps/deploy_base/entitlements.plist
-        codesign --timestamp --deep --force --verify --verbose --sign "${MACOS_SIGN_IDENTITY}" \
+        codesign --timestamp --deep --force --verify --verbose --sign "${APP_SIGN_IDENTITY}" \
             --options runtime _tmp/xcomp/bin/*     --entitlements apps/deploy_base/entitlements.plist
-        codesign --timestamp --deep --force --verify --verbose --sign "${MACOS_SIGN_IDENTITY}" \
+        codesign --timestamp --deep --force --verify --verbose --sign "${APP_SIGN_IDENTITY}" \
             --options runtime _tmp/xcomp/redistr/* --entitlements apps/deploy_base/entitlements.plist
 
         pushd _tmp
@@ -176,15 +209,42 @@ create_package_macos(){
                --identifier "com.gugenstudio.xcomp" \
                --version "${VERSION_ID}" \
                --install-location "/Applications/xcomp" \
-               --sign "${MACOS_SIGN_IDENTITY}" \
+               --sign "${INSTALLER_SIGN_IDENTITY}" \
                "${PACKAGENAME}"
 
-        # NOTE: relying on "pass" command here
-        ${ALTOOL} -type osx --notarize-app --primary-bundle-id "${BUNDLEID}" \
-                --username "$(pass show common/remote/apple/dev_username)" \
-                --password "$(pass show common/remote/apple/dev_secret)" \
-                --asc-provider "${MACOS_PROVIDER_SHORTNAME}" \
-                --file "${PACKAGENAME}"
+        if [[ -n "${MACOS_NOTARY_KEYCHAIN_PROFILE}" ]]; then
+            if [[ -n "${NOTARY_TEAM_ID}" ]]; then
+                ${NOTARYTOOL} submit "${PACKAGENAME}" \
+                    --keychain-profile "${MACOS_NOTARY_KEYCHAIN_PROFILE}" \
+                    --team-id "${NOTARY_TEAM_ID}" \
+                    --wait
+            else
+                ${NOTARYTOOL} submit "${PACKAGENAME}" \
+                    --keychain-profile "${MACOS_NOTARY_KEYCHAIN_PROFILE}" \
+                    --wait
+            fi
+        else
+            if [[ -z "${NOTARY_APPLE_ID}" ]]; then
+                echo "Environment variable MACOS_NOTARY_APPLE_ID must be defined (or available via pass)"
+                exit 1
+            fi
+            if [[ -z "${NOTARY_APP_PASSWORD}" ]]; then
+                echo "Environment variable MACOS_NOTARY_APP_PASSWORD must be defined (or available via pass)"
+                exit 1
+            fi
+            if [[ -z "${NOTARY_TEAM_ID}" ]]; then
+                echo "Environment variable MACOS_NOTARY_TEAM_ID must be defined"
+                exit 1
+            fi
+
+            ${NOTARYTOOL} submit "${PACKAGENAME}" \
+                --apple-id "${NOTARY_APPLE_ID}" \
+                --password "${NOTARY_APP_PASSWORD}" \
+                --team-id "${NOTARY_TEAM_ID}" \
+                --wait
+        fi
+
+        ${STAPLER} staple "${PACKAGENAME}"
         popd
     else
         pushd _tmp
@@ -257,7 +317,7 @@ do
 		"m") emake; exit 0;;
 		"l") DEPLOY_PACKAGE="TRUE";;
 		"n") NPROC=${OPTARG};;
-		"p") CREATE_PACKAGE="TRUE"; UPDATEMAKEFILES="TRUE"; git pull;  git submodule update --init --recursive;;
+		"p") CREATE_PACKAGE="TRUE"; UPDATEMAKEFILES="TRUE"; git submodule update --init --recursive;;
 		"t") BUILDTYPE=${OPTARG}; UPDATEMAKEFILES="TRUE";;
 		"s") SIGNPACKAGE="TRUE";;
 		"w") CMAKEOPTS+="${OPTARG} "; UPDATEMAKEFILES="TRUE";;
@@ -271,7 +331,17 @@ if [[ -z "${NPROC}" ]]; then
 	if [ "${MACHINE}" == "win" ]; then
 		(( NPROC = 3 ))
 	else
-		(( NPROC = $(nproc) - 1 ))
+        if command -v nproc >/dev/null 2>&1; then
+		    (( NPROC = $(nproc) - 1 ))
+        elif [ "${MACHINE}" == "macos" ]; then
+            (( NPROC = $(sysctl -n hw.logicalcpu) - 1 ))
+        else
+            (( NPROC = 1 ))
+        fi
+
+        if (( NPROC < 1 )); then
+            (( NPROC = 1 ))
+        fi
 	fi
 fi
 
@@ -309,4 +379,3 @@ if [[ "${DEPLOY_PACKAGE}" == "TRUE" ]] ; then
         echo "Missing deploy for Linux"
 	fi
 fi
-
