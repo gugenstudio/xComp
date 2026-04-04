@@ -246,7 +246,7 @@ bool IMUI_TextURL(
                 ImGuiCol_Text,
                 ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered]);
 
-    ImGui::Text( name );
+    ImGui::Text( "%s", name );
     ImGui::PopStyleColor();
 
     if ( ImGui::IsItemHovered() )
@@ -1153,5 +1153,4 @@ bool IMUI_BeginTabItem(const char* label, bool* p_open, ImGuiTabItemFlags flags)
     return ret;
 }
 #endif
-
 

@@ -3,6 +3,7 @@
 ### General
 - git
 - CMake (>= 3.7)
+- On macOS, Homebrew packages for `zlib`, `yaml-cpp`, and `imath` are recommended
 
 ### Windows
 - Git Bash
@@ -26,6 +27,9 @@ pushd externals/local/ocio
 popd
 ```
 
+On Apple Silicon Macs, `build_ocio.sh` will use Homebrew dependency prefixes
+when they are available, which avoids several old Intel-era path assumptions.
+
 ### Generate the build files
 ```
 ./build.sh -d
@@ -47,4 +51,3 @@ cd apps/debug_dir
 ## Libraries upgrade
 
 Launch: `scripts/manage_dependency_libaries.sh --update`
-

@@ -108,7 +108,6 @@ void ImageSystemOCIO::UpdateConfigOCIO( const DStr &cfgFName )
         if ( FU_FileExists( mUseCfgFName ) )
         {
             msUseCfg = OCIO::Config::CreateFromFile( mUseCfgFName.c_str() );
-            mUseCfgFName = mUseCfgFName;
         }
         else
         {
@@ -172,4 +171,3 @@ const char *ImageSystemOCIO::GetDefView( const DStr &disp ) const
 }
 
 #endif
-

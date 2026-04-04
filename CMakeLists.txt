@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.10)
 
 #==================================================================
 # add new build types
@@ -198,15 +198,25 @@ add_subdirectory( externals/local/zlib )
 add_subdirectory( externals/local/bzip2 )
 add_subdirectory( externals/local/libpng )
 if (ENABLE_OPENEXR)
-    SET(ZLIB_INCLUDE_DIR     "${CMAKE_CURRENT_SOURCE_DIR}/externals/zlib")
+    # OpenEXR's config step re-discovers zlib via find_dependency(), so these
+    # values need to live in the cache rather than only in the current scope.
+    SET(ZLIB_INCLUDE_DIR
+        "${CMAKE_CURRENT_SOURCE_DIR}/externals/zlib"
+        CACHE PATH "xComp zlib include directory" FORCE)
 
     SET(ZLIB_LIBRARY_DIR     "${CMAKE_BINARY_DIR}/externals/local/zlib")
 
     if (MSVC)
-        SET(ZLIB_LIBRARY_RELEASE "${ZLIB_LIBRARY_DIR}/Release/zlib.lib")
-        SET(ZLIB_LIBRARY_DEBUG   "${ZLIB_LIBRARY_DIR}/Debug/zlib_d.lib")
+        SET(ZLIB_LIBRARY_RELEASE
+            "${ZLIB_LIBRARY_DIR}/Release/zlib.lib"
+            CACHE FILEPATH "xComp zlib release library" FORCE)
+        SET(ZLIB_LIBRARY_DEBUG
+            "${ZLIB_LIBRARY_DIR}/Debug/zlib_d.lib"
+            CACHE FILEPATH "xComp zlib debug library" FORCE)
     else()
-        SET(ZLIB_LIBRARY         "${ZLIB_LIBRARY_DIR}/libzlib.a")
+        SET(ZLIB_LIBRARY
+            "${ZLIB_LIBRARY_DIR}/libzlib.a"
+            CACHE FILEPATH "xComp zlib library" FORCE)
     endif()
 
     add_subdirectory( externals/Imath )
@@ -282,4 +292,3 @@ if (ENABLE_IMGUITEXINSPECT)
     add_definitions( -DENABLE_IMGUITEXINSPECT )
 endif()
 add_subdirectory( apps )
-

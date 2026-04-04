@@ -14,6 +14,10 @@ add_library( ${PROJECT_NAME} STATIC ${SRCS} ${INCS} )
 set_property( TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE 1 )
 target_link_libraries(${PROJECT_NAME} DMath)
 
+if (ENABLE_OPENEXR)
+    target_link_libraries(${PROJECT_NAME} OpenEXR)
+endif()
+
 if(BUILD_UNITY)
     set_property( TARGET ${PROJECT_NAME} PROPERTY UNITY_BUILD ON )
 endif(BUILD_UNITY)

@@ -27,11 +27,9 @@ target_compile_definitions( ${XCOMPGUIBIN} PRIVATE ENABLE_IMGUI )
 
 if (ENABLE_OPENEXR)
     target_link_libraries( ${XCOMPGUIBIN} PUBLIC
-        DSystem DMath DImage DNetwork glew Graphics imgui implot
-        commongui ${CPPFS_LIBRARIES} ${OPENSSL_LIBRARIES} OpenEXR )
+        commongui ${CPPFS_LIBRARIES} ${OPENSSL_LIBRARIES} )
 else()
     target_link_libraries( ${XCOMPGUIBIN} PUBLIC
-        DSystem DMath DImage DNetwork glew Graphics imgui implot
         commongui ${CPPFS_LIBRARIES} ${OPENSSL_LIBRARIES} )
 endif()
 
@@ -43,6 +41,7 @@ if (MSVC)
     target_link_libraries(${XCOMPGUIBIN} PRIVATE)
 elseif(APPLE)
     target_link_libraries(${XCOMPGUIBIN} PRIVATE -lpthread )
+    target_link_options(${XCOMPGUIBIN} PRIVATE -Wl,-no_warn_duplicate_libraries)
 else()
     target_link_libraries(${XCOMPGUIBIN} PRIVATE -lpthread )
 endif()
