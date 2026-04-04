@@ -42,6 +42,12 @@ Generated Makefile or the VS solution, are found in `_build`.
 ```
 Binaries are generated in `_bin`.
 
+### Windows build on GitHub Actions
+The workflow at [windows-build.yml](/Users/davide/dev/repos/xComp/.github/workflows/windows-build.yml)
+builds the project on a GitHub-hosted Windows runner, installs NSIS, runs the
+existing `./build.sh -p` packaging path, and uploads the generated installer as
+a workflow artifact.
+
 ### Create a signed and notarized macOS package
 ```
 ./build.sh -p -s
