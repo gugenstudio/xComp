@@ -131,6 +131,7 @@ deploy_package_github_release() {
     else
         gh release create "${RELEASE_TAG}" "${PACKAGE_TO_UPLOAD}" \
             --repo "${RELEASE_REPO}" \
+            --target HEAD \
             --title "${RELEASE_TITLE}" \
             --generate-notes
     fi
