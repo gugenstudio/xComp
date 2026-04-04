@@ -5,6 +5,7 @@ case "${unameOut}" in
     Linux*)     MACHINE=linux;;
     Darwin*)    MACHINE=macos;;
     CYGWIN*)    MACHINE=win;;
+    MSYS*)      MACHINE=win;;
     MINGW*)     MACHINE=win;;
     *)          echo "unsupported architecture"; exit 1
 esac
@@ -131,7 +132,6 @@ deploy_package_github_release() {
     else
         gh release create "${RELEASE_TAG}" "${PACKAGE_TO_UPLOAD}" \
             --repo "${RELEASE_REPO}" \
-            --target HEAD \
             --title "${RELEASE_TITLE}" \
             --generate-notes
     fi
