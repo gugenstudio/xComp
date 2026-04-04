@@ -5,6 +5,7 @@ case "${unameOut}" in
     Linux*)     MACHINE=linux;;
     Darwin*)    MACHINE=macos;;
     CYGWIN*)    MACHINE=win;;
+    MSYS*)      MACHINE=win;;
     MINGW*)     MACHINE=win;;
     *)          echo "unsupported architecture"; exit 1
 esac
