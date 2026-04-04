@@ -1,5 +1,10 @@
 # Version history for xComp
 
+2026/04/05
+1.1.9
+- Added support for passing a directory as an argument
+- Improved cross-platform build/release flow
+
 2026/04/04
 1.1.8
 - Refreshed modern macOS build and packaging support
