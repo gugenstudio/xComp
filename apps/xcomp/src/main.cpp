@@ -41,7 +41,7 @@ static void printUsage( const char *pArgv0, const char *pMsg, ... )
 R"RAW(
 
 Usage:
- %s <config_file.json> [options]
+ %s [<config_file.json>|<scan_dir>] [options]
 
 Options:
  --help                 : This help
@@ -53,7 +53,9 @@ Options:
 
 Examples:
  %s xcomp_config.json
+ %s /path/to/renders
 )RAW",
+    pArgv0,
     pArgv0,
     pArgv0 );
 }
@@ -78,12 +80,20 @@ static XCompParams makeBLParams(int argc, const char* argv[])
     //
     int i = 1;
     DStr procListFNameJSN;
+    DStr startupScanDir;
     if ( argc > 1 && argv[1][0] != '-' && argv[1][1] != '-' )
     {
         if ( StrEndsWithI( argv[1], ".json" ) )
+        {
             procListFNameJSN = argv[1];
-
-        i += 1;
+            i += 1;
+        }
+        else
+        if ( FU_DirectoryExists( argv[1] ) )
+        {
+            startupScanDir = argv[1];
+            i += 1;
+        }
     }
 
     c_auto profileDir = BCUT_MakeAppUserProfileDir( argc, argv );
@@ -140,6 +150,7 @@ static XCompParams makeBLParams(int argc, const char* argv[])
     }
 #endif
     par.mConfigPathFName = procListFNameJSN;
+    par.mStartupScanDir = startupScanDir;
     par.mAppUserProfDir = BCUT_MakeAppUserProfileDir( argc, argv );
     par.mAppUserProfDisplay = BCUT_MakeAppUserProfileDisplay( argc, argv );
 
@@ -215,4 +226,3 @@ int main( int argc, const char* argv[] )
 
 	return 0;
 }
-

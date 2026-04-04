@@ -117,6 +117,14 @@ XComp::XComp( const XCompParams &par )
             mPar.mConfigPathFName.c_str() );
     }
 
+    if ( !mPar.mStartupScanDir.empty() )
+    {
+        moXCompUI->moConfigWin->UpdateConfig( [&]( auto &io_conf )
+        {
+            io_conf.cfg_scanDir = mPar.mStartupScanDir;
+        });
+    }
+
     //
     moIMSys = std::make_unique<ImageSystem>( GetConfigXC().cfg_imsConfig );
 }
@@ -445,4 +453,3 @@ void XComp::EnterMainLoop( const DFun<void()> &onCreationFn )
     //
     // get out
 }
-

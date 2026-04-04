@@ -31,6 +31,7 @@ struct XCompParams
     bool    mIsNoUIMode = false;
     bool    mIsNoFrameSkipUI = false;
     DStr    mConfigPathFName;
+    DStr    mStartupScanDir;
 };
 
 class ImageSystem;
@@ -84,4 +85,3 @@ private:
 };
 
 #endif
-
