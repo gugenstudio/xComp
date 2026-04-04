@@ -77,6 +77,65 @@ extract_team_id_from_identity() {
     printf '%s\n' "$1" | sed -n 's/.*(\([A-Z0-9]\{10\}\)).*/\1/p'
 }
 
+infer_github_repo_from_remote() {
+    GIT_REMOTE_URL="$(git remote get-url origin 2>/dev/null || true)"
+
+    if [[ "${GIT_REMOTE_URL}" =~ ^git@github\.com:(.+)/(.+)\.git$ ]]; then
+        printf '%s/%s\n' "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
+        return 0
+    fi
+
+    if [[ "${GIT_REMOTE_URL}" =~ ^https://github\.com/(.+)/(.+)\.git$ ]]; then
+        printf '%s/%s\n' "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
+        return 0
+    fi
+
+    return 1
+}
+
+deploy_package_github_release() {
+    if ! command -v gh >/dev/null 2>&1; then
+        echo "'gh' command is required to upload a release package"
+        exit 1
+    fi
+
+    RELEASE_REPO="${GITHUB_RELEASE_REPO:-$(infer_github_repo_from_remote || true)}"
+    RELEASE_TAG="${GITHUB_RELEASE_TAG:-$(git describe --tags --exact-match HEAD 2>/dev/null || true)}"
+    RELEASE_TITLE="${GITHUB_RELEASE_TITLE:-${RELEASE_TAG}}"
+
+    if [[ -z "${RELEASE_REPO}" ]]; then
+        echo "Could not determine GitHub repository. Set GITHUB_RELEASE_REPO=owner/name"
+        exit 1
+    fi
+
+    if [[ -z "${RELEASE_TAG}" ]]; then
+        echo "Could not determine release tag. Set GITHUB_RELEASE_TAG=tagname or run from a tagged commit"
+        exit 1
+    fi
+
+    if [[ "${MACHINE}" == "macos" ]]; then
+        PACKAGE_TO_UPLOAD="_tmp/xcomp_${VERSION_ID}-$(uname -m).pkg"
+    elif [[ "${MACHINE}" == "linux" ]]; then
+        PACKAGE_TO_UPLOAD="_tmp/xcomp_${VERSION_ID}-$(uname -m).tar.gz"
+    else
+        PACKAGE_TO_UPLOAD="$(find _tmp -maxdepth 1 -name 'xcomp*_Setup.exe' -print -quit)"
+    fi
+
+    if [[ ! -f "${PACKAGE_TO_UPLOAD}" ]]; then
+        echo "Package not found: ${PACKAGE_TO_UPLOAD}"
+        exit 1
+    fi
+
+    if gh release view "${RELEASE_TAG}" --repo "${RELEASE_REPO}" >/dev/null 2>&1; then
+        gh release upload "${RELEASE_TAG}" "${PACKAGE_TO_UPLOAD}" --repo "${RELEASE_REPO}" --clobber
+    else
+        gh release create "${RELEASE_TAG}" "${PACKAGE_TO_UPLOAD}" \
+            --repo "${RELEASE_REPO}" \
+            --title "${RELEASE_TITLE}" \
+            --generate-notes
+    fi
+}
+
 update_makefiles(){
     mkdir -p "${BUILDDIR}"
     cd "${BUILDDIR}" || exit
@@ -368,14 +427,10 @@ fi
 
 if [[ "${DEPLOY_PACKAGE}" == "TRUE" ]] ; then
 	if [ "${MACHINE}" == "macos" ]; then
-		#scp -P PORT _tmp/xcomp_*.command SERVER:PATH
-		#scp -P PORT _tmp/xcomp_*.dmg SERVER:PATH
-        echo "Missing deploy for macOS"
+        deploy_package_github_release
 	elif [ "${MACHINE}" == "win" ]; then
-		#scp -P PORT _tmp/xcomp_*_Setup.exe SERVER:PATH
-        echo "Missing deploy for Windows"
+        deploy_package_github_release
 	else
-		#scp -P PORT _tmp/xcomp_*tar.gz SERVER:PATH
-        echo "Missing deploy for Linux"
+        deploy_package_github_release
 	fi
 fi

@@ -59,20 +59,22 @@ If the `pass` command is configured locally, `MACOS_NOTARY_APPLE_ID` and
 `MACOS_NOTARY_APP_PASSWORD` can also be resolved from the same Apple entries
 used by sibling projects.
 
-### GitHub Releases automation for macOS Apple Silicon
-The workflow at [`.github/workflows/release-macos.yml`](.github/workflows/release-macos.yml)
-builds an Apple Silicon package on tag push, notarizes it, staples it, and
-uploads it to the matching GitHub Release.
+### Upload a local package to GitHub Releases
+After building the package locally, you can upload it with:
+```
+./build.sh -p -s -l
+```
 
-Required GitHub Actions secrets:
-- `MACOS_CERTIFICATES_P12_BASE64`
-- `MACOS_CERTIFICATES_P12_PASSWORD`
-- `MACOS_KEYCHAIN_PASSWORD`
-- `MACOS_SIGN_IDENTITY_APP`
-- `MACOS_SIGN_IDENTITY_INSTALLER`
-- `MACOS_NOTARY_APPLE_ID`
-- `MACOS_NOTARY_APP_PASSWORD`
-- `MACOS_NOTARY_TEAM_ID`
+This uses the local `gh` CLI session and will:
+- infer the GitHub repo from `origin` when possible
+- infer the release tag from the current commit when `HEAD` is exactly on a tag
+- create the release if it does not exist yet
+- upload or replace the package asset if it already exists
+
+Optional environment variables:
+- `GITHUB_RELEASE_REPO` (`owner/name`)
+- `GITHUB_RELEASE_TAG`
+- `GITHUB_RELEASE_TITLE`
 
 ### Do a test-run
 ```
