@@ -1,5 +1,11 @@
 # Version history for xComp
 
+2026/04/04
+1.1.8
+- Refreshed modern macOS build and packaging support
+- Added Apple Silicon macOS package release support
+- Fixed OpenColorIO packaging/bootstrap issues on current macOS toolchains
+
 2022/04/22
 1.1.7
 - Fixed compositing crash bug with images with very differen sizes
@@ -142,4 +148,3 @@
 2022/01/19
 0.1.0
 - Initial functionalities for xComp
-
