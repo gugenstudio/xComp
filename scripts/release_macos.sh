@@ -12,6 +12,13 @@ usage() {
     echo "Example: scripts/release_macos.sh v1.1.8"
 }
 
+find_identity() {
+    IDENTITY_KIND="$1"
+    security find-identity -v 2>/dev/null | \
+        sed -n "s/.*\"\\(${IDENTITY_KIND}: [^\"]*\\)\"/\\1/p" | \
+        head -n 1
+}
+
 if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
     usage
     exit 0
@@ -26,6 +33,28 @@ if [[ -z "${RELEASE_TAG}" ]]; then
     exit 1
 fi
 
+if [[ -z "${MACOS_SIGN_IDENTITY_APP:-}" ]]; then
+    MACOS_SIGN_IDENTITY_APP="$(find_identity "Developer ID Application")"
+fi
+
+if [[ -z "${MACOS_SIGN_IDENTITY_INSTALLER:-}" ]]; then
+    MACOS_SIGN_IDENTITY_INSTALLER="$(find_identity "Developer ID Installer")"
+fi
+
+if [[ -z "${MACOS_SIGN_IDENTITY_APP:-}" ]]; then
+    echo "Could not auto-detect a Developer ID Application certificate."
+    echo "Set MACOS_SIGN_IDENTITY_APP explicitly and try again."
+    exit 1
+fi
+
+if [[ -z "${MACOS_SIGN_IDENTITY_INSTALLER:-}" ]]; then
+    echo "Could not auto-detect a Developer ID Installer certificate."
+    echo "Set MACOS_SIGN_IDENTITY_INSTALLER explicitly and try again."
+    exit 1
+fi
+
+export MACOS_SIGN_IDENTITY_APP
+export MACOS_SIGN_IDENTITY_INSTALLER
 export GITHUB_RELEASE_TAG="${RELEASE_TAG}"
 export GITHUB_RELEASE_TITLE="xComp ${VERSION_ID}"
 
