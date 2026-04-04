@@ -76,6 +76,8 @@ Optional environment variables:
 - `GITHUB_RELEASE_TAG`
 - `GITHUB_RELEASE_TITLE`
 
+For the full local release checklist, see [RELEASING.md](/Users/davide/dev/repos/xComp/RELEASING.md).
+
 ### Do a test-run
 ```
 cd apps/debug_dir
