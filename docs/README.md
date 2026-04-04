@@ -20,22 +20,32 @@ Note that because ordering of compositing is dictated by file name, images shoul
 
 ### Loading images into xComp
 
-There are three possible ways to load an image or a folder of images into **xComp**.
+There are four possible ways to load an image or a folder of images into **xComp**.
 
-### 1. Drag & Drop
+### 1. Command line
+
+Launch **xComp** with either a config file or a folder path as the first argument.
+If the first argument is an existing directory, it becomes the startup scan folder.
+
+```bash
+xcomp xcomp_config.json
+xcomp /path/to/renders
+```
+
+### 2. Drag & Drop
 
 Drag and drop your first render into **xComp**.
 Notice that it may take a few seconds to load, if there are serveral images in the folder.
 
 ![Drag & drop](drag_and_drop_sample.jpg){:width="85%"}
 
-### 2. Set the path in the config panel
+### 3. Set the path in the config panel
 
 Click on the *Config...* button in the *Display* panel, or select *File->Configuration* from the menu, then paste the path of the folder with your images into the ***Scan Folder*** edit box.
 
-### 3. Manually edit the config file
+### 4. Manually edit the config file
 
-If you are on Windows, manually edit `mt_compare_config.json` found inside `%APPDATA%\Xcomp\profile_default`.
+If you are on Windows, manually edit `xcomp_config.json` found inside `%APPDATA%\Xcomp\profile_default`.
 
 ### Correctly naming the images from the renderer
 
@@ -47,4 +57,3 @@ For this reason, we suggest saving the renders with a numerical postfix like `_0
 - EXR files can be very heavy, and they use a large amount of memory, be careful.
 - EXR files are usually color-managed in post-production. At the moment **xComp** supports OpenColorIO configurations that allows the user to plug-in custom OCIO files.
 - Avoid using images that are directly on the desktop. There's a _known issue_ that may make the application crash in some cases.
-

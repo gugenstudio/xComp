@@ -4,6 +4,13 @@
 
 This tool was built to visualize region updates of a render on top of previous renders, in real-time. Images found in a chosen folder to scan for, are quickly composited with alpha blending in a stack. OpenColorIO transformations are optionally added to the composite image, which can be saved out as a PNG.
 
+You can launch **xComp** with either a config file or a render folder as the first argument:
+
+```bash
+xcomp xcomp_config.json
+xcomp /path/to/renders
+```
+
 ## Introduction Video
 
 [![xComp, introduction video](http://img.youtube.com/vi/3xMG6HqRzgA/0.jpg)](http://www.youtube.com/watch?v=3xMG6HqRzgA "xComp -introduction-")
