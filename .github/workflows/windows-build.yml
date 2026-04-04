@@ -4,8 +4,13 @@ on:
   push:
     branches:
       - master
+    tags:
+      - v*
   pull_request:
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build-windows:
@@ -54,3 +59,9 @@ jobs:
           name: xcomp-windows-binary
           path: _bin/Release/xcomp*
           if-no-files-found: warn
+
+      - name: Attach Windows installer to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: _tmp/*_Setup.exe
