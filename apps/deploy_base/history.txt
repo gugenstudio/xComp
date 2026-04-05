@@ -1,6 +1,11 @@
 # Version history for xComp
 
 2026/04/05
+1.1.11
+- Rebuilt packaged icons from the 256x256 logo source
+- Fixed Windows installer/application icon bundle sizing
+
+2026/04/05
 1.1.10
 - Updated app logo and packaged icon assets
 - Refreshed README branding layout
