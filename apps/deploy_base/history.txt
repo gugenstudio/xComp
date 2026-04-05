@@ -1,6 +1,11 @@
 # Version history for xComp
 
 2026/04/05
+1.1.10
+- Updated app logo and packaged icon assets
+- Refreshed README branding layout
+
+2026/04/05
 1.1.9
 - Added support for passing a directory as an argument
 - Improved cross-platform build/release flow
