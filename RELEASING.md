@@ -3,6 +3,9 @@
 This project uses a local macOS release flow so Apple signing and notarization
 credentials do not need to be stored in GitHub.
 
+Linux release assets are produced separately by GitHub Actions on
+`ubuntu-22.04`, which is the current Linux CI and release baseline.
+
 ## One-page checklist
 
 Use this exact order for a normal macOS release:
@@ -28,6 +31,11 @@ Expected output artifact:
 
 - `_tmp/xcomp_X.Y.Z-arm64.pkg`
 
+Tagged releases can also receive:
+
+- `xcomp_X.Y.Z-x86_64.tar.gz` from [linux-build.yml](/Users/davide/dev/repos/xComp/.github/workflows/linux-build.yml)
+- `xComp_X.Y.Z_Setup.exe` from [windows-build.yml](/Users/davide/dev/repos/xComp/.github/workflows/windows-build.yml)
+
 ## Requirements
 
 - `gh` authenticated for the target GitHub repo
@@ -35,6 +43,19 @@ Expected output artifact:
 - notarization credentials available either:
   - via environment variables, or
   - via the local `pass` entries already used by sibling projects
+
+## Automated Linux and Windows release assets
+
+When you push a `v*` tag to GitHub:
+
+1. [linux-build.yml](/Users/davide/dev/repos/xComp/.github/workflows/linux-build.yml)
+   builds on `ubuntu-22.04`, packages `xcomp_<version>-x86_64.tar.gz`, and
+   attaches it to the GitHub Release.
+2. [windows-build.yml](/Users/davide/dev/repos/xComp/.github/workflows/windows-build.yml)
+   builds on `windows-2022`, packages `xComp_<version>_Setup.exe`, and
+   attaches it to the GitHub Release.
+
+That means the remaining manual release step is the notarized macOS package.
 
 ## Typical release flow
 
